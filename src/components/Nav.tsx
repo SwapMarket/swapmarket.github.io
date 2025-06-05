@@ -21,7 +21,7 @@ const Nav = (props: { network: string; isPro?: boolean }) => {
             <Warnings />
             <div class="nav-inner">
                 <A id="logo" href="/" onClick={() => setHideHero(false)}>
-                    <img src={logo} alt="boltz.exchange logo" />
+                    <img src={logo} alt="SwapMarket logo" />
                 </A>
                 <Show when={props.network !== "mainnet"}>
                     <div id="network" class="btn btn-small">
@@ -29,7 +29,7 @@ const Nav = (props: { network: string; isPro?: boolean }) => {
                     </div>
                 </Show>
                 <Show when={props.isPro}>
-                    <div id="network" class="btn btn-small">
+                    <div id="network" boltz-theme="pro" class="btn btn-small">
                         {t("pro")}
                     </div>
                 </Show>
