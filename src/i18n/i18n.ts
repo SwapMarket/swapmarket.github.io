@@ -96,7 +96,7 @@ const dict = {
             "Upload your rescue key to refund a swap that is not available in this browser’s swap history.",
         refund_past_swaps: "Past swaps",
         refund_past_swaps_subline:
-            "Swaps that got saved into your browsers storage",
+            "Swaps that got saved into your browser's storage",
         no_refundable_swaps:
             "No refundable swaps found in your browser history",
         cant_find_swap: "Can't find your swap?",
