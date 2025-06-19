@@ -1,6 +1,8 @@
+import { useSearchParams } from "@solidjs/router";
 import { BigNumber } from "bignumber.js";
-import { Show, createEffect, on, onMount } from "solid-js";
+import { Show, createEffect, createSignal, on, onMount } from "solid-js";
 
+import Accordion from "../components/Accordion";
 import AddressInput from "../components/AddressInput";
 import Asset from "../components/Asset";
 import AssetSelect from "../components/AssetSelect";
@@ -8,6 +10,7 @@ import Backend from "../components/Backend";
 import BackendSelect from "../components/BackendSelect";
 import ConnectWallet from "../components/ConnectWallet";
 import CreateButton from "../components/CreateButton";
+import { FeeComparisonTable } from "../components/FeeComparisonTable";
 import Fees from "../components/Fees";
 import InvoiceInput from "../components/InvoiceInput";
 import QrScan from "../components/QrScan";
@@ -15,6 +18,7 @@ import Reverse from "../components/Reverse";
 import WeblnButton from "../components/WeblnButton";
 import SettingsCog from "../components/settings/SettingsCog";
 import SettingsMenu from "../components/settings/SettingsMenu";
+import { config } from "../config";
 import { RBTC } from "../consts/Assets";
 import { Denomination, Side, SwapType } from "../consts/Enums";
 import { useCreateContext } from "../context/Create";
@@ -37,6 +41,9 @@ const Create = () => {
     let receiveAmountRef: HTMLInputElement | undefined;
     let sendAmountRef: HTMLInputElement | undefined;
 
+    const [searchParams] = useSearchParams();
+    const [isAccordionOpen, setIsAccordionOpen] = createSignal(false);
+
     const {
         separator,
         setSeparator,
@@ -46,6 +53,8 @@ const Create = () => {
         webln,
         t,
         notify,
+        allPairs,
+        regularPairs,
     } = useGlobalContext();
     const {
         swapType,
@@ -71,6 +80,8 @@ const Create = () => {
         boltzFee,
         minerFee,
         pairValid,
+        setAssetSend,
+        setAssetReceive,
     } = useCreateContext();
 
     // if btc and amount > 10, switch to sat
@@ -317,6 +328,15 @@ const Create = () => {
         }
     });
 
+    createEffect(() => {
+        if (searchParams.sendAsset) {
+            setAssetSend(searchParams.sendAsset as string);
+        }
+        if (searchParams.receiveAsset) {
+            setAssetReceive(searchParams.receiveAsset as string);
+        }
+    });
+
     // validate amounts when invoice is valid, because we
     // set the amount based on invoice amount if amount is 0
     createEffect(() => {
@@ -370,6 +390,27 @@ const Create = () => {
                         />
                     </span>
                 </span>
+                <Show when={config.isPro}>
+                    <Accordion
+                        title={t("swap_opportunities_accordion")}
+                        isOpen={isAccordionOpen()}
+                        onClick={() => setIsAccordionOpen(!isAccordionOpen())}>
+                        <FeeComparisonTable
+                            proPairs={allPairs()[0]}
+                            regularPairs={regularPairs()}
+                            onSelect={(opportunity) => {
+                                if (
+                                    assetSend() !== opportunity.assetSend ||
+                                    assetReceive() !== opportunity.assetReceive
+                                ) {
+                                    setAssetSend(opportunity.assetSend);
+                                    setAssetReceive(opportunity.assetReceive);
+                                }
+                                setIsAccordionOpen(false);
+                            }}
+                        />
+                    </Accordion>
+                </Show>
                 <div class="icons">
                     <div>
                         <Asset side={Side.Send} signal={assetSend} />

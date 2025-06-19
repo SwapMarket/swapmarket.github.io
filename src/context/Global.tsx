@@ -14,7 +14,7 @@ import {
 import type { Accessor, JSX, Setter } from "solid-js";
 
 import { config } from "../config";
-import { Denomination } from "../consts/Enums";
+import { Denomination, UrlParam } from "../consts/Enums";
 import { referralIdKey } from "../consts/LocalStorage";
 import { swapStatusFinal } from "../consts/SwapStatus";
 import { detectLanguage } from "../i18n/detect";
@@ -30,7 +30,7 @@ import { migrateStorage } from "../utils/migration";
 import type { RescueFile } from "../utils/rescueFile";
 import { deriveKey, generateRescueFile, getXpub } from "../utils/rescueFile";
 import type { SomeSwap, SubmarineSwap } from "../utils/swapCreator";
-import { getUrlParam, isEmbed } from "../utils/urlParams";
+import { getUrlParam, isEmbed, resetUrlParam } from "../utils/urlParams";
 import { checkWasmSupported } from "../utils/wasmSupport";
 import { detectWebLNProvider } from "../utils/webln";
 
@@ -51,6 +51,8 @@ export type GlobalContextType = {
     setOnline: Setter<boolean>;
     allPairs: Accessor<Pairs[] | undefined>;
     setAllPairs: Setter<Pairs[] | undefined>;
+    regularPairs: Accessor<Pairs | undefined>;
+    setRegularPairs: Setter<Pairs | undefined>;
     wasmSupported: Accessor<boolean>;
     setWasmSupported: Setter<boolean>;
     refundAddress: Accessor<string | null>;
@@ -90,6 +92,7 @@ export type GlobalContextType = {
     notify: notifyFn;
     playNotificationSound: () => void;
     fetchPairs: () => Promise<void>;
+    fetchRegularPairs: () => Promise<void>;
 
     getLogs: () => Promise<Record<string, string[]>>;
     clearLogs: () => Promise<void>;
@@ -120,12 +123,14 @@ export type GlobalContextType = {
     setRescueFileBackupDone: Setter<boolean>;
 };
 
+const regularReferral = () => (isMobile() ? "swapmarket_mobile" : "swapmarket");
+
 const defaultReferral = () => {
     if (config.isPro) {
         return proReferral;
     }
 
-    return isMobile() ? "swapmarket_mobile" : "swapmarket";
+    return regularReferral();
 };
 
 // Local storage serializer to support the values created by the deprecated "createStorageSignal"
@@ -138,6 +143,10 @@ const GlobalContext = createContext<GlobalContextType>();
 
 const GlobalProvider = (props: { children: JSX.Element }) => {
     const [online, setOnline] = createSignal<boolean>(true);
+    const [regularPairs, setRegularPairs] = createSignal<Pairs | undefined>(
+        undefined,
+    );
+
     const [wasmSupported, setWasmSupported] = createSignal<boolean>(true);
     const [refundAddress, setRefundAddress] = createSignal<string | null>(null);
 
@@ -316,6 +325,22 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
         await Promise.all(promises);
     };
 
+    const fetchRegularPairs = async () => {
+        try {
+            const data = await getPairs(0, {
+                // only Boltz
+                headers: {
+                    referral: regularReferral(),
+                },
+            });
+            log.debug("Regular pairs", data);
+            setRegularPairs(data);
+        } catch (error) {
+            log.error("Error fetching regular pairs", error);
+            throw formatError(error);
+        }
+    };
+
     // Use IndexedDB if available; fallback to LocalStorage
     localforage.config({
         driver: [localforage.INDEXEDDB, localforage.LOCALSTORAGE],
@@ -402,9 +427,10 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
 
     if (!config.isPro) {
         // Get the referral from the URL parameters if this is not pro
-        const refParam = getUrlParam("ref");
+        const refParam = getUrlParam(UrlParam.Ref);
         if (refParam && refParam !== "") {
             setRef(refParam);
+            resetUrlParam(UrlParam.Ref);
         }
     } else {
         setRef(proReferral);
@@ -460,6 +486,8 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
                 setOnline,
                 allPairs,
                 setAllPairs,
+                regularPairs,
+                setRegularPairs,
                 wasmSupported,
                 setWasmSupported,
                 refundAddress,
@@ -499,6 +527,7 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
                 notify,
                 playNotificationSound,
                 fetchPairs,
+                fetchRegularPairs,
                 getLogs,
                 clearLogs,
                 updateSwapStatus,

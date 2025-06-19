@@ -188,11 +188,24 @@ export type LockupTransaction = {
     timeoutEta?: number;
 };
 
-export const getPairs = async (backend: number): Promise<Pairs> => {
+export const getPairs = async (
+    backend: number,
+    options?: RequestInit,
+): Promise<Pairs> => {
     const [submarine, reverse, chain] = await Promise.all([
-        fetcher<SubmarinePairsTaproot>(backend, "/v2/swap/submarine"),
-        fetcher<ReversePairsTaproot>(backend, "/v2/swap/reverse"),
-        fetcher<ChainPairsTaproot>(backend, "/v2/swap/chain"),
+        fetcher<SubmarinePairsTaproot>(
+            backend,
+            "/v2/swap/submarine",
+            null,
+            options,
+        ),
+        fetcher<ReversePairsTaproot>(
+            backend,
+            "/v2/swap/reverse",
+            null,
+            options,
+        ),
+        fetcher<ChainPairsTaproot>(backend, "/v2/swap/chain", null, options),
     ]);
 
     return {
