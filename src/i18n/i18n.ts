@@ -153,8 +153,11 @@ const dict = {
         view: "View",
         id: "ID",
         headline: "Non-Custodial Bitcoin Swaps Marketplace",
+        headline_pro: "Stack Sats Non-Custodially",
         subline:
-            "Choose your swap provider and trade between different Bitcoin layers while staying in full control.",
+            "Swap between different Bitcoin layers while staying in full control.",
+        subline_pro:
+            "Earn sats for swapping Bitcoin in directions that help balance our liquidity.",
         start_swapping: "Start Swapping",
         partners: "Partners",
         integrations: "Integrations",
@@ -284,6 +287,19 @@ const dict = {
         verify_boltz_rescue_key_mnemonic:
             "Please enter your rescue key below to import it.",
         hint_paste_mnemonic: "Hint: you can paste all 12 words at once.",
+        swap_opportunities: "Available Pro Opportunities",
+        swap_opportunities_subline:
+            "Earn sats or get a discount by swapping these pairs",
+        pro_fee: "Pro Rate",
+        regular_fee: "Regular Rate",
+        swap_opportunities_accordion: "Pro Opportunities",
+        no_opportunities_found: {
+            text: "No Pro opportunities found at the moment. Please check again later.",
+            telegram_bot_text: "For fee alerts, check out our",
+            telegram_bot: "Telegram Bot",
+        },
+        refresh_for_refund:
+            "If you sent Bitcoin into this swap, refresh the page to check for a refund.",
     },
     de: {
         language: "Deutsch",
@@ -444,8 +460,11 @@ const dict = {
         view: "Anzeigen",
         id: "ID",
         headline: "Marktplatz für nicht-verwaltete Bitcoin-Swaps",
+        headline_pro: "Stacke Sats mit voller Kontrolle",
         subline:
             "Wählen Sie Ihren Swap-Anbieter und tauschen Sie zwischen verschiedenen Bitcoin-Layern, während Sie stets die volle Kontrolle behalten.",
+        subline_pro:
+            "Verdiene Sats für Swaps, die uns helfen unsere Liquidität zu managen.",
         start_swapping: "Starte Swap",
         partners: "Partner",
         integrations: "Integrationen",
@@ -583,6 +602,20 @@ const dict = {
             "Bitte gib deinen Rettungsschlüssel unten ein, um ihn zu importieren.",
         hint_paste_mnemonic:
             "Tipp: du kannst alle 12 Wörter gleichzeitig einfügen.",
+        swap_opportunities: "Verfügbare Pro-Optionen",
+        swap_opportunities_subline:
+            "Verdiene Sats oder erhalte einen Rabatt für diese Paare",
+        pro_fee: "Progebühr",
+        regular_fee: "Normale Gebühr",
+        swap_opportunities_accordion: "Pro-Optionen",
+        no_opportunities_found: {
+            text: "Aktuell keine Pro-Optionen verfügbar. Versuche es später noch einmal.",
+            telegram_bot_text:
+                "Für Benachrichtigungen über Progebührenupdates, nutze unseren",
+            telegram_bot: "Telegram-Bot",
+        },
+        refresh_for_refund:
+            "Falls du Bitcoin in diesen Swap gesendet hast, aktualisiere die Seite um eine Rückerstattung zu prüfen.",
     },
     es: {
         language: "Español",
@@ -742,8 +775,11 @@ const dict = {
         view: "Ver",
         id: "ID",
         headline: "Mercado de Swaps de Bitcoin sin Custodia",
+        headline_pro: "Apilar Sats Con Autocustodia",
         subline:
             "Elija su proveedor de swap y cambie entre diferentes capas de Bitcoin, manteniendo siempre el control total.",
+        subline_pro:
+            "Gana sats por intercambiar Bitcoin en direcciones que ayudan a equilibrar nuestra liquidez.",
         start_swapping: "Comenzar a intercambiar",
         partners: "Socios",
         integrations: "Integraciones",
@@ -825,7 +861,7 @@ const dict = {
         tether: "L-USDt",
         no_wallet_connected: "No hay monedero conectado",
         no_lockup_transaction: "No se encontró ninguna transacción de lockup",
-        routing_fee_limit: "Límite de la tarifa de enrutamiento",
+        routing_fee_limit: "Límite comisión enrutamiento",
         broadcast_setting: "Transmisión externa",
         broadcast_setting_tooltip:
             "También use el explorador de bloques para transmitir transacciones",
@@ -845,7 +881,7 @@ const dict = {
         verify_key_failed:
             "La verificación de la clave de rescate Boltz ha fallado. Recomendamos descargar una nueva clave para continuar.",
         rescue_key: "Clave de Rescate Boltz",
-        no_swaps_found: "No se encontraron swaps",
+        no_swaps_found: "No se encontraron intercambios",
         rif_extra_fee:
             "El monedero no contiene suficientes RBTC, comisión ajustado para incluir comisión de RIF Relay!",
         no_refund_due: "Sin reembolso pendiente",
@@ -872,12 +908,25 @@ const dict = {
         incorrect_word:
             "Palabra incorrecta. Por favor, verifique su clave de rescate.",
         enter_mnemonic: "Ingrese clave de rescate",
-        scan_refundable_swaps: "Buscar swaps reembolsables",
+        scan_refundable_swaps: "Buscar intercambios reembolsables",
         upload_rescue_key: "Subir clave de rescate",
         verify_boltz_rescue_key_mnemonic:
             "Por favor, ingrese su clave de rescate a continuación para importarlo.",
         hint_paste_mnemonic:
             "Consejo: puedes pegar todas las 12 palabras a la vez.",
+        swap_opportunities: "Oportunidades Pro Disponibles",
+        swap_opportunities_subline:
+            "Gana sats o recibe descuentos intercambiando estos pares",
+        pro_fee: "Tarifa Pro",
+        regular_fee: "Tarifa Estándar",
+        swap_opportunities_accordion: "Oportunidades Pro",
+        no_opportunities_found: {
+            text: "No hay oportunidades Pro disponibles. Por favor, revisa más tarde.",
+            telegram_bot_text: "Para alertas de tarifas, consulta nuestro",
+            telegram_bot: "Bot de Telegram",
+        },
+        refresh_for_refund:
+            "Si has enviado Bitcoin a este intercambio, actualice la página para comprobar si hay un reembolso disponsible.",
     },
     pt: {
         language: "Português",
@@ -1036,8 +1085,11 @@ const dict = {
         view: "Ver",
         id: "ID",
         headline: "Bitcoin Bridge Não-Custodial",
+        headline_pro: "Acumule Sats Com Autocustódia",
         subline:
             "Troque entre as diferentes camadas do Bitcoin, mantendo controle total.",
+        subline_pro:
+            "Ganhe sats por trocar Bitcoin em direções que ajudam a balancear nossa liquidez.",
         start_swapping: "Começar a trocar",
         partners: "Parceiros",
         integrations: "Integrações",
@@ -1170,6 +1222,19 @@ const dict = {
         verify_boltz_rescue_key_mnemonic:
             "Por favor, digite sua chave de resgate abaixo para importá-la.",
         hint_paste_mnemonic: "Dica: você pode colar as 12 palavras de uma vez.",
+        swap_opportunities: "Oportunidades Pro Disponíveis",
+        swap_opportunities_subline:
+            "Ganhe sats ou obtenha descontos trocando estes pares",
+        pro_fee: "Taxa Pro",
+        regular_fee: "Taxa Regular",
+        swap_opportunities_accordion: "Oportunidades Pro",
+        no_opportunities_found: {
+            text: "Nenhuma oportunidade Pro encontrada. Verifique novamente mais tarde.",
+            telegram_bot_text: "Para alertas de taxas, acesse nosso",
+            telegram_bot: "Bot do Telegram",
+        },
+        refresh_for_refund:
+            "Se enviou Bitcoin para esta troca, recarregue a página para verificar se existe um reembolso.",
     },
     zh: {
         language: "中文",
@@ -1313,8 +1378,10 @@ const dict = {
         view: "查看",
         id: "ID",
         headline: "非托管比特币掉期市场",
+        headline_pro: "积累聪，非托管！",
         subline:
             "选择您的交换提供商，并在不同的比特币层之间进行交换，同时始终保持完全控制。",
+        subline_pro: "通过交换比特币赚取聪，在有助于平衡我们的流动性方向上。",
         start_swapping: "开始交换",
         partners: "合作伙伴",
         integrations: "集成",
@@ -1435,6 +1502,18 @@ const dict = {
         upload_rescue_key: "上传救援密钥",
         verify_boltz_rescue_key_mnemonic: "请在下方输入你的救援密钥以导入。",
         hint_paste_mnemonic: "提示：你可以一次性粘贴全部 12 个单词。",
+        swap_opportunities: "可用Pro机会",
+        swap_opportunities_subline: "兑换这些交易对赚取聪或折扣",
+        pro_fee: "Pro费率",
+        regular_fee: "标准费率",
+        swap_opportunities_accordion: "Pro机会",
+        no_opportunities_found: {
+            text: "当前无专业交易机会，请稍后再试",
+            telegram_bot_text: "获取费率提醒请查看",
+            telegram_bot: "Telegram机器人",
+        },
+        refresh_for_refund:
+            "如果您向本次交换发送了比特币，请刷新页面检查是否有退款。",
     },
     ja: {
         language: "日本語",
@@ -1595,7 +1674,10 @@ const dict = {
         id: "ID",
         headline:
             "プライバシーファースト、ノンカストディアル型のビットコイン取引所",
+        headline_pro: "聪を積み上げる、非托管で！",
         subline: "誰にも奪われない。常に、お金はあなたの管理下に。",
+        subline_pro:
+            "ビットコインをスワップするためサットを稼ぐ、私たちの流動性を調整する方向で。",
         start_swapping: "取引を開始する",
         partners: "パートナー",
         integrations: "インテグレーション",
@@ -1728,6 +1810,19 @@ const dict = {
             "下にレスキューキーを入力してインポートしてください。",
         hint_paste_mnemonic:
             "ヒント：12個の単語を一度に貼り付けることができます。",
+        swap_opportunities: "可能なProの機会",
+        swap_opportunities_subline:
+            "これらのペアをスワップしてサトシを獲得または割引を受ける",
+        pro_fee: "Pro料金",
+        regular_fee: "通常料金",
+        swap_opportunities_accordion: "Pro機会",
+        no_opportunities_found: {
+            text: "現在利用可能なPro機会はありません。後ほど再度確認してください。。",
+            telegram_bot_text: "手数料アラートについては、当社の",
+            telegram_bot: "Telegramボット",
+        },
+        refresh_for_refund:
+            "このスワップにビットコインを送金した場合は、ページを更新して払い戻しを確認してください。",
     },
     ru: {
         language: "Русский",
@@ -1887,8 +1982,11 @@ const dict = {
         view: "Просмотр",
         id: "ID",
         headline: "Маркетплейс некастодиальных Биткоин-свопов",
+        headline_pro: "Маркетплейс некастодиальных Биткоин-свопов",
         subline:
             "Выберите контрагента и совершайте свопы между различными слоями Биткоина под Вашим полным контролем.",
+        subline_pro:
+            "Зарабатывайте на обмене биткоинов в направлениях, которые помогают балансировать нашу ликвидность.",
         start_swapping: "Начать своп",
         partners: "Партнеры",
         integrations: "Интеграции",
@@ -2023,6 +2121,19 @@ const dict = {
         verify_boltz_rescue_key_mnemonic:
             "Пожалуйста, введите свой ключ восстановления ниже, чтобы импортировать его.",
         hint_paste_mnemonic: "Подсказка: вы можете вставить все 12 слов сразу.",
+        swap_opportunities: "Доступные Pro-возможности",
+        swap_opportunities_subline:
+            "Зарабатывайте сатоши или получайте скидку, обменивая эти пары",
+        pro_fee: "Pro-ставка",
+        regular_fee: "Обычная ставка",
+        swap_opportunities_accordion: "Pro-возможности",
+        no_opportunities_found: {
+            text: "В данный момент Pro-возможности не найдены. Пожалуйста, проверьте позже.",
+            telegram_bot_text: "Для уведомлений о комиссиях посетите наш",
+            telegram_bot: "Telegram-бот",
+        },
+        refresh_for_refund:
+            "Если вы отправили биткойны в этот обмен, обновите страницу, чтобы проверить возврат средств.",
     },
 };
 

@@ -5,8 +5,10 @@ import {
     createMemo,
     createResource,
     createSignal,
+    onMount,
 } from "solid-js";
 
+import { config } from "../config";
 import { LBTC } from "../consts/Assets";
 import { SwapType } from "../consts/Enums";
 import { useCreateContext } from "../context/Create";
@@ -36,14 +38,28 @@ const unconfidentialExtra = 5;
 
 const rifExtraGasCost = 157_000n;
 
+export const getFeeHighlightClass = (fee: number, regularFee: number) => {
+    if (fee < 0) {
+        return "negative-fee";
+    }
+
+    if (fee >= 0 && fee < regularFee) {
+        return "lower-fee";
+    }
+
+    return "";
+};
+
 const Fees = () => {
     const {
         t,
         allPairs,
+        regularPairs,
         backend,
         denomination,
         separator,
         fetchPairs,
+        fetchRegularPairs,
         online,
         setOnline,
         notify,
@@ -202,6 +218,12 @@ const Fees = () => {
 
     void fetchPairs();
 
+    onMount(() => {
+        if (config.isPro) {
+            void fetchRegularPairs();
+        }
+    });
+
     return (
         <div class="fees-dyn">
             <Denomination />
@@ -220,8 +242,23 @@ const Fees = () => {
                     />
                 </span>
                 <br />
-                {t("fee")} ({boltzFee().toString().replaceAll(".", separator())}
-                %):{" "}
+                {t("fee")} (
+                <span
+                    class={
+                        config.isPro &&
+                        getFeeHighlightClass(
+                            boltzFee(),
+                            getPair(
+                                regularPairs(),
+                                swapType(),
+                                assetSend(),
+                                assetReceive(),
+                            )?.fees.percentage,
+                        )
+                    }>
+                    {boltzFee().toString().replaceAll(".", separator())}%
+                </span>
+                ):{" "}
                 <span class="boltz-fee">
                     {formatAmount(
                         calculateBoltzFeeOnSend(
