@@ -1,4 +1,4 @@
-import { useSearchParams } from "@solidjs/router";
+import { useLocation, useSearchParams } from "@solidjs/router";
 import { BigNumber } from "bignumber.js";
 import { Show, createEffect, createSignal, on, onMount } from "solid-js";
 
@@ -9,10 +9,11 @@ import AssetSelect from "../components/AssetSelect";
 import Backend from "../components/Backend";
 import BackendSelect from "../components/BackendSelect";
 import ConnectWallet from "../components/ConnectWallet";
-import CreateButton from "../components/CreateButton";
+import CreateButton, { BackupDone } from "../components/CreateButton";
 import { FeeComparisonTable } from "../components/FeeComparisonTable";
 import Fees from "../components/Fees";
 import InvoiceInput from "../components/InvoiceInput";
+import LoadingSpinner from "../components/LoadingSpinner";
 import QrScan from "../components/QrScan";
 import Reverse from "../components/Reverse";
 import WeblnButton from "../components/WeblnButton";
@@ -41,6 +42,7 @@ const Create = () => {
     let receiveAmountRef: HTMLInputElement | undefined;
     let sendAmountRef: HTMLInputElement | undefined;
 
+    const location = useLocation<{ backupDone?: string }>();
     const [searchParams] = useSearchParams();
     const [isAccordionOpen, setIsAccordionOpen] = createSignal(false);
 
@@ -53,6 +55,7 @@ const Create = () => {
         webln,
         t,
         notify,
+        backend,
         allPairs,
         regularPairs,
     } = useGlobalContext();
@@ -178,7 +181,10 @@ const Create = () => {
 
     const validatePaste = (evt: ClipboardEvent) => {
         const clipboardData = evt.clipboardData || globalThis.clipboardData;
-        const pastedData = clipboardData.getData("Text").trim();
+        const pastedData = clipboardData
+            .getData("Text")
+            .replace(/\s+/g, "")
+            .trim();
         if (!getValidationRegex(maximum()).test(pastedData)) {
             evt.stopPropagation();
             evt.preventDefault();
@@ -350,147 +356,170 @@ const Create = () => {
         }
     });
 
+    const creatingSwap = () => location.state?.backupDone === BackupDone.True;
+
     return (
         <Show when={wasmSupported()} fallback={<ErrorWasm />}>
             <div class="frame">
-                <SettingsCog />
-                <h2 data-testid="create-swap-title">{t("create_swap")}</h2>
-                {t("create_swap_subline")} <br />
-                <span class="swap-limits">
-                    <span>
-                        {t("send")} {t("min")}:
-                        <span
-                            onClick={() => setAmount(minimum())}
-                            class="btn-small btn-light">
-                            {formatAmount(
-                                BigNumber(minimum()),
-                                denomination(),
-                                separator(),
-                            )}
-                        </span>
-                        <span
-                            class="denominator"
-                            data-denominator={denomination()}
-                        />
-                    </span>
-                    <span>
-                        {t("max")}:
-                        <span
-                            onClick={() => setAmount(maximum())}
-                            class="btn-small btn-light">
-                            {formatAmount(
-                                BigNumber(maximum()),
-                                denomination(),
-                                separator(),
-                            )}
-                        </span>
-                        <span
-                            class="denominator"
-                            data-denominator={denomination()}
-                        />
-                    </span>
-                </span>
-                <Show when={config.isPro}>
-                    <Accordion
-                        title={t("swap_opportunities_accordion")}
-                        isOpen={isAccordionOpen()}
-                        onClick={() => setIsAccordionOpen(!isAccordionOpen())}>
-                        <FeeComparisonTable
-                            proPairs={allPairs()[0]}
-                            regularPairs={regularPairs()}
-                            onSelect={(opportunity) => {
-                                if (
-                                    assetSend() !== opportunity.assetSend ||
-                                    assetReceive() !== opportunity.assetReceive
-                                ) {
-                                    setAssetSend(opportunity.assetSend);
-                                    setAssetReceive(opportunity.assetReceive);
-                                }
-                                setIsAccordionOpen(false);
-                            }}
-                        />
-                    </Accordion>
-                </Show>
-                <div class="icons">
-                    <div>
-                        <Asset side={Side.Send} signal={assetSend} />
-                        <input
-                            ref={sendAmountRef}
-                            autofocus
-                            required
-                            type="text"
-                            placeholder="0"
-                            maxlength={calculateDigits(
-                                maximum(),
-                                denomination(),
-                            )}
-                            inputmode={
-                                denomination() == "btc" ? "decimal" : "numeric"
-                            }
-                            id="sendAmount"
-                            data-testid="sendAmount"
-                            autocomplete="off"
-                            value={sendAmountFormatted()}
-                            onPaste={(e) => validatePaste(e)}
-                            onKeyPress={(e) => validateInput(e)}
-                            onInput={(e) => changeSendAmount(e)}
-                        />
-                    </div>
-                    <Reverse />
-                    <div>
-                        <Asset side={Side.Receive} signal={assetReceive} />
-                        <input
-                            ref={receiveAmountRef}
-                            required
-                            type="text"
-                            placeholder="0"
-                            maxlength={calculateDigits(
-                                maximum(),
-                                denomination(),
-                            )}
-                            inputmode={
-                                denomination() == "btc" ? "decimal" : "numeric"
-                            }
-                            id="receiveAmount"
-                            data-testid="receiveAmount"
-                            autocomplete="off"
-                            value={receiveAmountFormatted()}
-                            onPaste={(e) => validatePaste(e)}
-                            onKeyPress={(e) => validateInput(e)}
-                            onInput={(e) => changeReceiveAmount(e)}
-                        />
-                    </div>
-                    <div>
-                        <Backend />
-                    </div>
+                <div
+                    class="creating-swap-loading"
+                    style={{
+                        display: creatingSwap() ? "flex" : "none",
+                    }}>
+                    <LoadingSpinner />
                 </div>
-                <BackendSelect />
-                <Fees />
-                <hr class="spacer" />
-                <Show when={assetReceive() === RBTC}>
-                    <ConnectWallet disabled={() => !pairValid()} />
+                <div
+                    style={{
+                        display: !creatingSwap() ? "block" : "none",
+                    }}>
+                    <SettingsCog />
+                    <h2 data-testid="create-swap-title">{t("create_swap")}</h2>
+                    {t("create_swap_subline")} <br />
+                    <span class="swap-limits">
+                        <span>
+                            {t("send")} {t("min")}:
+                            <span
+                                onClick={() => setAmount(minimum())}
+                                class="btn-small btn-light">
+                                {formatAmount(
+                                    BigNumber(minimum()),
+                                    denomination(),
+                                    separator(),
+                                )}
+                            </span>
+                            <span
+                                class="denominator"
+                                data-denominator={denomination()}
+                            />
+                        </span>
+                        <span>
+                            {t("max")}:
+                            <span
+                                onClick={() => setAmount(maximum())}
+                                class="btn-small btn-light">
+                                {formatAmount(
+                                    BigNumber(maximum()),
+                                    denomination(),
+                                    separator(),
+                                )}
+                            </span>
+                            <span
+                                class="denominator"
+                                data-denominator={denomination()}
+                            />
+                        </span>
+                    </span>
+                    <Show when={config.isPro}>
+                        <Accordion
+                            title={t("swap_opportunities_accordion")}
+                            isOpen={isAccordionOpen()}
+                            onClick={() =>
+                                setIsAccordionOpen(!isAccordionOpen())
+                            }>
+                            <FeeComparisonTable
+                                proPairs={allPairs()[backend()]}
+                                regularPairs={regularPairs()}
+                                onSelect={(opportunity) => {
+                                    if (
+                                        assetSend() !== opportunity.assetSend ||
+                                        assetReceive() !==
+                                            opportunity.assetReceive
+                                    ) {
+                                        setAssetSend(opportunity.assetSend);
+                                        setAssetReceive(
+                                            opportunity.assetReceive,
+                                        );
+                                    }
+                                    setIsAccordionOpen(false);
+                                }}
+                            />
+                        </Accordion>
+                    </Show>
+                    <div class="icons">
+                        <div>
+                            <Asset side={Side.Send} signal={assetSend} />
+                            <input
+                                ref={sendAmountRef}
+                                autofocus
+                                required
+                                type="text"
+                                placeholder="0"
+                                maxlength={calculateDigits(
+                                    maximum(),
+                                    denomination(),
+                                )}
+                                inputmode={
+                                    denomination() == "btc"
+                                        ? "decimal"
+                                        : "numeric"
+                                }
+                                id="sendAmount"
+                                data-testid="sendAmount"
+                                autocomplete="off"
+                                value={sendAmountFormatted()}
+                                onPaste={(e) => validatePaste(e)}
+                                onKeyPress={(e) => validateInput(e)}
+                                onInput={(e) => changeSendAmount(e)}
+                            />
+                        </div>
+                        <Reverse />
+                        <div>
+                            <Asset side={Side.Receive} signal={assetReceive} />
+                            <input
+                                ref={receiveAmountRef}
+                                required
+                                type="text"
+                                placeholder="0"
+                                maxlength={calculateDigits(
+                                    maximum(),
+                                    denomination(),
+                                )}
+                                inputmode={
+                                    denomination() == "btc"
+                                        ? "decimal"
+                                        : "numeric"
+                                }
+                                id="receiveAmount"
+                                data-testid="receiveAmount"
+                                autocomplete="off"
+                                value={receiveAmountFormatted()}
+                                onPaste={(e) => validatePaste(e)}
+                                onKeyPress={(e) => validateInput(e)}
+                                onInput={(e) => changeReceiveAmount(e)}
+                            />
+                        </div>
+                        <div>
+                            <Backend />
+                        </div>
+                    </div>
+                    <BackendSelect />
+                    <Fees />
                     <hr class="spacer" />
-                </Show>
-                <Show
-                    when={
-                        swapType() !== SwapType.Submarine &&
-                        assetReceive() !== RBTC
-                    }>
-                    <AddressInput />
-                </Show>
-                <Show when={swapType() === SwapType.Submarine}>
-                    <Show when={webln()}>
-                        <WeblnButton />
+                    <Show when={assetReceive() === RBTC}>
+                        <ConnectWallet disabled={() => !pairValid()} />
                         <hr class="spacer" />
                     </Show>
-                    <InvoiceInput />
-                </Show>
-                <Show when={isMobile() && assetReceive() !== RBTC}>
-                    <QrScan />
-                </Show>
-                <CreateButton />
-                <AssetSelect />
-                <SettingsMenu />
+                    <Show
+                        when={
+                            swapType() !== SwapType.Submarine &&
+                            assetReceive() !== RBTC
+                        }>
+                        <AddressInput />
+                    </Show>
+                    <Show when={swapType() === SwapType.Submarine}>
+                        <Show when={webln()}>
+                            <WeblnButton />
+                            <hr class="spacer" />
+                        </Show>
+                        <InvoiceInput />
+                    </Show>
+                    <Show when={isMobile() && assetReceive() !== RBTC}>
+                        <QrScan />
+                    </Show>
+                    <CreateButton />
+                    <AssetSelect />
+                    <SettingsMenu />
+                </div>
             </div>
         </Show>
     );

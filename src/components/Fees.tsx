@@ -1,4 +1,5 @@
 import { BigNumber } from "bignumber.js";
+import type { Accessor } from "solid-js";
 import {
     Show,
     createEffect,
@@ -34,7 +35,7 @@ const ppmFactor = 10_000;
 
 // When sending to an unconfidential address, we need to add an extra
 // confidential OP_RETURN output with 1 sat inside
-const unconfidentialExtra = 5;
+export const unconfidentialExtra = 5;
 
 const rifExtraGasCost = 157_000n;
 
@@ -49,6 +50,19 @@ export const getFeeHighlightClass = (fee: number, regularFee: number) => {
 
     return "";
 };
+
+export const isToUnconfidentialLiquid = ({
+    assetReceive,
+    addressValid,
+    onchainAddress,
+}: {
+    assetReceive: Accessor<string>;
+    addressValid: Accessor<boolean>;
+    onchainAddress: Accessor<string>;
+}) =>
+    assetReceive() === LBTC &&
+    addressValid() &&
+    !isConfidentialAddress(onchainAddress());
 
 const Fees = () => {
     const {
@@ -79,11 +93,6 @@ const Fees = () => {
         addressValid,
     } = useCreateContext();
     const { signer } = useWeb3Signer();
-
-    const isToUnconfidentialLiquid = () =>
-        assetReceive() === LBTC &&
-        addressValid() &&
-        !isConfidentialAddress(onchainAddress());
 
     const [routingFee, setRoutingFee] = createSignal<number | undefined>(
         undefined,
@@ -173,7 +182,13 @@ const Fees = () => {
                     let fee =
                         reverseCfg.fees.minerFees.claim +
                         reverseCfg.fees.minerFees.lockup;
-                    if (isToUnconfidentialLiquid()) {
+                    if (
+                        isToUnconfidentialLiquid({
+                            assetReceive,
+                            addressValid,
+                            onchainAddress,
+                        })
+                    ) {
                         fee += unconfidentialExtra;
                     }
 
@@ -186,7 +201,13 @@ const Fees = () => {
                     let fee =
                         chainCfg.fees.minerFees.server +
                         chainCfg.fees.minerFees.user.claim;
-                    if (isToUnconfidentialLiquid()) {
+                    if (
+                        isToUnconfidentialLiquid({
+                            assetReceive,
+                            addressValid,
+                            onchainAddress,
+                        })
+                    ) {
                         fee += unconfidentialExtra;
                     }
 
