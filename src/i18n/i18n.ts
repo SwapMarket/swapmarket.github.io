@@ -2158,9 +2158,9 @@ const dict = {
         },
         refresh_for_refund:
             "Если вы отправили биткойны в этот обмен, обновите страницу, чтобы проверить возврат средств.",
-        applied_routing_hint: 
+        applied_routing_hint:
             "Ваш получатель поддерживает получение {{ asset }} напрямую. Это экономит вам комиссию, а он всё равно получает всю сумму.",
-        optimized_route_amount: 
+        optimized_route_amount:
             "Маршрут свопа оптимизирован, вы экономите примерно {{ amount }} {{ denomination }}",
     },
 };
