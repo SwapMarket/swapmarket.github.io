@@ -241,19 +241,22 @@ export const generateInvoiceWithRoutingHint = async (
     );
 
     const swapRes = await (
-        await axios.post(`${config.backends[0].apiUrl.normal}/v2/swap/reverse`, {
-            address: claimAddress,
-            from: BTC,
-            to: LBTC,
-            invoiceAmount,
-            addressSignature: Buffer.from(
-                Object.values(addressSignature),
-            ).toString("hex"),
-            claimPublicKey: Buffer.from(
-                Object.values(claimKeys.publicKey),
-            ).toString("hex"),
-            preimageHash: crypto.sha256(preimage).toString("hex"),
-        })
+        await axios.post(
+            `${config.backends[0].apiUrl.normal}/v2/swap/reverse`,
+            {
+                address: claimAddress,
+                from: BTC,
+                to: LBTC,
+                invoiceAmount,
+                addressSignature: Buffer.from(
+                    Object.values(addressSignature),
+                ).toString("hex"),
+                claimPublicKey: Buffer.from(
+                    Object.values(claimKeys.publicKey),
+                ).toString("hex"),
+                preimageHash: crypto.sha256(preimage).toString("hex"),
+            },
+        )
     ).data;
 
     const magicRoutingHint = findMagicRoutingHint(swapRes.invoice);
