@@ -38,11 +38,6 @@ footer {
     display: flex;
 }
 
-a,
-a:hover {
-    color: var(--color-primary);
-}
-
 .headline,
 h1 {
     color: var(--color-white-30);
@@ -655,6 +650,11 @@ textarea.invalid {
     cursor: pointer;
     z-index: 1;
     box-shadow: 0 0 7px var(--color-black-40);
+    color: var(--color-secondary-100);
+    position: absolute;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
 }
 @media (hover: hover) {
     #flip-assets:hover {
@@ -1150,4 +1150,19 @@ header {
             transform: translateY(0);
         }
     }
+}
+
+.optimized-route {
+    color: var(--color-link-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+}
+
+.creating-swap-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30dvh;
 }

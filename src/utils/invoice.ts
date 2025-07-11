@@ -5,10 +5,16 @@ import bolt11 from "bolt11";
 import log from "loglevel";
 
 import { config } from "../config";
+import { BTC, LBTC, LN } from "../consts/Assets";
 import Bolt12 from "../lazy/bolt12";
 import { fetchBolt12Invoice } from "./boltzClient";
 import { lookup } from "./dnssec/dohLookup";
 import { checkResponse } from "./http";
+
+export const enum InvoiceType {
+    Bolt11,
+    Bolt12,
+}
 
 type LnurlResponse = {
     minSendable: number;
@@ -35,23 +41,9 @@ const bolt11Prefixes = {
 
 const bip353Prefix = "₿";
 
-export const getExpiryEtaHours = async (invoice: string): Promise<number> => {
-    const decoded = await decodeInvoice(invoice);
-    const now = Date.now() / 1000;
-    const delta = (decoded.expiry || 0) - now;
-    if (delta < 0) {
-        return 0;
-    }
-    const eta = Math.round(delta / 60 / 60);
-    if (eta > maxExpiryHours) {
-        return maxExpiryHours;
-    }
-    return eta;
-};
-
 export const decodeInvoice = async (
     invoice: string,
-): Promise<{ satoshis: number; preimageHash: string; expiry?: number }> => {
+): Promise<{ type: InvoiceType; satoshis: number; preimageHash: string }> => {
     try {
         const decoded = bolt11.decode(invoice);
         const sats = BigNumber(decoded.millisatoshis || 0)
@@ -60,7 +52,7 @@ export const decodeInvoice = async (
             .toNumber();
         return {
             satoshis: sats,
-            expiry: decoded.timeExpireDate,
+            type: InvoiceType.Bolt11,
             preimageHash: decoded.tags.find(
                 (tag) => tag.tagName === "payment_hash",
             ).data as string,
@@ -72,6 +64,7 @@ export const decodeInvoice = async (
             const mod = await Bolt12.get();
             const decoded = new mod.Invoice(invoice);
             const res = {
+                type: InvoiceType.Bolt12,
                 satoshis: Number(decoded.amount_msat / 1_000n),
                 preimageHash: Buffer.from(decoded.payment_hash).toString("hex"),
             };
@@ -224,6 +217,20 @@ export const extractAddress = (data: string) => {
     return data;
 };
 
+export const getAssetByBip21Prefix = (prefix: string) => {
+    switch (prefix) {
+        case bitcoinPrefix:
+            return BTC;
+        case liquidPrefix:
+        case liquidTestnetPrefix:
+            return LBTC;
+        case invoicePrefix:
+            return LN;
+        default:
+            return "";
+    }
+};
+
 export const isInvoice = (data: string) => {
     const prefix = bolt11Prefixes[config.network];
     const startsWithPrefix = data.toLowerCase().startsWith(prefix);
@@ -259,7 +266,7 @@ export const isLnurl = (data: string | null | undefined) => {
 export const isBolt12Offer = async (offer: string) => {
     try {
         const { Offer } = await Bolt12.get();
-        new Offer(offer);
+        new Offer(offer).free();
         return true;
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars

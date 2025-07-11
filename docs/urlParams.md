@@ -1,10 +1,11 @@
 ---
-description: >-
-    To prefill certain inputs of the the site, URL query parameters can be used.
-    Those parameters are documented here.
+next: false
 ---
 
 # 🔍 URL query parameters
+
+To prefill certain inputs of the the site, URL query parameters can be used.
+Those parameters are documented here.
 
 ## Embedding
 
