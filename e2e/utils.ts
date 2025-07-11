@@ -241,7 +241,7 @@ export const generateInvoiceWithRoutingHint = async (
     );
 
     const swapRes = await (
-        await axios.post(`${config.apiUrl.normal}/v2/swap/reverse`, {
+        await axios.post(`${config.backends[0].apiUrl.normal}/v2/swap/reverse`, {
             address: claimAddress,
             from: BTC,
             to: LBTC,
@@ -276,7 +276,7 @@ export const fetchBip21Invoice = async (invoice: string) => {
     const requestContext = await request.newContext();
 
     const res = await requestContext.get(
-        `${config.apiUrl.normal}/v2/swap/reverse/${invoice}/bip21`,
+        `${config.backends[0].apiUrl.normal}/v2/swap/reverse/${invoice}/bip21`,
     );
 
     const data = (await res.json()) as { bip21: string; signature: string };
