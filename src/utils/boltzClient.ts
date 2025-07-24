@@ -5,6 +5,7 @@ import type { Transaction as LiquidTransaction } from "liquidjs-lib";
 import log from "loglevel";
 
 import { config } from "../config";
+import { LBTC } from "../consts/Assets";
 import { SwapType } from "../consts/Enums";
 import { broadcastToExplorer, fetcher } from "./helper";
 import { validateInvoiceForOffer } from "./invoice";
@@ -453,6 +454,15 @@ export const broadcastTransaction = async (
 
     if (externalBroadcast) {
         promises.push(broadcastToExplorer(asset, txHex));
+
+        if (backend > 0 && asset === LBTC) {
+            // posts transaction to Boltz to avoid min relay fee not met
+            promises.push(
+                fetcher<{ id: string }>(0, `/v2/chain/${asset}/transaction`, {
+                    hex: txHex,
+                }),
+            );
+        }
     }
 
     const results = await Promise.allSettled(promises);
