@@ -26,6 +26,7 @@ import {
 } from "../utils/claim";
 import { formatError } from "../utils/errors";
 import { getApiUrl, getPair } from "../utils/helper";
+import { isSwapClaimable } from "../utils/rescue";
 import type {
     ChainSwap,
     ReverseSwap,
@@ -276,18 +277,7 @@ export const SwapChecker = () => {
         if (
             currentSwap.claimTx === undefined &&
             data.transaction !== undefined &&
-            ((currentSwap.type === SwapType.Reverse &&
-                [
-                    swapStatusPending.TransactionConfirmed,
-                    swapStatusPending.TransactionMempool,
-                    swapStatusSuccess.InvoiceSettled,
-                ].includes(data.status)) ||
-                (currentSwap.type === SwapType.Chain &&
-                    [
-                        swapStatusSuccess.TransactionClaimed,
-                        swapStatusPending.TransactionServerConfirmed,
-                        swapStatusPending.TransactionServerMempool,
-                    ].includes(data.status)))
+            isSwapClaimable(data.status, currentSwap.type)
         ) {
             try {
                 const res = await claim(
