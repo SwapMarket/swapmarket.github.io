@@ -75,6 +75,8 @@ const defaults = {
     dnsOverHttps: "https://1.1.1.1/dns-query",
     chatwootUrl: "https://support.boltz.exchange",
     preimageValidation: "https://validate-payment.com",
+    simplexUrl:
+        "https://smp14.simplex.im/a#_wHsmPckmoIeIKZ2WmKs6nrSSH_bbnb3Lj3voA8UO7k",
 };
 
 const isTor = () => window?.location.hostname.endsWith(".onion");
