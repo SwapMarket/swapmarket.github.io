@@ -261,7 +261,7 @@ export const SwapChecker = () => {
         }
 
         // Check if backend is defined
-        if (currentSwap.backend !== undefined) {
+        if (currentSwap.backend == undefined) {
             currentSwap.backend = backend();
         }
 
