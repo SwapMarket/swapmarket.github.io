@@ -260,9 +260,14 @@ export const SwapChecker = () => {
             return;
         }
 
+        // Check if backend is defined
+        if (currentSwap.backend !== undefined) {
+            currentSwap.backend = backend();
+        }
+
         if (data.status === swapStatusSuccess.InvoiceSettled) {
             data.transaction = await getReverseTransaction(
-                currentSwap.backend || 0,
+                currentSwap.backend,
                 currentSwap.id,
             );
         } else if (
@@ -270,7 +275,10 @@ export const SwapChecker = () => {
             data.status === swapStatusSuccess.TransactionClaimed
         ) {
             data.transaction = (
-                await getChainSwapTransactions(backend(), currentSwap.id)
+                await getChainSwapTransactions(
+                    currentSwap.backend,
+                    currentSwap.id,
+                )
             ).serverLock.transaction;
         }
 

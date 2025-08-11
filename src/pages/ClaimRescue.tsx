@@ -45,7 +45,9 @@ const mapClaimableSwap = ({
     pair,
 }: {
     swap: RestorableSwap &
-        Pick<SwapStatus, "transaction"> & { preimage?: string };
+        Pick<SwapStatus, "transaction"> & { preimage?: string } & {
+            backend?: number;
+        };
     pair: ChainPairTypeTaproot | ReversePairTypeTaproot;
 }):
     | (Partial<ChainSwap | ReverseSwap> & Pick<SwapStatus, "transaction">)
@@ -169,6 +171,7 @@ const ClaimRescue = () => {
                             id: swapStatus.transaction?.id,
                             hex: swapStatus.transaction?.hex,
                         },
+                        backend: backend(),
                     },
                     pair: reversePair,
                 });
@@ -200,6 +203,7 @@ const ClaimRescue = () => {
                             id: swapStatus.transaction?.id,
                             hex: swapStatus.transaction?.hex,
                         },
+                        backend: backend(),
                     },
                     pair: chainPair,
                 });
