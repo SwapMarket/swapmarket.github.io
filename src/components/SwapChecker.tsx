@@ -264,7 +264,7 @@ export const SwapChecker = () => {
         if (currentSwap.backend == undefined) {
             currentSwap.backend = backend();
         } else if (currentSwap.backend != backend()) {
-            setBackend(currentSwap.backend)
+            setBackend(currentSwap.backend);
         }
 
         if (data.status === swapStatusSuccess.InvoiceSettled) {
@@ -277,10 +277,7 @@ export const SwapChecker = () => {
             data.status === swapStatusSuccess.TransactionClaimed
         ) {
             data.transaction = (
-                await getChainSwapTransactions(
-                    backend(),
-                    currentSwap.id,
-                )
+                await getChainSwapTransactions(backend(), currentSwap.id)
             ).serverLock.transaction;
         }
 
@@ -375,14 +372,9 @@ export const SwapChecker = () => {
             if (swap.backend == undefined) {
                 swap.backend = backend();
             } else if (swap.backend != backend()) {
-                setBackend(swap.backend)
+                setBackend(swap.backend);
             }
-            await postChainSwapDetails(
-                swap.backend,
-                swap.id,
-                undefined,
-                sig,
-            );
+            await postChainSwapDetails(swap.backend, swap.id, undefined, sig);
         } catch (e) {
             log.warn(
                 `Helping server claim Chain Swap ${swap.id} failed: ${formatError(e)}`,

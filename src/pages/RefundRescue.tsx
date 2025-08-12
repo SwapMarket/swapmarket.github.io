@@ -89,10 +89,7 @@ const RefundRescue = () => {
 
     createResource(async () => {
         if (rescuableSwap()) {
-            const res = await getSwapStatus(
-                backend(),
-                rescuableSwap().id,
-            );
+            const res = await getSwapStatus(backend(), rescuableSwap().id);
             log.debug("selecting swap", rescuableSwap());
             setSwap(rescuableSwap() as SomeSwap);
             setSwapStatus(res.status);
