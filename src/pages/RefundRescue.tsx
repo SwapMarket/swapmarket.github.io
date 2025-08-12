@@ -71,7 +71,7 @@ export const mapSwap = (
 const RefundRescue = () => {
     const params = useParams<{ id: string }>();
 
-    const { t } = useGlobalContext();
+    const { backend, t } = useGlobalContext();
     const {
         swap,
         setSwap,
@@ -90,7 +90,7 @@ const RefundRescue = () => {
     createResource(async () => {
         if (rescuableSwap()) {
             const res = await getSwapStatus(
-                rescuableSwap().backend!,
+                backend(),
                 rescuableSwap().id,
             );
             log.debug("selecting swap", rescuableSwap());

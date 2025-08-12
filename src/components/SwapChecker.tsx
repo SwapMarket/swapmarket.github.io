@@ -263,11 +263,13 @@ export const SwapChecker = () => {
         // Check if backend is defined
         if (currentSwap.backend == undefined) {
             currentSwap.backend = backend();
+        } else if (currentSwap.backend != backend()) {
+            setBackend(currentSwap.backend)
         }
 
         if (data.status === swapStatusSuccess.InvoiceSettled) {
             data.transaction = await getReverseTransaction(
-                currentSwap.backend,
+                backend(),
                 currentSwap.id,
             );
         } else if (
@@ -276,7 +278,7 @@ export const SwapChecker = () => {
         ) {
             data.transaction = (
                 await getChainSwapTransactions(
-                    currentSwap.backend,
+                    backend(),
                     currentSwap.id,
                 )
             ).serverLock.transaction;
@@ -352,6 +354,8 @@ export const SwapChecker = () => {
     };
 
     const helpServerClaim = async (swap: ChainSwap) => {
+        const { backend, setBackend } = useGlobalContext();
+
         if (swap.claimTx === undefined) {
             log.warn(
                 `Not helping server claim Chain Swap ${swap.id} because we have not claimed yet`,
@@ -367,8 +371,14 @@ export const SwapChecker = () => {
                 deriveKey,
                 swap,
             );
+            // Check if backend is defined
+            if (swap.backend == undefined) {
+                swap.backend = backend();
+            } else if (swap.backend != backend()) {
+                setBackend(swap.backend)
+            }
             await postChainSwapDetails(
-                swap.backend || 0,
+                swap.backend,
                 swap.id,
                 undefined,
                 sig,
@@ -391,7 +401,7 @@ export const SwapChecker = () => {
         );
 
         let i = backend();
-        if (swapsToCheck.length > 0 && swapsToCheck[0].backend) {
+        if (swapsToCheck.length > 0 && swapsToCheck[0].backend !== undefined) {
             // the first swap in the list is the most recent, connect to its backend
             i = swapsToCheck[0].backend;
             // check if the backend is valid
