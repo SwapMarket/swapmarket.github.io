@@ -6,6 +6,7 @@ import {
 } from "solid-icons/bs";
 
 import nostr from "../assets/nostr.svg";
+import simplex from "../assets/simplex.svg";
 import { config } from "../config";
 import { useGlobalContext } from "../context/Global";
 import "../style/footer.scss";
@@ -61,6 +62,13 @@ const Footer = () => {
                     target="_blank"
                     href={"mailto:" + config.email}>
                     <BsEnvelopeFill size={22} color="#22374F" />
+                </a>
+                <a
+                    title="SimpleX"
+                    class="simplex"
+                    target="_blank"
+                    href={config.simplexUrl}>
+                    <img src={simplex} alt="SimpleX Logo" />
                 </a>
             </div>
             <p class="footer-nav">

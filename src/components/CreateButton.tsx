@@ -106,6 +106,7 @@ const CreateButton = () => {
         newKey,
         deriveKey,
         rescueFileBackupDone,
+        rescueFile,
         backend,
     } = useGlobalContext();
     const {
@@ -462,6 +463,7 @@ const CreateButton = () => {
                             onchainAddress(),
                             ref(),
                             useRif,
+                            rescueFile(),
                             newKey,
                         );
 
@@ -488,6 +490,7 @@ const CreateButton = () => {
                         claimAddress,
                         ref(),
                         useRif,
+                        rescueFile(),
                         newKey,
                     );
                     break;
@@ -503,6 +506,7 @@ const CreateButton = () => {
                         claimAddress,
                         ref(),
                         useRif,
+                        rescueFile(),
                         newKey,
                     );
                     break;

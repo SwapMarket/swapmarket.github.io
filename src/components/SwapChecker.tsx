@@ -26,6 +26,7 @@ import {
 } from "../utils/claim";
 import { formatError } from "../utils/errors";
 import { getApiUrl, getPair } from "../utils/helper";
+import { isSwapClaimable } from "../utils/rescue";
 import type {
     ChainSwap,
     ReverseSwap,
@@ -259,9 +260,16 @@ export const SwapChecker = () => {
             return;
         }
 
+        // Check if backend is defined
+        if (currentSwap.backend == undefined) {
+            currentSwap.backend = backend();
+        } else if (currentSwap.backend != backend()) {
+            setBackend(currentSwap.backend);
+        }
+
         if (data.status === swapStatusSuccess.InvoiceSettled) {
             data.transaction = await getReverseTransaction(
-                currentSwap.backend || 0,
+                backend(),
                 currentSwap.id,
             );
         } else if (
@@ -276,18 +284,7 @@ export const SwapChecker = () => {
         if (
             currentSwap.claimTx === undefined &&
             data.transaction !== undefined &&
-            ((currentSwap.type === SwapType.Reverse &&
-                [
-                    swapStatusPending.TransactionConfirmed,
-                    swapStatusPending.TransactionMempool,
-                    swapStatusSuccess.InvoiceSettled,
-                ].includes(data.status)) ||
-                (currentSwap.type === SwapType.Chain &&
-                    [
-                        swapStatusSuccess.TransactionClaimed,
-                        swapStatusPending.TransactionServerConfirmed,
-                        swapStatusPending.TransactionServerMempool,
-                    ].includes(data.status)))
+            isSwapClaimable(data.status, currentSwap.type)
         ) {
             try {
                 const res = await claim(
@@ -354,6 +351,8 @@ export const SwapChecker = () => {
     };
 
     const helpServerClaim = async (swap: ChainSwap) => {
+        const { backend, setBackend } = useGlobalContext();
+
         if (swap.claimTx === undefined) {
             log.warn(
                 `Not helping server claim Chain Swap ${swap.id} because we have not claimed yet`,
@@ -369,12 +368,13 @@ export const SwapChecker = () => {
                 deriveKey,
                 swap,
             );
-            await postChainSwapDetails(
-                swap.backend || 0,
-                swap.id,
-                undefined,
-                sig,
-            );
+            // Check if backend is defined
+            if (swap.backend == undefined) {
+                swap.backend = backend();
+            } else if (swap.backend != backend()) {
+                setBackend(swap.backend);
+            }
+            await postChainSwapDetails(swap.backend, swap.id, undefined, sig);
         } catch (e) {
             log.warn(
                 `Helping server claim Chain Swap ${swap.id} failed: ${formatError(e)}`,
@@ -393,7 +393,7 @@ export const SwapChecker = () => {
         );
 
         let i = backend();
-        if (swapsToCheck.length > 0 && swapsToCheck[0].backend) {
+        if (swapsToCheck.length > 0 && swapsToCheck[0].backend !== undefined) {
             // the first swap in the list is the most recent, connect to its backend
             i = swapsToCheck[0].backend;
             // check if the backend is valid

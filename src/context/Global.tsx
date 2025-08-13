@@ -302,6 +302,7 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
         void audio.play();
     };
 
+    // this is modified to fetch all pairs from all backends at once
     const fetchPairs = async () => {
         setOnline(true); // Assume we're online until proven otherwise
         const pairs: Pairs[] = new Array(config.backends.length).fill(

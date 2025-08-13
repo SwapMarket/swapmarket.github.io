@@ -20,14 +20,14 @@ Running our frontend as a Github Page makes it verifiably not evil. The code is 
 
 We don't run a .onion mirror to preserve such code transparency. If you wish to shield your IP address from Github and API backends, you can use any VPN or Tor Browser. 
 
-The web app is static. All your settings, logs and transaction history are stored only in the browser's cookies and cache.
+The web app is static. All your settings, logs and transaction history are stored only in your browser's cookies and cache.
 
 ## Onboarding
 
-Nodes aspiring to become swap providers can apply via [email](mailto:swapmarket.wizard996@passinbox.com) or by adding their API details to the [config file](https://github.com/SwapMarket/swapmarket.github.io/blob/main/src/configs/mainnet.json) with a PR. It is obligatory to be contactable and have ample liquidity. 
+Nodes aspiring to become swap providers can apply via [email](mailto:swapmarket.wizard996@passinbox.com) or by adding their API details to the [config file](https://github.com/SwapMarket/swapmarket.github.io/blob/main/src/configs/mainnet.ts) with a PR. It is obligatory to be contactable and have ample liquidity. 
 
-Consult Boltz's [deployment instructions](https://github.com/BoltzExchange/boltz-backend/blob/master/docs/deployment.md). It is easier to start with the [Testnet mirror](https://swapmarket.github.io/testnet) and your local backend listening on 127.0.0.1.
+Consult Boltz's [deployment instructions](https://github.com/BoltzExchange/boltz-backend/blob/master/docs/backend-development.md). It is easier to start with the [Testnet mirror](https://swapmarket.github.io/testnet) and your local backend listening on 127.0.0.1.
 
 ## Resources
 
-* Read the Docs: [Docs Home](https://docs.boltz.exchange/)
+* Check out Boltz's original [Docs](https://docs.boltz.exchange/) and [Blog](https://blog.boltz.exchange).

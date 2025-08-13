@@ -35,14 +35,12 @@ Then start the dev server again.
     process.exit(1);
 }
 
-const isCI = process.env.CI === "true";
-
 export default defineConfig({
     plugins: [
         solidPlugin(),
         wasm(),
         topLevelAwait(),
-        !isCI && mkcert(), // ⛔️ skip mkcert in CI
+        mkcert(),
         nodePolyfills(),
     ],
     resolve: {
@@ -51,7 +49,7 @@ export default defineConfig({
         },
     },
     server: {
-        https: !isCI, // ⛔️ disable HTTPS in CI/test runs
+        https: true,
         cors: { origin: "*" },
     },
     base: "/",

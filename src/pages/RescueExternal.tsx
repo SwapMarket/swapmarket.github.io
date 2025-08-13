@@ -29,20 +29,23 @@ import { usePayContext } from "../context/Pay";
 import { useRescueContext } from "../context/Rescue";
 import { useWeb3Signer } from "../context/Web3";
 import "../style/tabs.scss";
-import type { RescuableSwap } from "../utils/boltzClient";
-import { getRescuableSwaps } from "../utils/boltzClient";
+import { getRestorableSwaps } from "../utils/boltzClient";
 import type { LogRefundData } from "../utils/contractLogs";
 import { scanLogsForPossibleRefunds } from "../utils/contractLogs";
 import { rescueFileTypes } from "../utils/download";
 import { formatError } from "../utils/errors";
-import { getRefundableUTXOs } from "../utils/refund";
-import { createRefundList } from "../utils/refund";
 import { validateRefundFile } from "../utils/refundFile";
+import {
+    RescueAction,
+    createRescueList,
+    getRefundableUTXOs,
+} from "../utils/rescue";
 import type { RescueFile } from "../utils/rescueFile";
 import { getXpub, validateRescueFile } from "../utils/rescueFile";
-import type { ChainSwap, SubmarineSwap } from "../utils/swapCreator";
+import type { ChainSwap, SomeSwap, SubmarineSwap } from "../utils/swapCreator";
 import ErrorWasm from "./ErrorWasm";
 import { mapSwap } from "./RefundRescue";
+import { rescueListAction } from "./Rescue";
 
 export enum RefundError {
     InvalidData,
@@ -119,7 +122,9 @@ export const RefundBtcLike = () => {
     const [refundJson, setRefundJson] = createSignal(null);
     const [refundType, setRefundType] = createSignal<RefundType>();
     const [currentPage, setCurrentPage] = createSignal(1);
-    const [currentSwaps, setCurrentSwaps] = createSignal<SubmarineSwap[]>([]);
+    const [currentSwaps, setCurrentSwaps] = createSignal<Partial<SomeSwap>[]>(
+        [],
+    );
     const [loading, setLoading] = createSignal(false);
 
     const [rescuableSwaps] = createResource(
@@ -132,20 +137,20 @@ export const RefundBtcLike = () => {
                 return undefined;
             }
 
-            const res = await getRescuableSwaps(
+            const res = await getRestorableSwaps(
                 backend(),
                 getXpub(source.refundJson),
             );
             rescueContext.setRescuableSwaps(res);
-            return res.map((swap) => mapSwap(backend(), swap));
+            return res.map((swap) => mapSwap(swap));
         },
     );
 
     const [refundList] = createResource(
         currentSwaps,
-        async (swaps: (SubmarineSwap & RescuableSwap)[]) => {
+        async (swaps: SomeSwap[]) => {
             setLoading(true);
-            return await createRefundList(swaps).finally(() =>
+            return await createRescueList(swaps).finally(() =>
                 setLoading(false),
             );
         },
@@ -219,7 +224,7 @@ export const RefundBtcLike = () => {
     return (
         <>
             <Show when={searchParams.mode !== rescueKeyMode}>
-                <p>{t("refund_a_swap_subline")}</p>
+                <p>{t("rescue_a_swap_subline")}</p>
                 <hr />
             </Show>
             <Show when={refundType() === RefundType.Legacy}>
@@ -238,7 +243,7 @@ export const RefundBtcLike = () => {
                 </h3>
             </Show>
             <Show when={searchParams.mode === rescueKeyMode}>
-                <p>{t("refund_a_swap_mnemonic")}</p>
+                <p>{t("rescue_a_swap_mnemonic")}</p>
                 <MnemonicInput
                     onSubmit={(mnemonic) => {
                         setRefundType(RefundType.Rescue);
@@ -274,14 +279,21 @@ export const RefundBtcLike = () => {
                                         <SwapList
                                             swapsSignal={refundList}
                                             action={(swap) =>
-                                                swap.disabled
-                                                    ? t("no_refund_due")
-                                                    : t("refund")
+                                                rescueListAction({ swap, t })
                                             }
                                             surroundingSeparators={false}
                                             onClick={(swap) => {
+                                                if (
+                                                    swap.action ===
+                                                    RescueAction.Claim
+                                                ) {
+                                                    navigate(
+                                                        `/rescue/claim/${swap.id}`,
+                                                    );
+                                                    return;
+                                                }
                                                 navigate(
-                                                    `/refund/rescue/${swap.id}`,
+                                                    `/rescue/refund/${swap.id}`,
                                                 );
                                             }}
                                             hideDateOnMobile
@@ -290,9 +302,9 @@ export const RefundBtcLike = () => {
                                 </div>
                                 <Pagination
                                     items={rescuableSwaps}
-                                    setDisplayedItems={(
-                                        swaps: SubmarineSwap[],
-                                    ) => setCurrentSwaps(swaps)}
+                                    setDisplayedItems={(swaps) =>
+                                        setCurrentSwaps(swaps)
+                                    }
                                     sort={sortSwaps}
                                     totalItems={rescuableSwaps().length}
                                     itemsPerPage={swapsPerPage}
@@ -332,7 +344,6 @@ export const RefundBtcLike = () => {
                             setRefundJson(null);
                             setRefundInvalid(undefined);
                             rescueContext.setRescuableSwaps([]);
-                            rescueContext.setRescueFile(undefined);
                             setSearchParams({
                                 page: null,
                                 mode: rescueKeyMode,
@@ -434,7 +445,7 @@ export const RefundRsk = () => {
     );
 };
 
-const RefundExternal = () => {
+const RescueExternal = () => {
     const { wasmSupported, t } = useGlobalContext();
 
     const params = useParams();
@@ -457,7 +468,7 @@ const RefundExternal = () => {
                 <div class="frame refund" data-testid="refundFrame">
                     <header>
                         <SettingsCog />
-                        <h2>{t("refund_external_swap")}</h2>
+                        <h2>{t("rescue_external_swap")}</h2>
                     </header>
                     <Show when={rskAvailable}>
                         <div class="tabs">
@@ -467,7 +478,7 @@ const RefundExternal = () => {
                                         class={`tab ${selected() === tab.value ? "active" : ""}`}
                                         onClick={() =>
                                             navigate(
-                                                `/refund/external/${tab.value}`,
+                                                `/rescue/external/${tab.value}`,
                                             )
                                         }>
                                         {tab.name}
@@ -489,4 +500,4 @@ const RefundExternal = () => {
     );
 };
 
-export default RefundExternal;
+export default RescueExternal;
