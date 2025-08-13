@@ -100,7 +100,6 @@ const dict = {
         refund_past_swaps_subline:
             "Swaps that got saved into your browsers storage",
         no_rescuable_swaps: "No rescuable swaps found in your browser history",
-            "Swaps that got saved into your browser's storage",
         cant_find_swap: "Can't find your swap?",
         rescue_external_explainer:
             "Try rescuing an external swap via rescue key and other emergency methods.",
