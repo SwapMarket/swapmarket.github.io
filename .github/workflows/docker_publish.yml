@@ -29,10 +29,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
 
-      - name: Push backend image
-        run: docker buildx build \
-          --platform linux/amd64,linux/arm64 \
-          --build-arg NETWORK=regtest \
-          --tag ghcr.io/SwapMarket/web-app:latest \
-          --output "type=registry" \
-          .
+      - name: Build Docker image and push to registry
+        run: | 
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg NETWORK=regtest \
+            --tag ghcr.io/SwapMarket/web-app:latest \
+            --output "type=registry" \
+            .
