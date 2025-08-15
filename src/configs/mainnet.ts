@@ -26,7 +26,7 @@ const config = {
             alias: "Middle Way",
             apiUrl: {
                 normal: "https://api.middleway.space",
-                tor: "http://middlwyema6lzkpxef3ydl3chbvfbdzbqnuqn3o3gnswkm5ia3qbrlyd.onion",
+                tor: "http://middlwayksj5gak7pgaag32kcslzkjrpois57qtquiydpaqpy5fhzhqd.onion",
             },
             contact: "https://t.me/MiddleWayNode",
         },
