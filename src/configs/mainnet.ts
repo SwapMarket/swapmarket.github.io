@@ -10,6 +10,7 @@ if (rskFallback) {
 
 const config = {
     ...baseConfig,
+    torUrl: "http://swapmartgsq3pcikacvxc4divxywtqnlin6mmuu2rt42sgyzxky3ssqd.onion/",
     network: "mainnet",
     loglevel: "debug",
     backends: [
@@ -25,7 +26,7 @@ const config = {
             alias: "Middle Way",
             apiUrl: {
                 normal: "https://api.middleway.space",
-                tor: "http://middlew7gmdp53psshnb3cn74zhhulor56lsk3alr2nsrgj7ukmz47id.onion",
+                tor: "http://middlwyema6lzkpxef3ydl3chbvfbdzbqnuqn3o3gnswkm5ia3qbrlyd.onion",
             },
             contact: "https://t.me/MiddleWayNode",
         },
