@@ -34,6 +34,6 @@ jobs:
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --build-arg NETWORK=regtest \
-            --tag ghcr.io/SwapMarket/web-app:latest \
+            --tag ghcr.io/swapmarket/web-app:latest \
             --output "type=registry" \
             .
