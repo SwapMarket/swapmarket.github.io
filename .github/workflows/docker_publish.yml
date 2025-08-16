@@ -33,7 +33,7 @@ jobs:
         run: | 
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            --build-arg NETWORK=regtest \
+            --build-arg NETWORK=mainnet \
             --tag ghcr.io/swapmarket/web-app:latest \
             --output "type=registry" \
             .
