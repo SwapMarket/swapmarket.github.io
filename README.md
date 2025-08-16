@@ -18,7 +18,9 @@ A backend cannot cheat. Invoices and addresses it submits are [validated](https:
 
 Running our frontend as a Github Page makes it verifiably not evil. The code is hosted, built and deployed publicly. Github [attests](https://github.com/SwapMarket/swapmarket.github.io/attestations) build provenance upon deployment. This makes our swaps completely trustless, unlike [Boltz](https://boltz.exchange) itself (unless you self-host their web app).
 
-If you wish to shield your IP address from Github and API backends, you can use any VPN or Tor Browser. We also host a .onion [mirror](http://swapmartgsq3pcikacvxc4divxywtqnlin6mmuu2rt42sgyzxky3ssqd.onion), but you will sacrifice code transparency when using it. The most private and secure way to use our web app is by self-hosting it: `docker run -it ghcr.io/SwapMarket/web-app:latest`
+If you wish to shield your IP address from Github and API backends, you can use any VPN or Tor Browser. We also host a [Tor mirror](http://swapmartgsq3pcikacvxc4divxywtqnlin6mmuu2rt42sgyzxky3ssqd.onion), but you will sacrifice code transparency when using it. The most private and secure way is to self-host our web app at localhost:4173: 
+
+`docker run -d --rm -p 4173:80 --name webapp ghcr.io/swapmarket/web-app:latest`
 
 The web app is static. All your settings, logs and transaction history are stored only in your browser's cookies and cache.
 
