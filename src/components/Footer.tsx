@@ -2,7 +2,6 @@ import {
     BsDiscord,
     BsEnvelopeFill,
     BsGithub,
-    BsTelegram,
 } from "solid-icons/bs";
 
 import nostr from "../assets/nostr.svg";
@@ -41,13 +40,6 @@ const Footer = () => {
                     target="_blank"
                     href={config.discordUrl}>
                     <BsDiscord size={22} color="#22374F" />
-                </a>
-                <a
-                    title="Telegram"
-                    class="telegram"
-                    target="_blank"
-                    href={config.telegramUrl}>
-                    <BsTelegram size={22} color="#22374F" />
                 </a>
                 <a
                     title="Nostr"
