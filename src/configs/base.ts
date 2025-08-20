@@ -60,7 +60,7 @@ const defaults = {
     loglevel: "info" as log.LogLevelDesc,
     defaultLanguage: "en",
     supportUrl: "https://support.boltz.exchange/hc/center",
-    discordUrl: "https://discord.gg/6bymCFzV52",
+    discordUrl: "",
     githubUrl: "https://github.com/SwapMarket",
     repoUrl: "https://github.com/SwapMarket/swapmarket.github.io",
     docsUrl:

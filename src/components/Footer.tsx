@@ -1,8 +1,4 @@
-import {
-    BsDiscord,
-    BsEnvelopeFill,
-    BsGithub,
-} from "solid-icons/bs";
+import { BsEnvelopeFill, BsGithub } from "solid-icons/bs";
 
 import nostr from "../assets/nostr.svg";
 import simplex from "../assets/simplex.svg";
@@ -33,13 +29,6 @@ const Footer = () => {
                     target="_blank"
                     href={config.githubUrl}>
                     <BsGithub size={22} color="#22374F" />
-                </a>
-                <a
-                    title="Discord"
-                    class="discord"
-                    target="_blank"
-                    href={config.discordUrl}>
-                    <BsDiscord size={22} color="#22374F" />
                 </a>
                 <a
                     title="Nostr"
