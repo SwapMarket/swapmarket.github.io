@@ -1,7 +1,4 @@
-import {
-    BsEnvelopeFill,
-    BsGithub,
-} from "solid-icons/bs";
+import { BsEnvelopeFill, BsGithub } from "solid-icons/bs";
 
 import nostr from "../assets/nostr.svg";
 import simplex from "../assets/simplex.svg";
