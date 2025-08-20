@@ -7,7 +7,8 @@ import log from "loglevel";
 import { config } from "../config";
 import { LBTC } from "../consts/Assets";
 import { SwapType } from "../consts/Enums";
-import { broadcastToExplorer, fetcher } from "./helper";
+import { broadcastToExplorer } from "./blockchain";
+import { fetcher } from "./helper";
 import { validateInvoiceForOffer } from "./invoice";
 
 const cooperativeErrorMessage = "cooperative signatures for swaps are disabled";

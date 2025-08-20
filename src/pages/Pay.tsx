@@ -119,7 +119,7 @@ const Pay = () => {
                 setSwap({ ...swap(), refundTx: "" });
             }
         } catch (e) {
-            log.debug("error fetching UTXOs: ", e);
+            log.debug("error fetching UTXOs:", e);
         }
     });
 
