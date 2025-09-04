@@ -2,34 +2,53 @@
 <html lang="en" boltz-theme="default" style="height: 100%">
     <head>
         <meta charset="utf-8" />
-        <meta
-            name="viewport"
-            content="width=device-width,initial-scale=1,maximum-scale=1" />
-        <link rel="shortcut icon" type="image/ico" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link
+            rel="shortcut icon"
+            type="image/ico"
+            href="${assetsPath}/favicon.ico" />
         <link
             rel="apple-touch-icon"
             sizes="180x180"
-            href="/apple-touch-icon.png" />
+            href="${assetsPath}/apple-touch-icon.png" />
         <link
             rel="icon"
             type="image/png"
-            href="/favicon-32x32.png"
+            href="${assetsPath}/favicon-32x32.png"
             sizes="32x32" />
         <link
             rel="icon"
             type="image/png"
-            href="/favicon-16x16.png"
+            href="${assetsPath}/favicon-16x16.png"
             sizes="16x16" />
-        <link rel="manifest" href="/manifest.json" />
-        <link property="image" href="/sm-preview.jpg" />
-        <meta property="og:image" content="/sm-preview.jpg" />
-        <meta property="twitter:image" content="/sm-preview.jpg" />
-        <meta
-            name="description"
-            content="SwapMarket is a virtual broker for Non-Custodial Bitcoin Bridges." />
+        <link rel="manifest" href="${assetsPath}/manifest.json" />
+
+        <!-- Open Graph -->
+        <meta property="og:title" content="${boltzTitle}" />
+        <meta property="og:description" content="${boltzDescription}" />
+        <meta property="og:url" content="${boltzUrl}" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="${boltzTitle}" />
+        <meta property="og:image" content="${boltzUrl}/sm-preview.jpg" />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+
+        <!-- Twitter -->
+        <meta name="twitter:title" content="${boltzTitle}" />
+        <meta name="twitter:description" content="${boltzDescription}" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="${boltzUrl}/sm-preview.jpg" />
+        <meta name="twitter:site" content="@boltzhq" />
+
+        <meta name="description" content="${boltzDescription}" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <title>SwapMarket</title>
+
+        <title>${boltzTitle}</title>
         <style>
+            :root {
+                --backgroundColor: $backgroundColor;
+            }
             @keyframes boltzing {
                 0% {
                     transform: translate(-50%, -50%) scale(1);
@@ -45,7 +64,7 @@
                 display: none;
             }
             .loading {
-                background: #142840;
+                background: var(--backgroundColor);
             }
             .loading > svg {
                 position: absolute;
@@ -72,8 +91,8 @@
                     x2="0"
                     y2="49"
                     gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#FFE96D" offset="0" />
-                    <stop stop-color="#E1C218" offset="1" />
+                    <stop stop-color="${boltzColor100}" offset="0" />
+                    <stop stop-color="${boltzColor200}" offset="1" />
                 </linearGradient>
                 <linearGradient
                     id="paint0_linear-3"
@@ -82,8 +101,8 @@
                     y1="-11"
                     y2="56"
                     gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#FFE96D" offset="0" />
-                    <stop stop-color="#E1C218" offset="1" />
+                    <stop stop-color="${boltzColor100}" offset="0" />
+                    <stop stop-color="${boltzColor200}" offset="1" />
                 </linearGradient>
             </defs>
             <path d="M 20.559 3.456 C 20.51 3.626 20.443 3.779 20.356 3.915 C 20.269 4.05 20.171 4.17 20.061 4.273 C 19.952 4.377 19.833 4.466 19.705 4.539 C 19.577 4.611 19.449 4.671 19.321 4.717 C 19.192 4.764 19.065 4.798 18.941 4.82 C 18.816 4.842 18.701 4.853 18.596 4.853 L 14.834 4.853 L 15.077 3.992 L 18.839 3.992 C 19.026 3.992 19.186 3.944 19.317 3.847 C 19.448 3.75 19.537 3.62 19.583 3.456 C 19.605 3.377 19.612 3.304 19.603 3.238 C 19.595 3.172 19.572 3.114 19.534 3.066 C 19.496 3.017 19.444 2.98 19.378 2.953 C 19.312 2.926 19.234 2.913 19.144 2.913 L 16.901 2.913 C 16.744 2.913 16.581 2.888 16.412 2.839 C 16.243 2.789 16.097 2.709 15.972 2.599 C 15.846 2.489 15.757 2.344 15.704 2.165 C 15.651 1.986 15.661 1.768 15.734 1.51 C 15.807 1.252 15.92 1.034 16.074 0.856 C 16.228 0.678 16.399 0.534 16.586 0.422 C 16.774 0.31 16.966 0.23 17.162 0.18 C 17.359 0.131 17.536 0.106 17.694 0.106 L 21.014 0.106 L 20.77 0.967 L 17.45 0.967 C 17.265 0.967 17.107 1.016 16.975 1.116 C 16.843 1.215 16.754 1.347 16.708 1.51 C 16.662 1.675 16.677 1.806 16.753 1.902 C 16.83 1.998 16.961 2.046 17.146 2.046 L 19.389 2.046 L 19.397 2.046 C 19.501 2.048 19.609 2.06 19.719 2.084 C 19.83 2.107 19.937 2.143 20.04 2.191 C 20.142 2.24 20.236 2.301 20.319 2.375 C 20.404 2.449 20.472 2.538 20.524 2.642 C 20.576 2.745 20.607 2.865 20.616 3 C 20.626 3.134 20.607 3.286 20.559 3.456 Z M 28.552 1.274 C 28.31 1.581 28.057 1.883 27.793 2.18 C 27.529 2.477 27.261 2.758 26.991 3.023 C 26.719 3.288 26.449 3.532 26.181 3.756 C 25.913 3.98 25.655 4.173 25.408 4.335 C 25.161 4.497 24.929 4.624 24.712 4.716 C 24.495 4.807 24.302 4.853 24.131 4.853 C 24.061 4.853 24 4.842 23.946 4.82 C 23.892 4.798 23.848 4.768 23.813 4.729 C 23.779 4.69 23.757 4.644 23.747 4.591 C 23.738 4.539 23.741 4.481 23.759 4.419 L 24.212 2.814 L 21.738 4.724 C 21.675 4.768 21.611 4.801 21.546 4.822 C 21.482 4.843 21.418 4.853 21.355 4.853 C 21.288 4.853 21.228 4.842 21.176 4.82 C 21.123 4.798 21.08 4.768 21.045 4.729 C 21.011 4.69 20.989 4.644 20.978 4.591 C 20.967 4.539 20.969 4.481 20.987 4.419 L 21.875 1.274 L 22.85 1.274 L 22.274 3.314 L 24.758 1.397 C 24.846 1.336 24.94 1.296 25.041 1.279 C 25.142 1.263 25.233 1.272 25.316 1.307 C 25.399 1.341 25.458 1.393 25.492 1.465 C 25.525 1.537 25.53 1.616 25.505 1.701 L 24.927 3.747 C 25.188 3.569 25.431 3.38 25.657 3.181 C 25.884 2.983 26.1 2.778 26.305 2.567 C 26.511 2.357 26.709 2.143 26.899 1.925 C 27.089 1.708 27.276 1.491 27.46 1.274 L 28.552 1.274 Z M 32.233 3.668 C 32.2 3.787 32.14 3.916 32.053 4.054 C 31.967 4.192 31.854 4.32 31.715 4.438 C 31.574 4.556 31.408 4.654 31.214 4.734 C 31.02 4.813 30.801 4.853 30.556 4.853 L 28.797 4.853 C 28.662 4.853 28.522 4.832 28.378 4.79 C 28.233 4.748 28.108 4.681 28.001 4.587 C 27.893 4.493 27.816 4.371 27.768 4.219 C 27.721 4.068 27.728 3.884 27.789 3.668 C 27.823 3.549 27.883 3.42 27.97 3.281 C 28.056 3.141 28.169 3.013 28.309 2.895 C 28.449 2.777 28.616 2.678 28.809 2.599 C 29.003 2.519 29.223 2.479 29.468 2.479 L 31.227 2.479 L 30.994 3.3 L 29.235 3.3 C 29.103 3.3 28.99 3.336 28.897 3.408 C 28.805 3.48 28.743 3.569 28.713 3.674 C 28.682 3.787 28.699 3.875 28.765 3.938 C 28.831 4 28.921 4.032 29.037 4.032 L 30.788 4.032 C 30.92 4.032 31.033 3.997 31.125 3.926 C 31.218 3.855 31.279 3.767 31.309 3.662 L 31.648 2.46 C 31.68 2.347 31.666 2.258 31.606 2.191 C 31.546 2.125 31.456 2.092 31.336 2.092 L 29.194 2.092 L 29.426 1.274 L 31.567 1.274 C 31.702 1.274 31.842 1.295 31.986 1.338 C 32.13 1.38 32.256 1.447 32.364 1.541 C 32.471 1.635 32.548 1.757 32.595 1.908 C 32.642 2.06 32.636 2.243 32.575 2.46 L 32.233 3.668 Z M 37.543 3.645 C 37.501 3.793 37.442 3.926 37.366 4.044 C 37.29 4.162 37.205 4.265 37.11 4.355 C 37.014 4.444 36.912 4.52 36.801 4.584 C 36.691 4.646 36.58 4.697 36.467 4.737 C 36.355 4.777 36.245 4.806 36.137 4.825 C 36.029 4.844 35.929 4.853 35.836 4.853 L 34.077 4.853 L 34.32 3.992 L 36.079 3.992 C 36.209 3.992 36.315 3.962 36.397 3.903 C 36.479 3.843 36.536 3.757 36.567 3.645 L 36.895 2.486 C 36.928 2.367 36.92 2.279 36.871 2.222 C 36.821 2.164 36.732 2.135 36.604 2.135 L 34.852 2.135 C 34.72 2.135 34.612 2.164 34.528 2.223 C 34.444 2.281 34.386 2.367 34.354 2.479 L 33.367 5.972 L 32.392 5.972 L 33.378 2.479 C 33.42 2.332 33.479 2.199 33.555 2.082 C 33.631 1.965 33.716 1.862 33.812 1.773 C 33.909 1.683 34.013 1.607 34.123 1.545 C 34.233 1.481 34.345 1.43 34.457 1.39 C 34.569 1.351 34.68 1.322 34.79 1.303 C 34.899 1.284 34.998 1.274 35.089 1.274 L 36.848 1.274 C 37.015 1.274 37.159 1.293 37.282 1.331 C 37.403 1.368 37.506 1.418 37.59 1.48 C 37.674 1.542 37.74 1.613 37.788 1.695 C 37.836 1.777 37.87 1.862 37.89 1.951 C 37.909 2.041 37.917 2.131 37.913 2.222 C 37.909 2.312 37.895 2.398 37.872 2.479 L 37.543 3.645 Z" style="fill: rgb(255, 214, 0); stroke: url('#gradient-0'); stroke-width: 0px;"/>
@@ -101,5 +120,8 @@
         <script
             src="/node_modules/iframe-resizer/js/iframeResizer.contentWindow.js"
             type="module"></script>
+        <script type="application/ld+json">
+            ${ldJson}
+        </script>
     </body>
 </html>

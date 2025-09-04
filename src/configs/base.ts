@@ -3,8 +3,8 @@ import type log from "loglevel";
 import type Backend from "../components/Backend";
 
 type Asset = {
-    blockExplorerUrl?: Url;
-    blockExplorerApis?: Url[];
+    blockExplorerUrl?: ExplorerUrl;
+    blockExplorerApis?: ExplorerUrl[];
 
     rifRelay?: string;
     contracts?: {
@@ -24,23 +24,28 @@ type Asset = {
     };
 };
 
-type Url = {
+export enum Explorer {
+    Mempool = "mempool",
+    Esplora = "esplora",
+    Blockscout = "blockscout",
+}
+
+export type Url = {
     normal: string;
     tor?: string;
 };
 
+export type ExplorerUrl = Url & {
+    id: Explorer;
+};
+
 type Backend = {
     alias: string;
-    // The wsFallback is used on regtest when the backend is being run without
-    // nginx and the WebSocket is on a different port than the rest of the API
-    apiUrl: Url & { wsFallback?: string };
+    apiUrl: Url;
     contact: string;
 };
 
 export type Config = {
-    // The wsFallback is used on regtest when the backend is being run without
-    // nginx and the WebSocket is on a different port than the rest of the API
-    apiUrl?: Url;
     network?: "mainnet" | "testnet" | "regtest";
     backends?: Backend[];
     isBoltzClient?: boolean;
