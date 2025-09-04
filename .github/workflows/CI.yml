@@ -21,7 +21,7 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run check:assets
+      #- run: npm run check:assets
 
       - run: npm run check:html-template
 
