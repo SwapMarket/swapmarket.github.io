@@ -22,6 +22,8 @@ import type {
     SubmarineSwap,
 } from "./swapCreator";
 
+export const requestTimeoutDuration = 10_000;
+
 export const isIos = () =>
     !!navigator.userAgent.match(/iphone|ipad/gi) || false;
 
@@ -65,10 +67,6 @@ export const getApiUrl = (backend: number): string => {
     return chooseUrl(config.backends[backend].apiUrl);
 };
 
-export const getWsFallback = (backend: number): string => {
-    return config.backends[backend].apiUrl.wsFallback;
-};
-
 export const coalesceLn = (asset: string) => (asset === LN ? BTC : asset);
 
 export const getPair = <
@@ -99,38 +97,59 @@ export const fetcher = async <T = unknown>(
     params?: Record<string, unknown>,
     options?: RequestInit,
 ): Promise<T> => {
-    // We cannot use the context here, so we get the data directly from local storage
-    const referral = localStorage.getItem(referralIdKey) || defaultReferral();
-    let opts: RequestInit = {
-        headers: {
-            referral,
-        },
-    };
+    const controller = new AbortController();
+    const requestTimeout = setTimeout(
+        () => controller.abort(),
+        requestTimeoutDuration,
+    );
 
-    if (params) {
-        opts = {
-            method: "POST",
+    try {
+        // We cannot use the context here, so we get the data directly from local storage
+        const referral =
+            localStorage.getItem(referralIdKey) || defaultReferral();
+
+        let opts: RequestInit = {
             headers: {
-                ...(options ? options.headers : opts.headers),
-                "Content-Type": "application/json",
+                referral,
             },
-            body: JSON.stringify(params),
+            signal: controller.signal,
         };
-    }
 
-    const apiUrl = getApiUrl(backend) + url;
-    const response = await fetch(apiUrl, options || opts);
-    if (!response.ok) {
-        try {
-            const body = await response.json();
-            return Promise.reject(formatError(body));
-
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (e) {
-            return Promise.reject(response);
+        if (params) {
+            opts = {
+                method: "POST",
+                headers: {
+                    ...(options ? options.headers : opts.headers),
+                    "Content-Type": "application/json",
+                },
+                signal: controller.signal,
+                body: JSON.stringify(params),
+            };
         }
+
+        const apiUrl = getApiUrl(backend) + url;
+        const response = await fetch(apiUrl, options || opts);
+
+        if (!response.ok) {
+            try {
+                const contentType = response.headers.get("content-type");
+                if (contentType?.includes("application/json")) {
+                    const body = await response.json();
+                    return Promise.reject(formatError(body));
+                }
+                return Promise.reject(await response.text());
+
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (e) {
+                return Promise.reject(response);
+            }
+        }
+        return (await response.json()) as T;
+    } catch (e) {
+        throw new Error(e);
+    } finally {
+        clearTimeout(requestTimeout);
     }
-    return (await response.json()) as T;
 };
 
 export const parsePrivateKey = (

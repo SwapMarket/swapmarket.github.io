@@ -61,8 +61,8 @@ export const pairs: Pairs = {
                 fees: {
                     percentage: 0.25,
                     minerFees: {
-                        claim: 152,
-                        lockup: 276,
+                        claim: 23, // includes uncooperative extra 3 sats
+                        lockup: 27,
                     },
                 },
             },
