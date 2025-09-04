@@ -120,7 +120,10 @@ const ClaimRescue = () => {
 
     const [claimableSwap] = createResource(allPairs, async () => {
         try {
-            if (rescueFile() === undefined || allPairs() === undefined) {
+            if (
+                rescueFile() === undefined ||
+                allPairs()[backend()] === undefined
+            ) {
                 throw Error("rescue file or pairs not found");
             }
 
@@ -275,7 +278,7 @@ const ClaimRescue = () => {
     };
 
     onMount(() => {
-        if (!allPairs()) {
+        if (!allPairs()[backend()]) {
             void fetchPairs();
         }
     });
