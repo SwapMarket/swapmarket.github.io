@@ -56,14 +56,15 @@ const dict = {
         success_swap: "Swap Success",
         feecheck:
             "Network fee was updated based on network situation, please confirm new amounts and continue with swap.",
-        create_and_paste: "Paste a Lightning invoice, offer or LNURL",
+        create_and_paste:
+            "Paste a Lightning invoice, BOLT12 or LNURL to receive funds",
         congrats: "Congratulations!",
         successfully_swapped:
             "You successfully received {{ amount }} {{ denomination }}!",
         timeout_eta: "Timeout ETA",
         pay_invoice: "Swap: {{ id }}",
         pay_swap_404: "Swap not found!",
-        pay_timeout_blockheight: "Timeout block height",
+        pay_timeout_blockheight: "Timeout Block Height ({{ network }})",
         pay_expected_amount: "Expected amount",
         send_to: "Send {{ amount }} {{ denomination }} to",
         send_between:
@@ -80,11 +81,12 @@ const dict = {
             "Your lockup transaction failed, wait for the timeout to refund.",
         failure_reason: "Failure reason",
         invoice_payment_failure: "Could not pay your lightning invoice",
-        onchain_address: "Enter {{ asset }} address",
+        onchain_address: "Enter {{ asset }} address to receive funds",
         onchain_address_no_asset: "Enter address",
         invalid_refund_file: "Invalid rescue key",
         invalid_backup_file: "Invalid backup file",
-        invalid_invoice: "Please provide a valid invoice, offer or LNURL",
+        invalid_invoice:
+            "Please provide a valid Lightning invoice, BOLT12 or LNURL",
         invalid_0_amount: "Invoices without amount are not supported",
         copy_invoice: "lightning invoice",
         copy_address: "address",
@@ -144,8 +146,8 @@ const dict = {
         already_refunded: "Swap already refunded",
         api_offline: "API is offline",
         api_offline_msg:
-            "Could not connect to the provider's API, please try again later",
-        refund_explainer: "You will be able to refund after the timeout",
+            "Could not connect to the Boltz API, please try again later",
+        refund_explainer: "You will be able to refund after the swap timeout",
         swap_not_refundable_yet: "Your swap is not refundable yet",
         wasm_not_supported: "Please activate WebAssembly in your browser",
         created: "Created",
@@ -310,6 +312,8 @@ const dict = {
             "Please re-insert the rescue key and try again.",
         in_progress: "In progress",
         completed: "Completed",
+        get_refundable_error:
+            "Failed to load UTXO data. Refresh to try again or check your internet connection if the problem persists.",
     },
     de: {
         language: "Deutsch",
@@ -330,7 +334,7 @@ const dict = {
         lightningnode: "Lightning Knoten anzeigen",
         error: "Fehler",
         error_subline:
-            "Ungültige Antwort von der API, irgendwas ist hier falsch.",
+            "Ungültige Antwort von der API, irgendwas ist hier falsch gelaufen.",
         error_wasm: "WebAssembly nicht unterstützt",
         history: "Historie",
         swap: "Swap",
@@ -369,14 +373,15 @@ const dict = {
         success_swap: "Swap erfolgreich!",
         feecheck:
             "Die Netzwerkgebühr wurde aufgrund der Netzwerksituation aktualisiert. Bitte bestätige die neuen Beträge und fahren mit dem Swap fort.",
-        create_and_paste: "Füge Lightning Invoice, Offer oder LNURL hier ein",
+        create_and_paste:
+            "Füge eine Lightning-Rechnung, BOLT12 oder LNURL des Empfängers ein",
         congrats: "Herzlichen Glückwunsch!",
         successfully_swapped:
             "Du hast erfolgreich {{ amount }} {{ denomination }} empfangen!",
         timeout_eta: "Timeout-ETA",
         pay_invoice: "Swap: {{ id }}",
         pay_swap_404: "Swap nicht gefunden!",
-        pay_timeout_blockheight: "Timeout Blockhöhe",
+        pay_timeout_blockheight: "Timeout Blockhöhe ({{ network }})",
         pay_expected_amount: "Erwarteter Betrag",
         send_to: "Sende {{ amount }} {{ denomination }} an",
         send_between:
@@ -395,12 +400,13 @@ const dict = {
         failure_reason: "Grund für den Fehler",
         invoice_payment_failure:
             "Deine Lightning-Rechung konnte nicht bezahlt werden",
-        onchain_address: "{{ asset }}-Adresse eingeben",
+        onchain_address: "Gib eine {{ asset }} Empfangsadresse ein",
         onchain_address_no_asset: "Adresse",
         invalid_refund_file: "Ungültiger Rettungsschlüssel",
         invalid_backup_file: "Ungültige Backupdatei",
-        invalid_invoice: "Bitte gültige Invoice, Offer oder LNURL eingeben",
-        invalid_0_amount: "Lightning Rechnungen ohne Betrag nicht unterstützt",
+        invalid_invoice:
+            "Bitte eine gültige Lightning-Rechnung, BOLT12 oder LNURL eingeben",
+        invalid_0_amount: "Lightning-Rechnungen ohne Betrag nicht unterstützt",
         copy_invoice: "Lightning-Rechnung",
         copy_address: "Adresse",
         copy_amount: "Betrag",
@@ -462,7 +468,7 @@ const dict = {
         api_offline_msg:
             "Konnte keine Verbindung zur Anbieter API herstellen. Bitte versuche es später noch einmal.",
         refund_explainer:
-            "Du kannst nach dem Timeout eine Rückerstattung beantragen",
+            "Du kannst nach dem Timeout eine Rückerstattung beantragen!",
         swap_not_refundable_yet:
             "Dein Swap kann noch nicht erstattet werden. Warte auf den Timeout, um eine Rückerstattung zu starten.",
         wasm_not_supported: "Bitte aktiviere WebAssembly in deinem Browser!",
@@ -638,6 +644,8 @@ const dict = {
             "Bitte gebe den Rettungsschlüssel erneut ein und versuche es noch einmal.",
         in_progress: "In Bearbeitung",
         completed: "Abgeschlossen",
+        get_refundable_error:
+            "UTXO-Daten konnten nicht geladen werden. Aktualisiere die Seite um es erneut zu versuchen oder überprüfe deine Internetverbindung, falls das Problem weiterhin besteht.",
     },
     es: {
         language: "Español",
@@ -697,14 +705,16 @@ const dict = {
         success_swap: "Intercambio realizado con éxito!",
         feecheck:
             "La comisión de red se actualizó según la situación de la red. Por favor, confirma los nuevos importes y continúa con el intercambio.",
-        create_and_paste: "Pegar Lightning Invoice, Offer o LNURL",
+        create_and_paste:
+            "Pega una factura Lightning, una dirección BOLT12 o una LNURL para recibir los fondos",
         congrats: "¡Felicitaciones!",
         successfully_swapped:
             "Has recibido con éxito {{ amount }} {{ denomination }}!",
         timeout_eta: "Tiempo de espera estimado",
         pay_invoice: "Intercambio: {{ id }}",
         pay_swap_404: "¡Intercambio no encontrado!",
-        pay_timeout_blockheight: "Altura del bloque de tiempo de espera",
+        pay_timeout_blockheight:
+            "Altura del bloque de tiempo de espera ({{ network }})",
         pay_expected_amount: "Importe esperado",
         send_to: "Enviar {{ amount }} {{ denomination }} a",
         send_between: "Enviar entre {{ min }} y {{ max }} {{ denomination }} a",
@@ -720,11 +730,13 @@ const dict = {
             "Tu transacción de lockup falló, espere el tiempo de espera para obtener un reembolso.",
         failure_reason: "Motivo del fallo",
         invoice_payment_failure: "No se pudo pagar tu factura Lightning",
-        onchain_address: "Ingrese la dirección de {{ asset }}",
+        onchain_address:
+            "Ingrese una dirección {{ asset }} para recibir los fondos",
         onchain_address_no_asset: "Ingrese la dirección",
         invalid_refund_file: "'Clave de rescate no válido",
         invalid_backup_file: "Archivo de backup no válido",
-        invalid_invoice: "Por favor, pegue Invoice, Offer o LNURL válida",
+        invalid_invoice:
+            "Por favor, pegue una factura Lightning, BOLT12 o LNURL válida",
         invalid_0_amount: "No se admiten facturas sin importe",
         copy_invoice: "factura Lightning",
         copy_address: "dirección",
@@ -789,7 +801,7 @@ const dict = {
         api_offline_msg:
             "No se pudo conectar a la API del proveedor, por favor inténtelo de nuevo más tarde!",
         refund_explainer:
-            "Podrás solicitar un reembolso después del tiempo de espera.",
+            "Podrás solicitar un reembolso después del tiempo de espera!",
         swap_not_refundable_yet:
             "Tu intercambio aún no es reembolsable, por favor inténtelo de nuevo más tarde!",
         wasm_not_supported: "Por favor, activa WebAssembly en tu navegador!",
@@ -961,6 +973,8 @@ const dict = {
             "Por favor, vuelva a introducir la clave de rescate e inténtelo de nuevo.",
         in_progress: "En progreso",
         completed: "Completado",
+        get_refundable_error:
+            "No se pudieron cargar los datos de UTXO. Actualiza la página para volver a intentarlo o verifica tu conexión a Internet si el problema persiste.",
     },
     pt: {
         language: "Português",
@@ -1021,14 +1035,15 @@ const dict = {
         success_swap: "Troca realizada",
         feecheck:
             "A taxa da rede foi atualizada conforme a situação atual, por favor confirme os novos valores e continue a troca.",
-        create_and_paste: "Cole um invoice Lightning, offer ou LNURL",
+        create_and_paste:
+            "Cole um invoice Lightning, um endereço BOLT12 ou um LNURL para receber os fundos",
         congrats: "Parabéns!",
         successfully_swapped:
             "{{ amount }} {{ denomination }} recebidos com sucesso!",
-        timeout_eta: "Tempo limite estimado",
+        timeout_eta: "Estimativa de Expiração",
         pay_invoice: "Troca: {{ id }}",
         pay_swap_404: "Troca não encontrada!",
-        pay_timeout_blockheight: "Altura do bloco de timeout",
+        pay_timeout_blockheight: "Altura do Bloco de Expiração ({{ network }})",
         pay_expected_amount: "Valor esperado",
         send_to: "Envie {{ amount }} {{ denomination }} para",
         send_between:
@@ -1046,11 +1061,13 @@ const dict = {
             "Sua transação de lockup falhou, aguarde o tempo limite para o reembolso.",
         failure_reason: "Motivo da falha",
         invoice_payment_failure: "Não foi possível pagar seu invoice Lightning",
-        onchain_address: "Digite o endereço de {{ asset }}",
+        onchain_address:
+            "Digite um endereço {{ asset }} para receber os fundos",
         onchain_address_no_asset: "Digite o endereço",
         invalid_refund_file: "Chave de resgate inválida",
         invalid_backup_file: "Arquivo de backup inválido",
-        invalid_invoice: "Por favor, forneça um invoice, offer ou LNURL válido",
+        invalid_invoice:
+            "Por favor, forneça um invoice Lightning, BOLT12 ou LNURL válido",
         invalid_0_amount: "Invoices sem valor não são suportadas",
         copy_invoice: "invoice lightning",
         copy_address: "endereço",
@@ -1112,7 +1129,8 @@ const dict = {
         api_offline: "A API está offline",
         api_offline_msg:
             "Não foi possível conectar à API da Boltz, por favor tente novamente mais tarde",
-        refund_explainer: "Será possível reembolsar após o prazo limite",
+        refund_explainer:
+            "Será possível reembolsar a troca após o prazo de expiração!",
         swap_not_refundable_yet: "Sua troca ainda não pode ser reembolsada",
         wasm_not_supported: "Ative o WebAssembly no seu navegador",
         created: "Criado",
@@ -1280,6 +1298,8 @@ const dict = {
             "Por favor, re-insira a chave de resgate e tente novamente.",
         in_progress: "Em curso",
         completed: "Completado",
+        get_refundable_error:
+            "Não foi possível carregar os dados de UTXO. Recarregue a página para voltar a tentar ou verifique sua conexão com a Internet se o problema persistir.",
     },
     zh: {
         language: "中文",
@@ -1336,13 +1356,13 @@ const dict = {
         new_swap: "新的交换",
         success_swap: "交换成功",
         feecheck: "根据网络情况更新了网络费用，请确认新的金额并继续进行交换。",
-        create_and_paste: "粘贴闪电发票,offer或LNURL",
+        create_and_paste: "粘贴闪电发票、BOLT12 地址或 LNURL 以接收资金",
         congrats: "恭喜！",
         successfully_swapped: "您成功收到{{ amount }}{{ denomination }}！",
         timeout_eta: "超过预期时间",
         pay_invoice: "交换：{{ id }}",
         pay_swap_404: "找不到交换！",
-        pay_timeout_blockheight: "超时区块高度",
+        pay_timeout_blockheight: "超时区块高度 ({{ network }})",
         pay_expected_amount: "预期金额",
         send_to:
             "请将准确的{{ amount }}{{ denomination }}发送到以下地址。您可以使用“BIP21”按钮，并将其粘贴到钱包。",
@@ -1358,11 +1378,11 @@ const dict = {
         lockup_failed_subline: "您的锁仓交易失败，请等待超时进行退款。",
         failure_reason: "失败原因",
         invoice_payment_failure: "无法支付您的闪电发票",
-        onchain_address: "输入{{ asset }}地址",
+        onchain_address: "输入{{ asset }}地址以接收资金",
         onchain_address_no_asset: "地址",
         invalid_refund_file: "无效的救援钥匙",
         invalid_backup_file: "无效的备份文件",
-        invalid_invoice: "请提供有效的发票,offer或LNURL",
+        invalid_invoice: "请提供有效的发票,BOLT12或LNURL",
         invalid_0_amount: "不支持没有金额的发票",
         copy_invoice: "闪电网络发票",
         copy_address: "地址",
@@ -1570,6 +1590,8 @@ const dict = {
         failed_get_swap_subline: "请重新插入救援钥匙并再次尝试。",
         in_progress: "进行中",
         completed: "已完成",
+        get_refundable_error:
+            "无法加载 UTXO 数据。请刷新页面后重试，或检查您的网络连接如果问题仍然存在。",
     },
     ja: {
         language: "日本語",
@@ -1631,13 +1653,13 @@ const dict = {
         feecheck:
             "ネットワーク手数料はネットワーク状況に基づいて更新されました。新しい金額を確認し、スワップを続行してください",
         create_and_paste:
-            "ライトニングインボイス、Offer、またはLNURLを貼り付ける",
+            "資金を受け取るために、ライトニングインボイス、BOLT12、またはLNURLを貼り付けてください",
         congrats: "おめでとうございます！",
         successfully_swapped: "スワップが正常に完了しました",
         timeout_eta: "タイムアウト予想時間",
         pay_invoice: "スワップ：{{ id }}",
         pay_swap_404: "スワップが見つかりません！",
-        pay_timeout_blockheight: "タイムアウトブロック高",
+        pay_timeout_blockheight: "タイムアウトブロック高 ({{ network }})",
         pay_expected_amount: "予想金額",
         send_to:
             "{{ amount }} {{ denomination }} を以下のアドレスへ送金して下さい",
@@ -1656,11 +1678,12 @@ const dict = {
             "ロックアップトランザクションが失敗しました。タイムアウトまで待って返金してください",
         failure_reason: "失敗の理由",
         invoice_payment_failure: "インボイスを支払うことができませんでした",
-        onchain_address: "{{ asset }}アドレスを入力してください",
+        onchain_address:
+            "資金を受け取るために、{{ asset }}アドレスを入力してください",
         onchain_address_no_asset: "アドレスを入力してください",
         invalid_refund_file: "無効なレスキューキー",
         invalid_backup_file: "無効なバックアップファイル",
-        invalid_invoice: "有効なインボイス、Offer、LNURLを入力してください",
+        invalid_invoice: "有効なインボイス、BOLT12、LNURLを入力してください",
         invalid_0_amount: "金額のない空インボイスは対応していません",
         copy_invoice: "インボイスをコピー",
         copy_address: "アドレスをコピー",
@@ -1891,6 +1914,8 @@ const dict = {
             "レスキューキーを再挿入し、もう一度お試しください。",
         in_progress: "進行中",
         completed: "完了",
+        get_refundable_error:
+            "UTXO データの読み込みに失敗しました。ページを更新して再試行するか、問題が続く場合はインターネット接続を確認してください。",
     },
     ru: {
         language: "Русский",
@@ -2213,6 +2238,8 @@ const dict = {
             "Пожалуйста, повторно введите ключ спасения и попробуйте снова.",
         in_progress: "В процессе",
         completed: "Завершено",
+        get_refundable_error:
+            "Не удалось загрузить данные UTXO. Обновите страницу, чтобы повторить попытку, или проверьте подключение к Интернету, если проблема не устранена.",
     },
 };
 

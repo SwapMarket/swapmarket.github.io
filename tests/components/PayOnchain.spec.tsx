@@ -11,7 +11,7 @@ import { pairs } from "../pairs";
 describe("PayOnchain", () => {
     test("should copy amount reactively", async () => {
         const amount = 100_000;
-
+        
         render(
             () => (
                 <>
@@ -30,13 +30,14 @@ describe("PayOnchain", () => {
                 wrapper: contextWrapper,
             },
         );
-        globalSignals.setAllPairs([pairs]);
-
+        
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         navigator.clipboard = {
             writeText: vi.fn(),
         } as unknown;
+
+        globalSignals.setAllPairs([pairs]);
 
         const buttons = (await screen.findByTestId(
             "pay-onchain-buttons",
