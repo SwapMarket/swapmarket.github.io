@@ -28,7 +28,7 @@ const config = {
                 normal: "https://api.middle-way.space",
                 tor: "http://middlwayksj5gak7pgaag32kcslzkjrpois57qtquiydpaqpy5fhzhqd.onion",
             },
-            contact: "https://shorturl.at/QuueX",
+            contact: "https://igit.me/middleway",
         },
         {
             alias: "Eldamar",
