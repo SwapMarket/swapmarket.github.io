@@ -11,7 +11,7 @@ import { pairs } from "../pairs";
 describe("PayOnchain", () => {
     test("should copy amount reactively", async () => {
         const amount = 100_000;
-        
+
         render(
             () => (
                 <>
@@ -30,7 +30,7 @@ describe("PayOnchain", () => {
                 wrapper: contextWrapper,
             },
         );
-        
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         navigator.clipboard = {

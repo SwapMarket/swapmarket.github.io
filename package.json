@@ -1,6 +1,6 @@
 {
     "name": "boltz-frontend",
-    "version": "1.8.2",
+    "version": "1.8.4",
     "description": "Boltz Exchange, Atomic Swaps, Web App",
     "scripts": {
         "start": "npm run regtest && vite",
@@ -84,7 +84,6 @@
         "create-hmac": "^1.1.7",
         "ecpair": "^3.0.0",
         "ethers": "^6.15.0",
-        "iframe-resizer": "^5.5.5",
         "liquidjs-lib": "^6.0.2-liquid.37",
         "localforage": "^1.10.0",
         "loglevel": "^1.9.2",
