@@ -14,6 +14,13 @@ const config = {
             contact: "https://boltz.exchange",
         },
         {
+            alias: "ZEUS Testnet",
+            apiUrl: {
+                normal: "https://testnet-swaps.zeuslsp.com/api",
+            },
+            contact: "mailto:support@zeusln.com",
+        },
+        {
             alias: "Local Test Node",
             apiUrl: {
                 normal: "http://127.0.0.1:9001",

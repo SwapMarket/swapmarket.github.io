@@ -22,4 +22,5 @@ export enum UrlParam {
     ReceiveAmount = "receiveAmount",
     Lang = "lang",
     Ref = "ref",
+    Backend = "backend",
 }

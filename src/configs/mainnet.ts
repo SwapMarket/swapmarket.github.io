@@ -28,7 +28,7 @@ const config = {
                 normal: "https://api.middleway.space",
                 tor: "http://middlwayksj5gak7pgaag32kcslzkjrpois57qtquiydpaqpy5fhzhqd.onion",
             },
-            contact: "https://shorturl.at/QuueX",
+            contact: "https://igit.me/middleway",
         },
         {
             alias: "Eldamar",
@@ -37,6 +37,14 @@ const config = {
                 tor: "http://mnyazp2duhs3jewqzw7g6vv44g73ijiujdmk5z6js72fn3epybup2yqd.onion",
             },
             contact: "https://t.me/SynthLock",
+        },
+        {
+            alias: "ZEUS Swaps",
+            apiUrl: {
+                normal: "https://swaps.zeuslsp.com/api",
+                tor: "",
+            },
+            contact: "mailto:support@zeusln.com",
         },
     ],
     assets: {

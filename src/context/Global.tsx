@@ -466,6 +466,13 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
         setRef(proReferral);
     }
 
+    // Get the backend from the URL parameters
+    const backendParam = getUrlParam(UrlParam.Backend);
+    if (backendParam && backendParam !== "") {
+        setBackend(Number(backendParam));
+        resetUrlParam(UrlParam.Backend);
+    }
+
     const [browserNotification, setBrowserNotification] = makePersisted(
         // eslint-disable-next-line solid/reactivity
         createSignal<boolean>(false),
