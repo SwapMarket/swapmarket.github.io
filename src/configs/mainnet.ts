@@ -38,6 +38,14 @@ const config = {
             },
             contact: "https://t.me/SynthLock",
         },
+        {
+            alias: "ZEUS Swaps",
+            apiUrl: {
+                normal: "https://swaps.zeuslsp.com/api",
+                tor: "",
+            },
+            contact: "mailto:support@zeusln.com",
+        },
     ],
     assets: {
         BTC: {
