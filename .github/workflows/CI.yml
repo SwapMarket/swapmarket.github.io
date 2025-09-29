@@ -3,9 +3,9 @@ name: CI
 on:
   # Runs on pushes and PRs targeting the main and test branches
   push:
-    branches: ['main', 'test']
+    branches: ['test']
   pull_request:
-    branches: ['main', 'test']
+    branches: ['main']
 
 jobs:
   ci:

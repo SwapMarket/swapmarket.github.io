@@ -2014,7 +2014,7 @@ const dict = {
         copied: "Скопировано!",
         refund_swap: "Возврат свопа",
         rescue_a_swap_subline:
-            "If you sent BTC or L-BTC into a Boltz swap, upload or enter your rescue key to rescue a swap that is not available in this browser’s swap history.",
+            "Если вы отправили BTC или L-BTC на своп, загрузите или введите свой ключ восстановления, чтобы восстановить своп, который недоступен в истории свопов этого браузера.",
         rescue_a_swap_mnemonic:
             "Enter your rescue key to rescue a swap that is not available in this browser’s swap history.",
         refund_past_swaps: "Прошлые свопы",
@@ -2168,15 +2168,15 @@ const dict = {
         download_boltz_rescue_key_subline_second:
             "Этот новый ключ работает на любом устройстве и подходит для всех свопов, созданных с его помощью. Сохраните файл ключа в безопасном и постоянном месте.",
         download_boltz_rescue_key_subline_third:
-            "Чтобы продолжить, выберите, хотите ли вы скачать новый ключ восстановления Boltz или проверить существующий.",
+            "Чтобы продолжить, выберите, хотите ли вы скачать новый ключ восстановления или проверить существующий.",
         download_new_key: "Скачать новый ключ",
-        verify_boltz_rescue_key: "Проверить ключ восстановления Boltz",
+        verify_boltz_rescue_key: "Проверить ключ восстановления ",
         verify_boltz_rescue_key_subline:
-            "Пожалуйста, выберите ранее сохраненный ключ восстановления Boltz, чтобы проверить его.",
+            "Пожалуйста, выберите ранее сохраненный ключ восстановления, чтобы проверить его.",
         verify_key: "Проверить существующий ключ",
         verify_existing_key: "Проверить ключ",
         verify_key_failed:
-            "Проверка ключа восстановления Boltz не удалась. Рекомендуем скачать новый ключ восстановления Boltz для продолжения.",
+            "Проверка ключа восстановления не удалась. Рекомендуем скачать новый ключ восстановления для продолжения.",
         rescue_key: "Ключ восстановления",
         no_swaps_found: "Свопы не найдены",
         rif_extra_fee:
@@ -2185,10 +2185,10 @@ const dict = {
         next: "Вперед",
         pagination_info: "Страница {{ start }} из {{ end }}",
         get_boltz_rescue_key_subline:
-            "Чтобы продолжить, выберите, хотите ли вы сгенерировать новый ключ восстановления Boltz или проверить существующий.",
+            "Чтобы продолжить, выберите, хотите ли вы сгенерировать новый ключ восстановления или проверить существующий.",
         generate_key: "Сгенерировать новый ключ",
         backup_boltz_rescue_key:
-            "Резервное копирование ключа восстановления Boltz",
+            "Резервное копирование ключа восстановления",
         backup_boltz_rescue_key_subline_second:
             "Этот новый ключ работает на любом устройстве и подходит для всех обменов, созданных с его помощью.",
         backup_boltz_rescue_key_subline_third:

@@ -42,7 +42,7 @@ const config = {
             alias: "ZEUS Swaps",
             apiUrl: {
                 normal: "https://swaps.zeuslsp.com/api",
-                tor: "",
+                tor: "http://vsi7wnnknx2mlryo4mmehf5smfsiqy6kkzbkiu4pz7xaocvzceeccqyd.onion",
             },
             contact: "mailto:support@zeusln.com",
         },
