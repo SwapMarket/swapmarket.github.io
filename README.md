@@ -39,10 +39,11 @@ provenance upon deployment. This makes our swaps completely trustless, unlike
 
 The web app is static. All your settings, logs and transaction history are
 stored only in your browser's cookies and cache. If you wish to shield your IP
-address from Github and API backends, you can use any VPN or Tor Browser. We also 
-host an [.onion](http://swapmartgsq3pcikacvxc4divxywtqnlin6mmuu2rt42sgyzxky3ssqd.onion)
-mirror, but you will sacrifice code transparency when using it. The most
-private and secure way is to
+address from Github and API backends, you can use any VPN or Tor Browser. We
+also host an
+[.onion](http://swapmartgsq3pcikacvxc4divxywtqnlin6mmuu2rt42sgyzxky3ssqd.onion)
+mirror, but you will sacrifice code transparency when using it. The most private
+and secure way is to
 [self-host our web app](https://github.com/SwapMarket/swapmarket.github.io/blob/main/docs/index.md).
 
 ## Onboarding

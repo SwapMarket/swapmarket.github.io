@@ -146,7 +146,7 @@ const dict = {
         already_refunded: "Swap already refunded",
         api_offline: "API is offline",
         api_offline_msg:
-            "Could not connect to the Boltz API, please try again later",
+            "Could not connect to the provider's API, please try again later",
         refund_explainer: "You will be able to refund after the swap timeout",
         swap_not_refundable_yet: "Your swap is not refundable yet",
         wasm_not_supported: "Please activate WebAssembly in your browser",
@@ -1024,7 +1024,7 @@ const dict = {
         minimum_amount: "O valor mínimo é {{ amount }} {{ denomination }}",
         maximum_amount: "O valor máximo é {{ amount }} {{ denomination }}",
         assets: "Multi-Camada",
-        footer: "Feito com 🧡 pela equipe da Boltz",
+        footer: "Mantido com 🧡 pela equipe da SwapMarket",
         create_channel: "Criar canal Lightning",
         create_channel_subline: "Capacidade de entrada ou saída do canal",
         create_swap: "Criar troca atômica",
@@ -1128,7 +1128,7 @@ const dict = {
         already_refunded: "A troca já foi reembolsada",
         api_offline: "A API está offline",
         api_offline_msg:
-            "Não foi possível conectar à API da Boltz, por favor tente novamente mais tarde",
+            "Não foi possível conectar à API do fornecedor, por favor tente novamente mais tarde",
         refund_explainer:
             "Será possível reembolsar a troca após o prazo de expiração!",
         swap_not_refundable_yet: "Sua troca ainda não pode ser reembolsada",
@@ -2187,8 +2187,7 @@ const dict = {
         get_boltz_rescue_key_subline:
             "Чтобы продолжить, выберите, хотите ли вы сгенерировать новый ключ восстановления или проверить существующий.",
         generate_key: "Сгенерировать новый ключ",
-        backup_boltz_rescue_key:
-            "Резервное копирование ключа восстановления",
+        backup_boltz_rescue_key: "Резервное копирование ключа восстановления",
         backup_boltz_rescue_key_subline_second:
             "Этот новый ключ работает на любом устройстве и подходит для всех обменов, созданных с его помощью.",
         backup_boltz_rescue_key_subline_third:
