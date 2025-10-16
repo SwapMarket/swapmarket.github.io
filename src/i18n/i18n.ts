@@ -13,9 +13,8 @@ const dict = {
         safe: "Safe",
         non_custodial: "Non-Custodial",
         non_custodial_sub:
-            "Swaps are atomic, cryptography ensures that users are always in control of their money",
-        node: "Provider Statistics",
-        lightningnode: "View Lightning Nodes",
+            "Swaps on Boltz are atomic, cryptography ensures that users are always in control of their money",
+        node: "Lightning Nodes",
         error: "Error",
         error_subline: "Invalid response from the API, something is wrong.",
         error_wasm: "WebAssembly not supported",
@@ -314,6 +313,12 @@ const dict = {
         completed: "Completed",
         get_refundable_error:
             "Failed to load UTXO data. Refresh to try again or check your internet connection if the problem persists.",
+        min_amount_destination:
+            "Minimum amount for the destination address is {{ amount }} {{ denomination }}",
+        max_amount_destination:
+            "Maximum amount for the destination address is {{ amount }} {{ denomination }}",
+        destination: "Destination",
+        destination_address: "{{ address }}",
     },
     de: {
         language: "Deutsch",
@@ -329,9 +334,8 @@ const dict = {
         safe: "Sicher",
         non_custodial: "Non-Custodial",
         non_custodial_sub:
-            "Swaps sind atomar, Kryptografie stellt sicher, dass Nutzer stets die Kontrolle über ihre Bitcoin behalten",
-        node: "Anbieterstatistiken",
-        lightningnode: "Lightning Knoten anzeigen",
+            "Swaps auf Boltz sind atomar, Kryptografie stellt sicher, dass Nutzer stets die Kontrolle über ihre Bitcoin behalten",
+        node: "Lightning Knoten",
         error: "Fehler",
         error_subline:
             "Ungültige Antwort von der API, irgendwas ist hier falsch gelaufen.",
@@ -646,6 +650,12 @@ const dict = {
         completed: "Abgeschlossen",
         get_refundable_error:
             "UTXO-Daten konnten nicht geladen werden. Aktualisiere die Seite um es erneut zu versuchen oder überprüfe deine Internetverbindung, falls das Problem weiterhin besteht.",
+        min_amount_destination:
+            "Mindestbetrag für die Zieladresse ist {{ amount }} {{ denomination }}",
+        max_amount_destination:
+            "Höchstbetrag für die Zieladresse ist {{ amount }} {{ denomination }}",
+        destination: "Zieladresse",
+        destination_address: "{{ address }}",
     },
     es: {
         language: "Español",
@@ -661,9 +671,8 @@ const dict = {
         safe: "Seguro",
         non_custodial: "Sin Custodia",
         non_custodial_sub:
-            "Los intercambios son atomicos, la criptografía garantiza que los usuarios siempre tienen el control de su Bitcoin",
-        node: "Estadísticas del proveedor",
-        lightningnode: "Ver nodos de Lightning",
+            "Los intercambios en Boltz son atomicos, la criptografía garantiza que los usuarios siempre tienen el control de su Bitcoin",
+        node: "Nodos de Lightning",
         error: "Error",
         error_subline: "Respuesta inválida de la API, algo está mal :/",
         error_wasm: "WebAssembly no soportado",
@@ -975,6 +984,12 @@ const dict = {
         completed: "Completado",
         get_refundable_error:
             "No se pudieron cargar los datos de UTXO. Actualiza la página para volver a intentarlo o verifica tu conexión a Internet si el problema persiste.",
+        min_amount_destination:
+            "La cantidad mínima para la dirección de destino es {{ amount }} {{ denomination }}",
+        max_amount_destination:
+            "La cantidad máxima para la dirección de destino es {{ amount }} {{ denomination }}",
+        destination: "Destino",
+        destination_address: "{{ address }}",
     },
     pt: {
         language: "Português",
@@ -993,7 +1008,6 @@ const dict = {
         non_custodial_sub:
             "As trocas na Boltz são atômicas, a criptografia garante que os usuários sempre tenham controle sobre seu Bitcoin",
         node: "Nós Lightning",
-        lightningnode: "Ver nós Lightning",
         error: "Erro",
         error_subline: "Resposta inválida da API, algo deu errado.",
         error_wasm: "WebAssembly não suportado",
@@ -1101,8 +1115,8 @@ const dict = {
             "Informe um endereço para receber seu reembolso:",
         refund_backup: "Backup",
         refund_import: "Importar backup",
-        refund_clear: "Excluir armazenamento",
-        delete_swap: "Excluir troca do armazenamento",
+        refund_clear: "Apagar armazenamento",
+        delete_swap: "Apagar troca do armazenamento",
         delete_storage:
             "Tem certeza de que deseja limpar seu armazenamento?\nAs informações das suas trocas e as chaves privadas de reembolso/recebimento serão perdidas.",
         delete_storage_single_swap:
@@ -1158,14 +1172,14 @@ const dict = {
         warning_expiry:
             "Certifique-se de que sua transação seja confirmada em até 24h após a criação da troca!",
         not_found: "404 - Página não encontrada",
-        not_found_subline: "A página que procuras não existe.",
+        not_found_subline: "A página solicitada não existe.",
         back_to_home: "Voltar à página inicial",
         transaction_prompt:
             'Pressione "{{ button }}" para abrir sua carteira conectada e confirmar a transação exibida.',
         transaction_prompt_receive:
             'Pressione "{{ button }}" para abrir sua carteira conectada e confirmar a transação para receber {{ asset }}.',
         invalid_address: "Endereço {{ asset }} inválido",
-        scan_qr_code: "Escanear QR Code",
+        scan_qr_code: "Ler QR Code",
         version: "Versão",
         commithash: "Hash do Commit",
         open_in_wallet: "Abrir na carteira",
@@ -1253,8 +1267,7 @@ const dict = {
             "Esta nova chave funciona em qualquer dispositivo e funciona para todas as trocas criadas com ela.",
         backup_boltz_rescue_key_subline_third:
             "Por favor, escreva ou copie esta chave e armazene-a em um local seguro e permanente.",
-        backup_boltz_rescue_key_reminder:
-            "Guarde com segurança. Não compartilhe.",
+        backup_boltz_rescue_key_reminder: "Guarde com segurança. Não partilhe.",
         copy_rescue_key: "Copiar chave de resgate",
         user_saved_key: "Eu guardei a chave de resgate",
         verify_mnemonic_word: {
@@ -1282,9 +1295,9 @@ const dict = {
             telegram_bot: "Bot do Telegram",
         },
         refresh_for_refund:
-            "Se enviou Bitcoin para esta troca, recarregue a página para verificar se existe um reembolso.",
+            "Se enviou Bitcoin para esta troca, atualize a página para verificar se existe um reembolso.",
         applied_routing_hint:
-            "O teu destinatário suporta a receção direta de {{ asset }}. Assim, poupas em taxas e ele continua a receber o valor total.",
+            "O seu destinatário suporta o recebimento direto de {{ asset }}. Assim, você poupa em taxas e ele continua a receber o valor total.",
         optimized_route_amount:
             "Rota de troca otimizada, poupando-te ~{{ amount }} {{ denomination }}",
         claim_address_prompt: "Digite um endereço para reivindicar a troca:",
@@ -1297,9 +1310,15 @@ const dict = {
         failed_get_swap_subline:
             "Por favor, re-insira a chave de resgate e tente novamente.",
         in_progress: "Em curso",
-        completed: "Completado",
+        completed: "Finalizada",
         get_refundable_error:
-            "Não foi possível carregar os dados de UTXO. Recarregue a página para voltar a tentar ou verifique sua conexão com a Internet se o problema persistir.",
+            "Não foi possível carregar os dados de UTXO. Atualize a página para voltar a tentar ou verifique sua conexão com a Internet se o problema persistir.",
+        min_amount_destination:
+            "O valor mínimo para o endereço de destino é {{ amount }} {{ denomination }}",
+        max_amount_destination:
+            "O valor máximo para o endereço de destino é {{ amount }} {{ denomination }}",
+        destination: "Destino",
+        destination_address: "{{ address }}",
     },
     zh: {
         language: "中文",
@@ -1316,7 +1335,6 @@ const dict = {
         non_custodial: "非托管",
         non_custodial_sub: "上的交换是原子式,密码学确保用户始终掌握自己的资金",
         node: "闪电网络节点",
-        lightningnode: "提供商统计",
         error: "错误",
         error_subline: "API的响应无效，出现异常。",
         error_wasm: "不支持WebAssembly",
@@ -1592,6 +1610,12 @@ const dict = {
         completed: "已完成",
         get_refundable_error:
             "无法加载 UTXO 数据。请刷新页面后重试，或检查您的网络连接如果问题仍然存在。",
+        min_amount_destination:
+            "目标地址的最小金额为{{ amount }}{{ denomination }}",
+        max_amount_destination:
+            "目标地址的最大金额为{{ amount }}{{ denomination }}",
+        destination: "目标地址",
+        destination_address: "{{ address }}",
     },
     ja: {
         language: "日本語",
@@ -1609,7 +1633,6 @@ const dict = {
         non_custodial_sub:
             "スワップはノンカストディアル型で、ユーザーは常に資金を自己管理できます",
         node: "ノード",
-        lightningnode: "Lightningノードを表示",
         error: "エラー",
         error_subline: "APIからの無効な応答です。何かが間違っています",
         error_wasm: "WebAssemblyがサポートされていません",
@@ -1916,6 +1939,12 @@ const dict = {
         completed: "完了",
         get_refundable_error:
             "UTXO データの読み込みに失敗しました。ページを更新して再試行するか、問題が続く場合はインターネット接続を確認してください。",
+        min_amount_destination:
+            "宛先アドレスの最小金額は{{ amount }} {{ denomination }}です",
+        max_amount_destination:
+            "宛先アドレスの最大金額は{{ amount }} {{ denomination }}です",
+        destination: "宛先アドレス",
+        destination_address: "{{ address }}",
     },
     ru: {
         language: "Русский",
@@ -1932,8 +1961,7 @@ const dict = {
         non_custodial: "Без посредников",
         non_custodial_sub:
             "Сбопы являются атомарными, криптография гарантирует, что пользователи всегда контролируют свои деньги",
-        node: "Статистика провайдера",
-        lightningnode: "Просмотр узлов Lightning",
+        node: "Узлы Lightning",
         error: "Ошибка",
         error_subline: "Некорректный ответ от API, что-то пошло не так.",
         error_wasm: "WebAssembly не поддерживается",
@@ -2239,6 +2267,12 @@ const dict = {
         completed: "Завершено",
         get_refundable_error:
             "Не удалось загрузить данные UTXO. Обновите страницу, чтобы повторить попытку, или проверьте подключение к Интернету, если проблема не устранена.",
+        min_amount_destination:
+            "Минимальная сумма для адреса назначения составляет {{ amount }} {{ denomination }}",
+        max_amount_destination:
+            "Максимальная сумма для адреса назначения составляет {{ amount }} {{ denomination }}",
+        destination: "Назначение",
+        destination_address: "{{ address }}",
     },
 };
 

@@ -60,6 +60,7 @@ const TransactionLockupFailed = (props: {
     const { t, fetchPairs, setSwapStorage, allPairs, backend } =
         useGlobalContext();
     const { failureReason, swap, setSwap } = usePayContext();
+    const [loading, setLoading] = createSignal(false);
 
     const [newQuote, newQuoteActions] = createResource<
         { sentAmount: number; quote: number; receiveAmount: number } | undefined
@@ -160,6 +161,7 @@ const TransactionLockupFailed = (props: {
                         <button
                             class="btn btn-success"
                             onClick={async () => {
+                                setLoading(true);
                                 const newSwap = swap() as ChainSwap;
 
                                 const { quote, receiveAmount } = newQuote();
@@ -185,13 +187,21 @@ const TransactionLockupFailed = (props: {
                                         `Accepting new quote failed: ${formatError(e)}`,
                                     );
                                     await newQuoteActions.refetch();
+                                } finally {
+                                    setLoading(false);
                                 }
-                            }}>
-                            {t("accept")}
+                            }}
+                            disabled={loading()}>
+                            {loading() ? (
+                                <LoadingSpinner class="inner-spinner" />
+                            ) : (
+                                t("accept")
+                            )}
                         </button>
                         <button
                             class="btn btn-danger"
-                            onClick={() => setQuoteRejected(true)}>
+                            onClick={() => setQuoteRejected(true)}
+                            disabled={loading()}>
                             {t("refund")}
                         </button>
                     </div>
