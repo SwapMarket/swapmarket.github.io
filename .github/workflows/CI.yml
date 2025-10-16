@@ -3,9 +3,9 @@ name: CI
 on:
   # Runs on pushes and PRs targeting the main and test branches
   push:
-    branches: ['main', 'test']
+    branches: ['test']
   pull_request:
-    branches: ['main', 'test']
+    branches: ['main']
 
 jobs:
   ci:
@@ -49,6 +49,8 @@ jobs:
           git submodule init
           git submodule update
           chmod -R 777 regtest
+          git apply --check boltz.conf.patch
+          git apply boltz.conf.patch
           cd regtest
           ./start.sh
 

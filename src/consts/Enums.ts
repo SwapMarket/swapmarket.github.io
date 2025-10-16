@@ -24,3 +24,8 @@ export enum UrlParam {
     Ref = "ref",
     Backend = "backend",
 }
+
+export enum InvoiceValidation {
+    MinAmount = "minAmount",
+    MaxAmount = "maxAmount",
+}
