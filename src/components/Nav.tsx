@@ -71,7 +71,6 @@ const Nav = (props: { network: string; isPro?: boolean }) => {
                     <A href="/history" onClick={() => setHamburger(false)}>
                         {t("history")}
                     </A>
-
                     <Show when={config.supportUrl}>
                         <a
                             class="external"
@@ -86,16 +85,7 @@ const Nav = (props: { network: string; isPro?: boolean }) => {
                             class="external"
                             target="_blank"
                             href={config.docsUrl}>
-                            {t("documentation")}
-                            <OcLinkexternal2 size={23} />
-                        </a>
-                    </Show>
-                    <Show when={config.torUrl}>
-                        <a
-                            class="external"
-                            target="_blank"
-                            href={config.torUrl}>
-                            {t("onion")}
+                            {t("docs")}
                             <OcLinkexternal2 size={23} />
                         </a>
                     </Show>
