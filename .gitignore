@@ -14,3 +14,4 @@ src/config.ts
 /playwright/.cache/
 docs/.vitepress/cache/
 index.html
+rescue.json
