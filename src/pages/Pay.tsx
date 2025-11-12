@@ -20,6 +20,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import RefundButton from "../components/RefundButton";
 import RefundEta from "../components/RefundEta";
 import { SwapIcons } from "../components/SwapIcons";
+import { hiddenInformation } from "../components/settings/PrivacyMode";
 import SettingsCog from "../components/settings/SettingsCog";
 import SettingsMenu from "../components/settings/SettingsMenu";
 import Tooltip from "../components/settings/Tooltip";
@@ -67,7 +68,7 @@ const Pay = () => {
         waitForSwapTimeout?: boolean | undefined;
     }>();
 
-    const { getSwap, t, backend, setBackend } = useGlobalContext();
+    const { getSwap, t, privacyMode, backend, setBackend } = useGlobalContext();
     const {
         swap,
         setSwap,
@@ -256,7 +257,9 @@ const Pay = () => {
         <div data-status={status()} class="frame">
             <span class="frame-header">
                 <h2>
-                    {t("pay_invoice", { id: params.id })}
+                    {t("pay_invoice", {
+                        id: privacyMode() ? hiddenInformation : params.id,
+                    })}
                     <Show when={swap()}>
                         <SwapIcons swap={swap()} />
                     </Show>

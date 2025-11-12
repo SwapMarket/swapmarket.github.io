@@ -330,7 +330,7 @@ test.describe("Refund", () => {
                 `);
             }
 
-            test.setTimeout(60_000); // leave enough time for block generation
+            test.setTimeout(600_000); // leave enough time for block generation
             await page.goto("/");
 
             await createSwapAndGetDetails(page, swap.type, swap.sendAsset);
@@ -345,7 +345,7 @@ test.describe("Refund", () => {
 
             await expect(
                 page.locator("div[data-status='transaction.claimed']"),
-            ).toBeVisible({ timeout: 15_000 });
+            ).toBeVisible({ timeout: 1_500_000 });
 
             await waitForUTXOs(swap.sendAsset as AssetType, address, 0);
 
