@@ -52,23 +52,6 @@ const Footer = () => {
                     <img src={simplex} alt="SimpleX Logo" />
                 </a>
             </div>
-            <p class="footer-nav">
-                <a target="_blank" href={config.blogUrl}>
-                    {t("blog")}
-                </a>{" "}
-                |{" "}
-                <a target="_blank" href={config.statusUrl}>
-                    {t("status")}
-                </a>{" "}
-                |{" "}
-                <a target="_blank" href={config.regtestUrl}>
-                    {t("regtest")}
-                </a>
-            </p>
-            <p class="legal-nav">
-                <a href="/terms">{t("terms")}</a>
-                <a href="/privacy">{t("privacy")}</a>
-            </p>
             <p class="version">
                 {t("version")}:{" "}
                 <a target="_blank" href={`${config.repoUrl}`}>

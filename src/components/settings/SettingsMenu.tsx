@@ -9,7 +9,9 @@ import AudioNotificationSetting from "./AudioNotificationSetting";
 import BrowserNotification from "./BrowserNotification";
 import Denomination from "./Denomination";
 import Logs from "./Logs";
+import PrivacyMode from "./PrivacyMode";
 import RescueFile from "./RescueKey";
+import ResetRescueKey from "./ResetRescueKey";
 import Separator from "./Separator";
 import Tooltip from "./Tooltip";
 
@@ -68,9 +70,19 @@ const SettingsMenu = () => {
                     settingElement={<BrowserNotification />}
                 />
                 <Entry
+                    label={"hide_wallet_address"}
+                    tooltipLabel={"hide_wallet_address_tooltip"}
+                    settingElement={<PrivacyMode />}
+                />
+                <Entry
                     label={"rescue_key"}
                     tooltipLabel={"download_boltz_rescue_key"}
                     settingElement={<RescueFile />}
+                />
+                <Entry
+                    label={"reset_rescue_key"}
+                    tooltipLabel={"reset_rescue_key_tooltip"}
+                    settingElement={<ResetRescueKey />}
                 />
                 <Entry
                     label={"logs"}

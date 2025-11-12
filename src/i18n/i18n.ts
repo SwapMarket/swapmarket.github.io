@@ -203,6 +203,9 @@ const dict = {
         claim_fail: "Failed to claim swap: {{ id }}",
         logs: "Logs",
         logs_tooltip: "Logs of the web app, useful for debugging",
+        hide_wallet_address: "Privacy Mode",
+        hide_wallet_address_tooltip:
+            "Hides EVM wallet address and Swap ID for privacy in demos/recordings",
         enable_audio_notifications: "Audio Notifications",
         enable_audio_notifications_tooltip:
             "Enable or disable audio notifications",
@@ -254,6 +257,16 @@ const dict = {
         verify_key_failed:
             "Verification of the Boltz Rescue Key failed. We recommend downloading a new Boltz Rescue Key to continue.",
         rescue_key: "Rescue Key",
+        reset_rescue_key: "Get New Rescue Key",
+        reset_rescue_key_tooltip:
+            "Generate a new Rescue Key and wipe all swap data",
+        reset_rescue_key_prompt:
+            "⚠️ WARNING: This will delete ALL your swap data and generate a new Rescue Key.\n\nDon't proceed unless you have a backup of your existing Rescue Key or you're absolutely sure you won't need it. \n\nType 'confirm' to proceed:",
+        reset_rescue_key_invalid_confirmation:
+            "Invalid confirmation. Please type 'confirm' to proceed.",
+        reset_rescue_key_error:
+            "An error occurred while resetting the Rescue Key. Please reload this page and try again.\n\nError: {{ error }}",
+        reset_rescue_key_success: "New Rescue Key generated successfully!",
         no_swaps_found: "No swaps found",
         rif_extra_fee:
             "Wallet doesn't contain enough RBTC, fee adjusted to include RIF Relay fee!",
@@ -443,6 +456,8 @@ const dict = {
         boltz_pro_option_telegram_title: "Telegram Bot",
         boltz_pro_option_telegram_description:
             "Get instant alerts about earn opportunities in Telegram",
+
+        balance: "Balance",
     },
     de: {
         language: "Deutsch",
@@ -656,6 +671,9 @@ const dict = {
         claim_fail: "Swap {{ id }} konnte nicht geclaimed werden!",
         logs: "Logs",
         logs_tooltip: "Logs der Web App, nützlich für Debugging",
+        hide_wallet_address: "Privatsphäre-Modus",
+        hide_wallet_address_tooltip:
+            "Blendet EVM Wallet-Adresse und Swap ID aus für besser Privatsphäre in Demos und Bildschirmaufnahmen",
         enable_audio_notifications: "Audio Benachrichtigungen",
         enable_audio_notifications_tooltip:
             "Aktiviere oder deaktiviere Audio-Benachrichtigungen",
@@ -710,6 +728,17 @@ const dict = {
         verify_key_failed:
             "Die Verifizierung des Boltz Rettungsschlüssels ist fehlgeschlagen. Wir empfehlen, einen neuen Rettungsschlüssel herunterzuladen.",
         rescue_key: "Rettungsschlüssel",
+        reset_rescue_key: "Neuer Rettungsschlüssel",
+        reset_rescue_key_tooltip:
+            "Generiere einen neuen Rettungsschlüssel und lösche alle Swap-Daten",
+        reset_rescue_key_prompt:
+            "⚠️ WARNUNG: Dies löscht ALLE deine Swap-Daten und generiert einen neuen Rettungsschlüssel.\n\nFahre nur fort, wenn du ein Backup deines aktuellen Rettungsschlüssels hast oder absolut sicher bist, dass du ihn nicht mehr benötigst.\n\nGib 'confirm' ein, um fortzufahren:",
+        reset_rescue_key_invalid_confirmation:
+            "Ungültige Bestätigung. Bitte gib 'confirm' ein, um fortzufahren.",
+        reset_rescue_key_error:
+            "Es ist ein Fehler beim Zurücksetzen des Rettungsschlüssels aufgetreten. Bitte versuche es erneut.\n\nFehler: {{ error }}",
+        reset_rescue_key_success:
+            "Neuer Rettungsschlüssel erfolgreich generiert!",
         no_swaps_found: "Keine Swaps gefunden",
         rif_extra_fee:
             "Wallet enthält nicht genug RBTC, Gebühr um RIF-Relay-Gebühr angepasst!",
@@ -717,7 +746,7 @@ const dict = {
         next: "Weiter",
         pagination_info: "Seite {{ start }} von {{ end }}",
         get_boltz_rescue_key_subline:
-            "Um fortzufahren, wähle aus, ob du eine neue Boltz Rettungsschlüssel generieren oder einen vorhandenen Schlüssel verifizieren möchtest.",
+            "Um fortzufahren, wähle aus, ob du einen neuen Boltz Rettungsschlüssel generieren oder einen vorhandenen Schlüssel verifizieren möchtest.",
         generate_key: "Neuen Schlüssel generieren",
         backup_boltz_rescue_key: "Boltz Rettungsschlüssel sichern",
         backup_boltz_rescue_key_subline_second:
@@ -904,6 +933,8 @@ const dict = {
         boltz_pro_option_telegram_title: "Telegram Bot",
         boltz_pro_option_telegram_description:
             "Erhalte Benachrichtigungen über Boltz Pro Möglichkeiten",
+
+        balance: "Guthaben",
     },
     es: {
         language: "Español",
@@ -1002,9 +1033,9 @@ const dict = {
         copied: "Copiado",
         refund_swap: "Reembolsar Intercambio",
         rescue_a_swap_subline:
-            "Si enviaste BTC o L-BTC a un intercambio Boltz, cargue o introduzca tu clave de rescate para rescatar un swap que no esté disponible en el historial de swaps de este navegador",
+            "Si enviaste BTC o L-BTC a un intercambio Boltz, carga o introduce tu clave de rescate para rescatar un swap que no esté disponible en el historial de swaps de este navegador",
         rescue_a_swap_mnemonic:
-            "Introduzca su clave de rescate para rescatar un intercambio que no está disponible en el historial de este navegador.",
+            "Introduce tu clave de rescate para rescatar un intercambio que no está disponible en el historial de este navegador.",
         refund_past_swaps: "Intercambios anteriores",
         refund_past_swaps_subline:
             "Intercambios que se guardaron en el almacenamiento del navegador",
@@ -1016,15 +1047,15 @@ const dict = {
         refund_external_explainer_rsk:
             "Si enviaste RBTC a un intercambio de Boltz, conecta tu monedero Rootstock para buscar intercambios rescatables que no estén guardados en el historial de este navegador.",
         refund_external_scanning_rsk:
-            "Escaneando en busca de intercambio rescatables en tu monedero Rootstock...",
+            "Escaneando en busca de intercambios rescatables en tu monedero Rootstock...",
         connected_wallet_no_swaps:
-            "El monedero Rootstock conectada no contiene ningún intercambio rescatable.",
+            "El monedero Rootstock conectado no contiene ningún intercambio rescatable.",
         rescue_external_swap: "Rescatar Intercambio Externo",
         history_no_swaps: "Parece que aún no has realizado ningún intercambio.",
         refund_address_header:
-            "Introduzca la dirección de tu monedero {{ asset }} para reembolsar",
+            "Introduce la dirección de tu monedero {{ asset }} para reembolsar",
         refund_address_header_no_asset:
-            "Introduzca la dirección de tu monedero para reembolsar",
+            "Introduce la dirección de tu monedero para reembolsar",
         refund_backup: "Backup",
         refund_import: "Importar Backup",
         refund_clear: "Borrar almacenamiento",
@@ -1085,7 +1116,7 @@ const dict = {
         warning_return:
             "Regresa a esta página después de pagar la factura! El pago puede aparecer como pendiente hasta que vuelvas a esta página.",
         warning_expiry:
-            "Importante: Asegúrese de que la transacción se confirma en ~24 horas",
+            "Importante: Asegúrate de que la transacción se confirme en ~24 horas",
         not_found: "404 - Página no encontrada",
         not_found_subline: "La página buscada no existe.",
         back_to_home: "Volver al inicio",
@@ -1117,6 +1148,9 @@ const dict = {
         logs: "Logs",
         logs_tooltip:
             "Registros de la aplicación web como herramienta de depuración",
+        hide_wallet_address: "Modo de Privacidad",
+        hide_wallet_address_tooltip:
+            "Oculta la dirección del monedero EVM y el ID de Swap para privacidad en demos y grabaciones",
         enable_audio_notifications: "Notificaciones de Audio",
         enable_audio_notifications_tooltip:
             "Activar o desactivar notificaciones de audio",
@@ -1129,7 +1163,7 @@ const dict = {
         browsernotification_error: "Permisos de notificación denegados",
         invalid_pair: "Par no válido",
         error_starting_qr_scanner:
-            "No se pudo acceder a la cámara, por favor compruebe los permisos!",
+            "No se pudo acceder a la cámara, por favor comprueba los permisos!",
         insufficient_balance: "Saldo insuficiente",
         insufficient_balance_line:
             "No tienes saldo suficiente en tu monedero para este swap.",
@@ -1159,24 +1193,34 @@ const dict = {
         download_boltz_rescue_key_subline_second:
             "Esta nueva clave funciona en cualquier dispositivo y sirve para todos los intercambios creados con ella. Guarda la clave en un lugar seguro y permanente.",
         download_boltz_rescue_key_subline_third:
-            "Para continuar, seleccione si desea descargar una nueva clave de rescate o verificar una existente.",
+            "Para continuar, selecciona si deseas descargar una nueva clave de rescate o verificar una existente.",
         download_new_key: "Descargar nueva clave",
         verify_boltz_rescue_key: "Verificar clave de rescate existente",
         verify_boltz_rescue_key_subline:
-            "Por favor, seleccione tu clave de rescate Boltz previamente descargada para verificar su validez.",
+            "Por favor, selecciona tu clave de rescate Boltz previamente guardada para verificar su validez.",
         verify_key: "Verificar clave",
         verify_existing_key: "Verificar clave existente",
         verify_key_failed:
             "La verificación de la clave de rescate Boltz ha fallado. Recomendamos descargar una nueva clave para continuar.",
         rescue_key: "Clave de Rescate Boltz",
+        reset_rescue_key: "Obtener Nueva Clave de Rescate",
+        reset_rescue_key_tooltip:
+            "Generar una nueva clave de rescate y borrar todos los datos de intercambios históricos",
+        reset_rescue_key_prompt:
+            "⚠️ ADVERTENCIA: Esto eliminará TODOS tus datos de intercambios y generará una nueva clave de rescate.\n\nNo continúes a menos que tengas una copia de seguridad de tu clave de rescate existente o estés absolutamente seguro de que no la necesitarás.\n\nEscribe 'confirm' para continuar:",
+        reset_rescue_key_invalid_confirmation:
+            "Confirmación no válida. Por favor, escribe 'confirm' para continuar.",
+        reset_rescue_key_error:
+            "Ocurrió un error al restablecer la clave de rescate. Por favor, intente de nuevo.\n\nError: {{ error }}",
+        reset_rescue_key_success: "¡Nueva clave de rescate generada con éxito!",
         no_swaps_found: "No se encontraron intercambios",
         rif_extra_fee:
-            "El monedero no contiene suficientes RBTC, comisión ajustado para incluir comisión de RIF Relay!",
+            "El monedero no contiene suficientes RBTC, comisión ajustada para incluir comisión de RIF Relay!",
         back: "Atrás",
         next: "Siguiente",
         pagination_info: "Página {{ start }} de {{ end }}",
         get_boltz_rescue_key_subline:
-            "Para continuar, seleccione si deseas generar una nueva clave de rescate de Boltz o verificar una existente.",
+            "Para continuar, selecciona si deseas generar una nueva clave de rescate de Boltz o verificar una existente.",
         generate_key: "Generar nueva clave",
         backup_boltz_rescue_key: "Backup clave de rescate Boltz",
         backup_boltz_rescue_key_subline_second:
@@ -1193,12 +1237,12 @@ const dict = {
             end: " de tu clave de rescate?",
         },
         incorrect_word:
-            "Palabra incorrecta. Por favor, verifique tu clave de rescate.",
+            "Palabra incorrecta. Por favor, verifica tu clave de rescate.",
         enter_mnemonic: "Ingrese clave de rescate",
         scan_refundable_swaps: "Buscar intercambios reembolsables",
         upload_rescue_key: "Subir clave de rescate",
         verify_boltz_rescue_key_mnemonic:
-            "Por favor, ingrese tu clave de rescate a continuación para importarlo.",
+            "Por favor, ingresa tu clave de rescate a continuación para importarla.",
         hint_paste_mnemonic:
             "Consejo: puedes pegar todas las 12 palabras a la vez.",
         swap_opportunities: "Oportunidades Pro Disponibles",
@@ -1213,7 +1257,7 @@ const dict = {
             telegram_bot: "Bot de Telegram",
         },
         refresh_for_refund:
-            "Si has enviado Bitcoin a este intercambio, actualice la página para comprobar si hay un reembolso disponsible.",
+            "Si has enviado Bitcoin a este intercambio, actualiza la página para comprobar si hay un reembolso disponible.",
         applied_routing_hint:
             "Tu destinatario admite recibir {{ asset }} directamente. Así te ahorras comisiones y ellos siguen recibiendo el importe íntegro.",
         optimized_route_amount:
@@ -1227,7 +1271,7 @@ const dict = {
         claim_swap: "Reclamar: {{ id }}",
         failed_get_swap: "No se pudo obtener el intercambio {{ id }}",
         failed_get_swap_subline:
-            "Por favor, vuelva a introducir la clave de rescate e inténtelo de nuevo.",
+            "Por favor, vuelve a introducir la clave de rescate e inténtalo de nuevo.",
         in_progress: "En progreso",
         completed: "Completado",
         get_refundable_error:
@@ -1363,6 +1407,8 @@ const dict = {
         boltz_pro_option_telegram_title: "Bot de Telegram",
         boltz_pro_option_telegram_description:
             "Recibe notificaciones sobre oportunidades de Boltz Pro",
+
+        balance: "Saldo",
     },
     pt: {
         language: "Português",
@@ -1574,6 +1620,9 @@ const dict = {
         claim_fail: "Falha ao reivindicar troca: {{ id }}",
         logs: "Logs",
         logs_tooltip: "Logs do app, útil para debugging",
+        hide_wallet_address: "Modo de Privacidade",
+        hide_wallet_address_tooltip:
+            "Oculta o endereço da carteira EVM e o ID do Swap para privacidade em demos e gravações",
         enable_audio_notifications: "Notificações sonoras",
         enable_audio_notifications_tooltip:
             "Ativar ou desativar notificações sonoras",
@@ -1626,6 +1675,16 @@ const dict = {
         verify_key_failed:
             "Falha ao verificar a chave de resgate. Recomendamos baixar uma nova chave.",
         rescue_key: "Chave de resgate",
+        reset_rescue_key: "Obter Nova Chave de Resgate",
+        reset_rescue_key_tooltip:
+            "Gerar uma nova chave de resgate e limpar todos os dados de trocas",
+        reset_rescue_key_prompt:
+            "⚠️ AVISO: Isso excluirá TODOS os seus dados de trocas e gerará uma nova chave de resgate.\n\nNão prossiga a não ser que você tenha um backup para a chave de resgate existente ou tenha certeza absoluta de que não precisará mais dela.\n\nDigite 'confirm' para continuar:",
+        reset_rescue_key_invalid_confirmation:
+            "Confirmação inválida. Por favor, digite 'confirm' para continuar.",
+        reset_rescue_key_error:
+            "Ocorreu um erro ao redefinir a chave de resgate. Por favor, tente novamente.\n\nErro: {{ error }}",
+        reset_rescue_key_success: "Nova chave de resgate gerada com sucesso!",
         no_swaps_found: "Nenhuma troca encontrada",
         rif_extra_fee:
             "A carteira não tem RBTC suficiente, taxa ajustada para incluir taxa do RIF Relay!",
@@ -1817,6 +1876,8 @@ const dict = {
         boltz_pro_option_telegram_title: "Bot do Telegram",
         boltz_pro_option_telegram_description:
             "Receba notificações sobre oportunidades da Boltz Pro",
+
+        balance: "Saldo",
     },
     zh: {
         language: "中文",
@@ -2005,6 +2066,9 @@ const dict = {
         claim_fail: "交换{{ id }}索赔失败！",
         logs: "日志",
         logs_tooltip: "网络应用程序的日志，用于调试",
+        hide_wallet_address: "隐私模式",
+        hide_wallet_address_tooltip:
+            "在演示和录屏时隐藏EVM钱包地址和交换ID以保护隐私",
         enable_audio_notifications: "音频通知",
         enable_audio_notifications_tooltip: "启用或禁用音频通知",
         on: "开",
@@ -2052,7 +2116,16 @@ const dict = {
         verify_existing_key: "导入现有密钥",
         verify_key_failed:
             "Boltz 救援密钥验证失败。我们建议下载新的 Boltz 救援密钥以继续。",
-        rescue_key: "救援钥匙",
+        rescue_key: "救援密钥",
+        reset_rescue_key: "获取新的救援密钥",
+        reset_rescue_key_tooltip: "生成新的救援密钥并清除所有交换数据",
+        reset_rescue_key_prompt:
+            "⚠️ 警告：这将删除所有交换数据并生成新的救援密钥。\n\n除非您有现有救援密钥的备份或绝对确定不再需要它，否则请勿继续。\n\n输入 'confirm' 以继续：",
+        reset_rescue_key_invalid_confirmation:
+            "确认无效。请输入 'confirm' 以继续。",
+        reset_rescue_key_error:
+            "重置救援密钥时出错。请重试。\n\n错误：{{ error }}",
+        reset_rescue_key_success: "新的救援密钥已成功生成！",
         no_swaps_found: "未找到交换",
         rif_extra_fee: "钱包中没有足够的 RBTC，费用已调整为包括 RIF 中继费！",
         back: "回一页",
@@ -2228,6 +2301,8 @@ const dict = {
             "使用我们的 Boltz Pro 网络应用观察和交换",
         boltz_pro_option_telegram_title: "Telegram 机器人",
         boltz_pro_option_telegram_description: "接收有关 Boltz Pro 机会的通知",
+
+        balance: "余额",
     },
     ja: {
         language: "日本語",
@@ -2437,6 +2512,9 @@ const dict = {
         claim_fail: "クレームのスワップに失敗しました: {{ id }}",
         logs: "ログ",
         logs_tooltip: "ウェブアプリのログ。デバグに便利です",
+        hide_wallet_address: "プライバシーモード",
+        hide_wallet_address_tooltip:
+            "デモや録画時のプライバシー保護のため、EVMウォレットアドレスとスワップIDを非表示にします",
         enable_audio_notifications: "音声通知",
         enable_audio_notifications_tooltip:
             "音声通知をオン、もしくはオフにする",
@@ -2488,6 +2566,17 @@ const dict = {
         verify_key_failed:
             "Boltzレスキューキーの検証に失敗しました。続行するには、新しいBoltzレスキューキーをダウンロードすることをお勧めします。",
         rescue_key: "レスキューキー",
+        reset_rescue_key: "新しいレスキューキーを生成",
+        reset_rescue_key_tooltip:
+            "新しいレスキューキーを生成し、すべてのスワップデータを削除",
+        reset_rescue_key_prompt:
+            "⚠️ 警告：これにより、すべてのスワップデータが削除され、新しいレスキューキーが生成されます。\n\n既存のレスキューキーのバックアップがある場合、または絶対に必要ないと確信している場合を除き、続行しないでください。\n\n続行するには 'confirm' と入力してください：",
+        reset_rescue_key_invalid_confirmation:
+            "無効な確認です。続行するには 'confirm' と入力してください。",
+        reset_rescue_key_error:
+            "レスキューキーのリセット中にエラーが発生しました。もう一度お試しください。\n\nエラー：{{ error }}",
+        reset_rescue_key_success:
+            "新しいレスキューキーが正常に生成されました！",
         no_swaps_found: "スワップが見つからない",
         rif_extra_fee:
             "ウォレットに十分なRBTCがないため、RIFリレー手数料を含めて手数料を調整！",
@@ -2679,6 +2768,8 @@ const dict = {
         boltz_pro_option_telegram_title: "Telegramボット",
         boltz_pro_option_telegram_description:
             "Boltz Proの機会についての通知を受信",
+
+        balance: "残高",
     },
     ru: {
         language: "Русский",
@@ -2888,6 +2979,9 @@ const dict = {
         claim_fail: "Не удалось выполнить требование по свопу: {{ id }}",
         logs: "Логи",
         logs_tooltip: "Логи веб-приложения, полезные для отладки",
+        hide_wallet_address: "Режим конфиденциальности",
+        hide_wallet_address_tooltip:
+            "Скрывает адрес кошелька EVM и идентификатор обмена для конфиденциальности в демонстрациях/записях",
         enable_audio_notifications: "Аудио уведомления",
         enable_audio_notifications_tooltip:
             "Включить или отключить аудио уведомления",
@@ -2940,6 +3034,17 @@ const dict = {
         verify_key_failed:
             "Проверка ключа восстановления не удалась. Рекомендуем скачать новый ключ восстановления для продолжения.",
         rescue_key: "Ключ восстановления",
+        reset_rescue_key: "Получить новый ключ восстановления",
+        reset_rescue_key_tooltip:
+            "Сгенерировать новый ключ восстановления и удалить все данные обмена",
+        reset_rescue_key_prompt:
+            "⚠️ ПРЕДУПРЕЖДЕНИЕ: Это удалит ВСЕ ваши данные обмена и сгенерирует новый ключ восстановления.\n\nНе продолжайте, если у вас нет резервной копии вашего текущего ключа восстановления, или если вы абсолютно уверены, что он вам не нужен.\n\nВведите 'подтверждаю', чтобы продолжить:",
+        reset_rescue_key_invalid_confirmation:
+            "Неверное подтверждение. Пожалуйста, введите 'подтверждаю', чтобы продолжить.",
+        reset_rescue_key_error:
+            "Произошла ошибка при сбросе ключа восстановления. Пожалуйста, перезагрузите эту страницу и попробуйте снова.\n\nОшибка: {{ error }}",
+        reset_rescue_key_success:
+            "Новый ключ восстановления успешно сгенерирован!",
         no_swaps_found: "Свопы не найдены",
         rif_extra_fee:
             "В кошельке недостаточно RBTC, комиссия скорректирована с учетом комиссии за RIF Relay!",
@@ -3090,47 +3195,48 @@ const dict = {
 
         // Pro
         boltz_pro_name: "Boltz Pro",
-        boltz_pro_description: "A platform for earning sats non-custodially",
-        boltz_pro_how_it_works_title: "How it works",
+        boltz_pro_description: "Платформа для заработка сатоши без хранения",
+        boltz_pro_how_it_works_title: "Как это работает",
         boltz_pro_how_it_works_description:
-            "You get paid for swapping in directions that help us rebalance our liquidity",
-        boltz_pro_chart_title: "Boltz Pro Fee History Sample",
-        boltz_pro_chart_y_axis: "Boltz Pro Fee",
-        boltz_pro_chart_x_axis: "Date",
-        boltz_pro_negative_fee: "You earn sats",
-        boltz_pro_lower_fee: "You save sats",
-        boltz_pro_regular_fee: "Regular Boltz Fee",
-        boltz_pro_target_audience_title: "Who is Boltz Pro For?",
+            "Вы получаете вознаграждение за обмен в направлениях, которые помогают нам сбалансировать ликвидность",
+        boltz_pro_chart_title: "Пример истории комиссий Boltz Pro",
+        boltz_pro_chart_y_axis: "Комиссия Boltz Pro",
+        boltz_pro_chart_x_axis: "Дата",
+        boltz_pro_negative_fee: "Вы зарабатываете сатоши",
+        boltz_pro_lower_fee: "Вы экономите сатоши",
+        boltz_pro_regular_fee: "Обычная комиссия Boltz",
+        boltz_pro_target_audience_title: "Для кого Boltz Pro?",
         boltz_pro_target_audience_subtitle:
-            "Built for professionals seeking earn opportunities, not for everyday payments",
-        boltz_pro_perfect_for_title: "Built For",
+            "Создано для профессионалов, ищущих возможности для заработка, а не для повседневных платежей",
+        boltz_pro_perfect_for_title: "Создано для",
         boltz_pro_perfect_for_1:
-            "Lightning node operators looking to decrease excess inbound liquidity to earn sats",
+            "Операторов узлов Lightning, стремящихся уменьшить избыток входящей ликвидности для заработка сатоши",
         boltz_pro_perfect_for_2:
-            "Professionals collaborating with external node operators to manage liquidity",
+            "Профессионалов, сотрудничающих с внешними операторами узлов для управления ликвидностью",
         boltz_pro_perfect_for_3:
-            "Users topping up Lightning wallets within routing limits",
-        boltz_pro_not_designed_for_title: "Not Designed For",
+            "Пользователей, пополняющих кошельки Lightning в пределах лимитов маршрутизации",
+        boltz_pro_not_designed_for_title: "Не предназначено для",
         boltz_pro_not_designed_for_1:
-            "Everyday Lightning payments, like buying a coffee",
+            "Повседневных платежей Lightning, таких как покупка кофе",
         boltz_pro_not_designed_for_2:
-            "Payment reliability to destinations with high routing fees",
+            "Надежности платежей в направления с высокими комиссиями за маршрутизацию",
         boltz_pro_not_designed_for_3:
-            "Scenarios requiring guaranteed instant settlement",
-        boltz_pro_cta_title: "Start earning sats now!",
+            "Сценариев, требующих гарантированного мгновенного расчета",
+        boltz_pro_cta_title: "Начните зарабатывать сатоши сейчас!",
         boltz_pro_cta_subtitle:
-            "Head over to Boltz Pro and check out the latest earn opportunities",
-        boltz_pro_options_title: "3 ways to use it",
-        boltz_pro_options_subtitle: "Choose what fits you best",
-        boltz_pro_option_client_title: "Boltz Client",
+            "Перейдите на Boltz Pro и проверьте последние возможности для заработка",
+        boltz_pro_options_title: "3 способа использования",
+        boltz_pro_options_subtitle: "Выберите то, что подходит вам лучше всего",
+        boltz_pro_option_client_title: "Клиент Boltz",
         boltz_pro_option_client_description:
-            "Fully automate Boltz Pro via API & CLI",
-        boltz_pro_option_web_title: "Web App",
+            "Полностью автоматизируйте Boltz Pro через API и CLI",
+        boltz_pro_option_web_title: "Веб-приложение",
         boltz_pro_option_web_description:
-            "Monitor and execute swap opportunities via web",
-        boltz_pro_option_telegram_title: "Telegram Bot",
+            "Контролируйте и выполняйте возможности обмена через веб",
+        boltz_pro_option_telegram_title: "Telegram бот",
         boltz_pro_option_telegram_description:
-            "Get instant alerts about earn opportunities in Telegram",
+            "Получайте мгновенные уведомления о возможностях заработка в Telegram",
+        balance: "Баланс",
     },
 };
 

@@ -140,7 +140,8 @@ const CreateButton = () => {
         setSendAmount,
         setReceiveAmount,
     } = useCreateContext();
-    const { getEtherSwap, signer, providers } = useWeb3Signer();
+    const { getEtherSwap, signer, providers, walletConnected } =
+        useWeb3Signer();
 
     const [buttonDisable, setButtonDisable] = createSignal(false);
     const [loading, setLoading] = createSignal(false);
@@ -171,6 +172,7 @@ const CreateButton = () => {
                 denomination,
                 sendAmount,
                 receiveAmount,
+                walletConnected,
             ],
             () => {
                 setButtonDisable(false);
@@ -217,8 +219,13 @@ const CreateButton = () => {
                     });
                     return;
                 }
-                if (assetReceive() === RBTC && !addressValid()) {
+
+                if (
+                    [assetSend(), assetReceive()].includes(RBTC) &&
+                    !walletConnected()
+                ) {
                     setButtonLabel({ key: "please_connect_wallet" });
+                    setButtonDisable(true);
                     return;
                 }
                 if (swapType() !== SwapType.Submarine) {
