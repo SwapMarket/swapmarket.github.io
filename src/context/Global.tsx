@@ -12,6 +12,7 @@ import {
     useContext,
 } from "solid-js";
 import type { Accessor, JSX, Setter } from "solid-js";
+import { getBtcPriceFailover } from "src/utils/fiat";
 
 import { config } from "../config";
 import { LBTC } from "../consts/Assets";
@@ -88,6 +89,10 @@ export type GlobalContextType = {
     setBrowserNotification: Setter<boolean>;
     privacyMode: Accessor<boolean>;
     setPrivacyMode: Setter<boolean>;
+    showFiatAmount: Accessor<boolean>;
+    setShowFiatAmount: Setter<boolean>;
+    btcPrice: Accessor<BigNumber | Error | null>;
+    fetchBtcPrice: () => Promise<void>;
     // functions
     t: tFn;
     notify: notifyFn;
@@ -174,6 +179,11 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
     );
 
     const [hideHero, setHideHero] = createSignal<boolean>(false);
+
+    const [btcPrice, setBtcPrice] = createSignal<BigNumber | Error | null>(
+        null,
+    );
+    const [lastPriceFetch, setLastPriceFetch] = createSignal<number>(0);
 
     const [ref, setRef] = makePersisted(
         // eslint-disable-next-line solid/reactivity
@@ -465,6 +475,24 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
     void detectWebLNProvider().then((state: boolean) => setWebln(state));
     setWasmSupported(checkWasmSupported());
 
+    const fetchBtcPrice = async () => {
+        try {
+            const fetchedRecently =
+                Date.now() - lastPriceFetch() < 1000 * 60 * 5; // 5 minutes
+            if (!showFiatAmount() || fetchedRecently) {
+                return;
+            }
+            const btcPrice = await getBtcPriceFailover();
+
+            setBtcPrice(btcPrice);
+            setLastPriceFetch(Date.now());
+        } catch {
+            setBtcPrice(
+                new Error("Failed to fetch BTC price from all providers"),
+            );
+        }
+    };
+
     if (!config.isPro) {
         // Get the referral from the URL parameters if this is not pro
         const refParam = getUrlParam(UrlParam.Ref);
@@ -496,6 +524,14 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
         createSignal<boolean>(false),
         {
             name: "privacyMode",
+        },
+    );
+
+    const [showFiatAmount, setShowFiatAmount] = makePersisted(
+        // eslint-disable-next-line solid/reactivity
+        createSignal<boolean>(true),
+        {
+            name: "showFiatAmount",
         },
     );
 
@@ -572,6 +608,10 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
                 setBrowserNotification,
                 privacyMode,
                 setPrivacyMode,
+                showFiatAmount,
+                setShowFiatAmount,
+                btcPrice,
+                fetchBtcPrice,
                 // functions
                 t,
                 notify,
