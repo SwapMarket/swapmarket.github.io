@@ -81,6 +81,11 @@ const defaults = {
     preimageValidation: "https://validate-payment.com",
     simplexUrl:
         "https://smp14.simplex.im/a#_wHsmPckmoIeIKZ2WmKs6nrSSH_bbnb3Lj3voA8UO7k",
+    rateProviders: {
+        Yadio: "https://api.yadio.io/exrates/btc",
+        Kraken: "https://api.kraken.com/0/public/Ticker",
+        Mempool: "https://mempool.space/api/v1/prices",
+    },
 };
 
 const isTor = () => window?.location.hostname.endsWith(".onion");
