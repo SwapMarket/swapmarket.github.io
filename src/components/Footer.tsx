@@ -72,6 +72,10 @@ const Footer = () => {
                     </a>
                 </Show>
             </p>
+            <p class="legal-nav">
+                <a href="/terms">{t("terms")}</a>
+                <a href="/privacy">{t("privacy")}</a>
+            </p>
             <p class="version">
                 {t("version")}:{" "}
                 <a target="_blank" href={`${config.repoUrl}`}>
