@@ -50,7 +50,7 @@ export const decodeInvoice = async (
         const decoded = bolt11.decode(invoice);
         const sats = BigNumber(decoded.millisatoshis || 0)
             .dividedBy(1000)
-            .integerValue(BigNumber.ROUND_CEIL)
+            .integerValue(BigNumber.ROUND_HALF_UP)
             .toNumber();
         return {
             satoshis: sats,
@@ -198,6 +198,10 @@ export const fetchLnurlInvoice = async (
 };
 
 export const isBip21 = (data: string) => {
+    if (typeof data !== "string") {
+        return false;
+    }
+
     data = data.toLowerCase();
     return (
         data.startsWith(bitcoinPrefix) ||
@@ -207,6 +211,10 @@ export const isBip21 = (data: string) => {
 };
 
 export const extractInvoice = (data: string) => {
+    if (typeof data !== "string") {
+        return null;
+    }
+
     data = data.toLowerCase();
     if (data.startsWith(invoicePrefix)) {
         const url = new URL(data);
@@ -214,7 +222,11 @@ export const extractInvoice = (data: string) => {
     }
     if (isBip21(data)) {
         const url = new URL(data);
-        return url.searchParams.get("lightning") || "";
+        return (
+            url.searchParams.get("lightning") ||
+            url.searchParams.get("lno") ||
+            null
+        );
     }
     return data;
 };
@@ -225,6 +237,14 @@ export const extractAddress = (data: string) => {
         return url.pathname;
     }
     return data;
+};
+
+export const extractBip21Amount = (data: string) => {
+    if (isBip21(data)) {
+        const url = new URL(data);
+        return BigNumber(url.searchParams.get("amount") ?? 0);
+    }
+    return null;
 };
 
 export const getAssetByBip21Prefix = (prefix: string) => {
@@ -242,6 +262,10 @@ export const getAssetByBip21Prefix = (prefix: string) => {
 };
 
 export const isInvoice = (data: string) => {
+    if (typeof data !== "string") {
+        return false;
+    }
+
     const prefix = bolt11Prefixes[config.network];
     const startsWithPrefix = data.toLowerCase().startsWith(prefix);
     if (prefix === bolt11Prefixes.mainnet && startsWithPrefix) {
@@ -251,6 +275,10 @@ export const isInvoice = (data: string) => {
 };
 
 const isValidBech32 = (data: string) => {
+    if (typeof data !== "string") {
+        return false;
+    }
+
     try {
         bech32.decodeToBytes(data);
         return true;
@@ -264,7 +292,9 @@ const emailRegex =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 export const isLnurl = (data: string | null | undefined) => {
-    if (typeof data !== "string") return false;
+    if (typeof data !== "string") {
+        return false;
+    }
 
     data = data.toLowerCase().replace(invoicePrefix, "");
     return (

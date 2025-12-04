@@ -38,15 +38,11 @@ import { detectWebLNProvider } from "../utils/webln";
 export const liquidUncooperativeExtra = 3;
 const proReferral = "pro";
 
+type NotificationType = "success" | "error";
 export type deriveKeyFn = (index: number) => ECPairInterface;
 export type newKeyFn = () => { index: number; key: ECPairInterface };
 export type tFn = (key: DictKey, values?: Record<string, unknown>) => string;
-export type notifyFn = (
-    type: "success" | "error",
-    message: string,
-    browser?: boolean,
-    audio?: boolean,
-) => void;
+export type notifyFn = (type: NotificationType, message: string) => void;
 
 export type GlobalContextType = {
     online: Accessor<boolean>;
@@ -83,12 +79,10 @@ export type GlobalContextType = {
     setSeparator: Setter<string>;
     settingsMenu: Accessor<boolean>;
     setSettingsMenu: Setter<boolean>;
-    audioNotification: Accessor<boolean>;
-    setAudioNotification: Setter<boolean>;
-    browserNotification: Accessor<boolean>;
-    setBrowserNotification: Setter<boolean>;
     privacyMode: Accessor<boolean>;
     setPrivacyMode: Setter<boolean>;
+    zeroConf: Accessor<boolean>;
+    setZeroConf: Setter<boolean>;
     showFiatAmount: Accessor<boolean>;
     setShowFiatAmount: Setter<boolean>;
     btcPrice: Accessor<BigNumber | Error | null>;
@@ -96,7 +90,6 @@ export type GlobalContextType = {
     // functions
     t: tFn;
     notify: notifyFn;
-    playNotificationSound: () => void;
     fetchPairs: () => Promise<void>;
     fetchRegularPairs: () => Promise<void>;
 
@@ -225,14 +218,6 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
     // State for storing pairs for all backends
     const [allPairs, setAllPairs] = createSignal<Pairs[]>([]);
 
-    const [audioNotification, setAudioNotification] = makePersisted(
-        // eslint-disable-next-line solid/reactivity
-        createSignal<boolean>(false),
-        {
-            name: "audioNotification",
-        },
-    );
-
     const localeSeparator = (0.1).toLocaleString().charAt(1);
     const [separator, setSeparator] = makePersisted(
         // eslint-disable-next-line solid/reactivity
@@ -289,29 +274,11 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
         return getXpub(rescueFile());
     };
 
-    const notify = (
-        type: string,
-        message: unknown,
-        browser: boolean = false,
-        audio: boolean = false,
-    ) => {
+    const notify = (type: NotificationType, message: unknown) => {
         const messageStr = formatError(message);
 
         setNotificationType(type);
         setNotification(messageStr);
-        if (audio && audioNotification()) playNotificationSound();
-        if (browser && browserNotification()) {
-            new Notification(t("notification_header"), {
-                body: messageStr,
-                icon: "/sm_icon.svg",
-            });
-        }
-    };
-
-    const playNotificationSound = () => {
-        const audio = new Audio("/notification.mp3");
-        audio.volume = 0.3;
-        void audio.play();
     };
 
     const addUncooperativeExtra = (pairs: Pairs) => {
@@ -511,19 +478,19 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
         resetUrlParam(UrlParam.Backend);
     }
 
-    const [browserNotification, setBrowserNotification] = makePersisted(
-        // eslint-disable-next-line solid/reactivity
-        createSignal<boolean>(false),
-        {
-            name: config.network + "browserNotification",
-        },
-    );
-
     const [privacyMode, setPrivacyMode] = makePersisted(
         // eslint-disable-next-line solid/reactivity
         createSignal<boolean>(false),
         {
             name: "privacyMode",
+        },
+    );
+
+    const [zeroConf, setZeroConf] = makePersisted(
+        // eslint-disable-next-line solid/reactivity
+        createSignal<boolean>(true),
+        {
+            name: "zeroConf",
         },
     );
 
@@ -602,12 +569,10 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
                 setSeparator,
                 settingsMenu,
                 setSettingsMenu,
-                audioNotification,
-                setAudioNotification,
-                browserNotification,
-                setBrowserNotification,
                 privacyMode,
                 setPrivacyMode,
+                zeroConf,
+                setZeroConf,
                 showFiatAmount,
                 setShowFiatAmount,
                 btcPrice,
@@ -615,7 +580,6 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
                 // functions
                 t,
                 notify,
-                playNotificationSound,
                 fetchPairs,
                 fetchRegularPairs,
                 getLogs,
