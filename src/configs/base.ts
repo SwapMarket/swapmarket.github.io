@@ -74,6 +74,7 @@ const defaults = {
     blogUrl: "https://stacker.news/SwapMarket/posts",
     nostrUrl: "https://iris.to/swapmarket",
     statusUrl: "https://status.boltz.exchange",
+    testnetUrl: "https://swapmarket.github.io/testnet/",
     regtestUrl: "https://github.com/BoltzExchange/regtest/",
     email: "swapmarket.wizard996@passinbox.com",
     dnsOverHttps: "https://1.1.1.1/dns-query",

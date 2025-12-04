@@ -172,6 +172,7 @@ const dict = {
         open_in_wallet: "Open in Wallet",
         branding: "Branding",
         regtest: "Regtest",
+        testnet: "Testnet",
         broadcasting_claim: "Broadcasting claim transaction...",
         paste_invalid:
             "Clipboard contains invalid characters or maximum amount is exceeded",
@@ -615,6 +616,7 @@ const dict = {
         open_in_wallet: "Im Wallet öffnen",
         branding: "Branding",
         regtest: "Regtest",
+        testnet: "Testnet",
         broadcasting_claim: "Sende claim transaction...",
         paste_invalid:
             "Zwischenablage enthält ungültige Zeichen oder der maximale Betrag wurde überschritten",
@@ -1068,6 +1070,7 @@ const dict = {
         open_in_wallet: "Abrir en monedero",
         branding: "Branding",
         regtest: "Regtest",
+        testnet: "Testnet",
         broadcasting_claim: "Enviando transacción de reclamación...",
         paste_invalid:
             "El portapapeles contiene caracteres no válidos o se ha excedido el importe máximo",
@@ -1517,6 +1520,7 @@ const dict = {
         open_in_wallet: "Abrir na carteira",
         branding: "Identidade Visual",
         regtest: "Regtest",
+        testnet: "Testnet",
         broadcasting_claim: "Transmitindo transação de reivindicação...",
         paste_invalid:
             "Conteúdo da área de transferência inválido ou valor excedido",
@@ -1944,6 +1948,7 @@ const dict = {
         open_in_wallet: "在钱包中打开",
         branding: "品牌",
         regtest: "Regtest",
+        testnet: "Testnet",
         broadcasting_claim: "正在发送索赔交易...",
         paste_invalid: "剪贴板包含无效字符或超出最大金额",
         email: "邮箱",
@@ -2365,6 +2370,7 @@ const dict = {
         open_in_wallet: "ウォレットで開く",
         branding: "ブランディング",
         regtest: "Regtest",
+        testnet: "Testnet",
         broadcasting_claim: "クレームトランザクションのブロードキャスト中",
         paste_invalid:
             "クリップボードに無効な文字が含まれるか、最大文字数を超えています",
@@ -2806,6 +2812,7 @@ const dict = {
         open_in_wallet: "Открыть в кошельке",
         branding: "Брендинг",
         regtest: "Regtest",
+        testnet: "Testnet",
         broadcasting_claim: "Отправка транзакции требования...",
         paste_invalid:
             "Буфер обмена содержит недопустимые символы или превышено максимальное количество",

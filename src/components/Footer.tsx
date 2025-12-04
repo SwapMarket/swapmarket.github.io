@@ -1,4 +1,5 @@
 import { BsEnvelopeFill, BsGithub } from "solid-icons/bs";
+import { Show } from "solid-js";
 
 import nostr from "../assets/nostr.svg";
 import simplex from "../assets/simplex.svg";
@@ -52,6 +53,25 @@ const Footer = () => {
                     <img src={simplex} alt="SimpleX Logo" />
                 </a>
             </div>
+            <p class="footer-nav">
+                <a target="_blank" href={config.blogUrl}>
+                    {t("blog")}
+                </a>{" "}
+                |{" "}
+                <a target="_blank" href={config.regtestUrl}>
+                    {t("regtest")}
+                </a>{" "}
+                |{" "}
+                <a target="_blank" href={config.testnetUrl}>
+                    {t("testnet")}
+                </a>
+                <Show when={config.torUrl}>
+                    |{" "}
+                    <a target="_blank" href={config.torUrl}>
+                        {t("onion")}
+                    </a>
+                </Show>
+            </p>
             <p class="version">
                 {t("version")}:{" "}
                 <a target="_blank" href={`${config.repoUrl}`}>
