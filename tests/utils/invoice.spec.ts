@@ -1,4 +1,7 @@
+import bolt11 from "bolt11";
+
 import {
+    decodeInvoice,
     extractAddress,
     extractInvoice,
     isBip21,
@@ -72,7 +75,7 @@ describe("invoice", () => {
         ${"bitcoin:BC1QYLH3U67J673H6Y6ALV70M0PL2YZ53TZHVXGG7U?amount=0.00001&label=sbddesign%3A%20For%20lunch%20Tuesday&message=For%20lunch%20Tuesday"}
         ${"liquidnetwork:el1qq2hwpl8uvskkjrznyltjlamk86nh7r69amjmj2kvfwe7pxmfjxl5wjnhvd5am8s7mnv5rtnwflkcgfwesnz2gz8qau0ghppzehf4grt89szq8tex5keq?amount=0.00100135&label=Send%20to%20BTC%20lightning&assetid=5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225"}
     `("should not return invoice on bip21 address: $bip21", ({ bip21 }) => {
-        expect(extractInvoice(bip21)).toEqual("");
+        expect(extractInvoice(bip21)).toEqual(null);
     });
 
     describe("isInvoice", () => {
@@ -84,6 +87,41 @@ describe("invoice", () => {
             "regtest: should detect $invoice as invoice",
             ({ expected, invoice }) => {
                 expect(isInvoice(invoice)).toEqual(expected);
+            },
+        );
+    });
+
+    describe("decodeInvoice millisatoshi rounding", () => {
+        const mockInvoice = "lnbc1mock";
+
+        beforeEach(() => {
+            vi.clearAllMocks();
+        });
+
+        test.each`
+            millisatoshis | expectedSats | description
+            ${1509895001} | ${1509895}   | ${"1 msat remainder - round down"}
+            ${1509895499} | ${1509895}   | ${"499 msat remainder - round down"}
+            ${1509895500} | ${1509896}   | ${"500 msat remainder - round up"}
+            ${1509895999} | ${1509896}   | ${"999 msat remainder - round up"}
+            ${1000}       | ${1}         | ${"exact conversion"}
+            ${0}          | ${0}         | ${"zero amount"}
+        `(
+            "should round $millisatoshis msat to $expectedSats sats ($description)",
+            async ({ millisatoshis, expectedSats }) => {
+                vi.spyOn(bolt11, "decode").mockReturnValue({
+                    millisatoshis: millisatoshis.toString(),
+                    tags: [
+                        {
+                            tagName: "payment_hash",
+                            data: "mock_hash",
+                        },
+                    ],
+                } as ReturnType<typeof bolt11.decode>);
+
+                const result = await decodeInvoice(mockInvoice);
+
+                expect(result.satoshis).toBe(expectedSats);
             },
         );
     });

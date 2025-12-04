@@ -149,6 +149,9 @@ const CreateButton = () => {
     const [buttonLabel, setButtonLabel] = createSignal<ButtonLabelParams>({
         key: "create_swap",
     });
+    const [originalDestination, setOriginalDestination] = createSignal<
+        string | undefined
+    >(undefined);
 
     createEffect(() => {
         setButtonClass(!online() ? "btn btn-danger" : "btn");
@@ -351,6 +354,7 @@ const CreateButton = () => {
                     ].map((p) => promiseWithTimeout(p, invoiceFetchTimeout)),
                 );
 
+                setOriginalDestination(lnurl());
                 setInvoice(fetched);
                 setLnurl("");
                 setInvoiceValid(true);
@@ -366,6 +370,7 @@ const CreateButton = () => {
                     bolt12Offer(),
                     Number(receiveAmount()),
                 );
+                setOriginalDestination(bolt12Offer());
                 setInvoice(res.invoice);
                 setBolt12Offer(undefined);
                 setInvoiceValid(true);
@@ -406,6 +411,7 @@ const CreateButton = () => {
                             ref(),
                             useRif,
                             newKey,
+                            originalDestination(),
                         );
                     };
 
@@ -515,6 +521,7 @@ const CreateButton = () => {
                             useRif,
                             rescueFile(),
                             newKey,
+                            originalDestination(),
                         );
 
                         data = {
@@ -598,6 +605,7 @@ const CreateButton = () => {
             setInvoiceValid(false);
             setOnchainAddress("");
             setAddressValid(false);
+            setOriginalDestination(undefined);
 
             clearBackupDoneState();
 

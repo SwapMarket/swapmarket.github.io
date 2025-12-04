@@ -64,4 +64,5 @@ listening on 127.0.0.1.
 
 - Read the Docs: [Docs Home](https://docs.boltz.exchange/)
 - Read our Blog: [Substack](https://blog.boltz.exchange/)
-- Follow us: [Nostr](https://primal.net/p/nprofile1qqsrtm03p9knckg63gyjk74yxy3u9e28vgxgr8ju3jk9dfz0ph7qrjqftumaf)
+- Follow us:
+  [Nostr](https://primal.net/p/nprofile1qqsrtm03p9knckg63gyjk74yxy3u9e28vgxgr8ju3jk9dfz0ph7qrjqftumaf)

@@ -221,13 +221,13 @@ const ClaimRescue = () => {
         }
     });
 
-    const handleInputChange = (input: HTMLInputElement) => {
+    const handleInputChange = async (input: HTMLInputElement) => {
         const inputValue = input.value.trim();
         const address = extractAddress(inputValue);
 
         try {
             const assetName = claimableSwap().assetReceive;
-            const actualAsset = probeUserInput(assetName, address);
+            const actualAsset = await probeUserInput(assetName, address);
 
             if (actualAsset !== assetName) {
                 throw new Error("Invalid asset");
@@ -274,8 +274,6 @@ const ClaimRescue = () => {
                 t("swap_completed", {
                     id: privacyMode() ? hiddenInformation : res.id,
                 }),
-                true,
-                true,
             );
             setClaimTxId(res.claimTx);
         } catch (e) {

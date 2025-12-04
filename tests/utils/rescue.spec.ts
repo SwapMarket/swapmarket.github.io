@@ -49,104 +49,152 @@ vi.mock("loglevel", () => ({
     },
 }));
 
+const zeroConf = true;
+
 describe("rescue", () => {
     describe("isSwapClaimable", () => {
         test.each([
             {
-                name: "Reverse: confirmed -> true",
+                name: "Reverse: confirmed",
                 type: SwapType.Reverse,
                 status: swapStatusPending.TransactionConfirmed,
                 includeSuccess: undefined,
+                zeroConf: true,
                 expected: true,
             },
             {
-                name: "Reverse: mempool -> true",
+                name: "Reverse: mempool",
                 type: SwapType.Reverse,
                 status: swapStatusPending.TransactionMempool,
                 includeSuccess: undefined,
+                zeroConf: true,
                 expected: true,
             },
             {
-                name: "Reverse: success not included by default -> false",
+                name: "Reverse: success not included by default",
                 type: SwapType.Reverse,
                 status: swapStatusSuccess.InvoiceSettled,
                 includeSuccess: undefined,
+                zeroConf: true,
                 expected: false,
             },
             {
-                name: "Reverse: irrelevant status -> false",
+                name: "Reverse: irrelevant status",
                 type: SwapType.Reverse,
                 status: swapStatusPending.TransactionServerMempool,
                 includeSuccess: undefined,
+                zeroConf: true,
                 expected: false,
             },
             {
-                name: "Reverse: include success -> true",
+                name: "Reverse: include success",
                 type: SwapType.Reverse,
                 status: swapStatusSuccess.InvoiceSettled,
                 includeSuccess: true,
+                zeroConf: true,
                 expected: true,
             },
-        ])("$name", ({ type, status, includeSuccess, expected }) => {
-            expect(isSwapClaimable({ status, type, includeSuccess })).toEqual(
-                expected,
-            );
+            {
+                name: "Reverse: don't claim on TransactionMempool with zeroConf disabled",
+                type: SwapType.Reverse,
+                status: swapStatusPending.TransactionMempool,
+                includeSuccess: true,
+                zeroConf: false,
+                expected: false,
+            },
+            {
+                name: "Reverse: claim on TransactionConfirmed with zeroConf disabled",
+                type: SwapType.Reverse,
+                status: swapStatusPending.TransactionConfirmed,
+                includeSuccess: true,
+                zeroConf: false,
+                expected: true,
+            },
+        ])("$name", ({ type, status, includeSuccess, zeroConf, expected }) => {
+            expect(
+                isSwapClaimable({ status, type, includeSuccess, zeroConf }),
+            ).toEqual(expected);
         });
 
         test.each([
             {
-                name: "Chain: server confirmed -> true",
+                name: "Chain: server confirmed",
                 type: SwapType.Chain,
                 status: swapStatusPending.TransactionServerConfirmed,
                 includeSuccess: undefined,
+                zeroConf: true,
                 expected: true,
             },
             {
-                name: "Chain: server mempool -> true",
+                name: "Chain: server mempool",
                 type: SwapType.Chain,
                 status: swapStatusPending.TransactionServerMempool,
                 includeSuccess: undefined,
+                zeroConf: true,
                 expected: true,
             },
             {
-                name: "Chain: success not included by default -> false",
+                name: "Chain: success not included by default",
                 type: SwapType.Chain,
                 status: swapStatusSuccess.TransactionClaimed,
                 includeSuccess: undefined,
+                zeroConf: true,
                 expected: false,
             },
             {
-                name: "Chain: include success -> true",
+                name: "Chain: include success",
                 type: SwapType.Chain,
                 status: swapStatusSuccess.TransactionClaimed,
                 includeSuccess: true,
+                zeroConf: true,
                 expected: true,
             },
-        ])("$name", ({ type, status, includeSuccess, expected }) => {
-            expect(isSwapClaimable({ status, type, includeSuccess })).toEqual(
-                expected,
-            );
+            {
+                name: "Chain: don't claim on TransactionServerMempool with zeroConf disabled",
+                type: SwapType.Chain,
+                status: swapStatusPending.TransactionServerMempool,
+                includeSuccess: true,
+                zeroConf: false,
+                expected: false,
+            },
+            {
+                name: "Chain: claim on TransactionServerConfirmed with zeroConf disabled",
+                type: SwapType.Chain,
+                status: swapStatusPending.TransactionServerConfirmed,
+                includeSuccess: true,
+                zeroConf: false,
+                expected: true,
+            },
+        ])("$name", ({ type, status, includeSuccess, zeroConf, expected }) => {
+            expect(
+                isSwapClaimable({ status, type, includeSuccess, zeroConf }),
+            ).toEqual(expected);
         });
 
         test.each([
             {
-                name: "Submarine: confirmed -> false",
+                name: "Submarine: confirmed",
                 type: SwapType.Submarine,
                 status: swapStatusPending.TransactionConfirmed,
                 includeSuccess: undefined,
                 expected: false,
             },
             {
-                name: "Submarine: success (includeSuccess=true) -> false",
+                name: "Submarine: success (includeSuccess=true)",
                 type: SwapType.Submarine,
                 status: swapStatusSuccess.InvoiceSettled,
                 includeSuccess: true,
                 expected: false,
             },
         ])("$name", ({ type, status, includeSuccess, expected }) => {
-            expect(isSwapClaimable({ status, type, includeSuccess })).toEqual(
-                expected,
-            );
+            expect(
+                isSwapClaimable({
+                    status,
+                    type,
+                    includeSuccess,
+                    zeroConf: true,
+                }),
+            ).toEqual(expected);
         });
 
         test.each([
@@ -167,6 +215,7 @@ describe("rescue", () => {
                         status: "unknown.status",
                         type,
                         includeSuccess,
+                        zeroConf: true,
                     }),
                 ).toEqual(false);
             },
@@ -243,6 +292,7 @@ describe("rescue", () => {
                             includeSuccess: true,
                             swapDate,
                             backupImportTimestamp,
+                            zeroConf: false,
                         }),
                     ).toBe(expected);
                 },
@@ -271,6 +321,7 @@ describe("rescue", () => {
                         includeSuccess: false,
                         swapDate,
                         backupImportTimestamp: backupImportTime,
+                        zeroConf: true,
                     }),
                 ).toBe(expected);
             });
@@ -332,6 +383,7 @@ describe("rescue", () => {
                             includeSuccess: true,
                             swapDate,
                             backupImportTimestamp,
+                            zeroConf: true,
                         }),
                     ).toBe(expected);
                 },
@@ -373,6 +425,7 @@ describe("rescue", () => {
                             includeSuccess,
                             swapDate,
                             backupImportTimestamp,
+                            zeroConf: true,
                         }),
                     ).toBe(expected);
                 },
@@ -417,20 +470,34 @@ describe("rescue", () => {
             }) as SubmarineSwap;
 
         test("should return empty array for empty swaps array", async () => {
-            const result = await createRescueList([]);
+            const result = await createRescueList([], zeroConf);
             expect(result).toEqual([]);
         });
 
-        test("should return None action for final status swaps without UTXOs", async () => {
+        test("should return Successful action for final status swaps without UTXOs", async () => {
             const swaps = [
                 createMockSubmarineSwap({
                     status: swapStatusSuccess.TransactionClaimed,
                 }),
             ];
 
-            const result = await createRescueList(swaps);
+            const result = await createRescueList(swaps, zeroConf);
             expect(result).toHaveLength(1);
-            expect(result[0].action).toBe(RescueAction.None);
+            expect(result[0].action).toBe(RescueAction.Successful);
+        });
+
+        test("should return Failed action for failed status swaps without UTXOs", async () => {
+            const swaps = [
+                createMockSubmarineSwap({
+                    status: swapStatusFailed.TransactionFailed,
+                }),
+            ];
+
+            mockGetSwapUTXOs.mockResolvedValue([]);
+
+            const result = await createRescueList(swaps, zeroConf);
+            expect(result).toHaveLength(1);
+            expect(result[0].action).toBe(RescueAction.Failed);
         });
 
         test("should handle multiple swaps with different actions", async () => {
@@ -456,6 +523,11 @@ describe("rescue", () => {
                     status: swapStatusPending.SwapCreated,
                     assetSend: LBTC,
                 }),
+                createMockSubmarineSwap({
+                    id: "swap-5",
+                    status: swapStatusSuccess.TransactionClaimed,
+                    assetSend: LBTC,
+                }),
             ];
 
             mockGetSwapUTXOs
@@ -464,14 +536,18 @@ describe("rescue", () => {
                 .mockResolvedValueOnce([])
                 .mockResolvedValueOnce([]);
 
-            const result = (await createRescueList(swaps)) as RescueListResult;
-            expect(result).toHaveLength(4);
+            const result = (await createRescueList(
+                swaps,
+                zeroConf,
+            )) as RescueListResult;
+            expect(result).toHaveLength(swaps.length);
 
             expect(result[0].action).toBe(RescueAction.Refund);
             expect(result[0].timedOut).toBe(true);
             expect(result[1].action).toBe(RescueAction.Claim);
-            expect(result[2].action).toBe(RescueAction.None);
+            expect(result[2].action).toBe(RescueAction.Failed);
             expect(result[3].action).toBe(RescueAction.Pending);
+            expect(result[4].action).toBe(RescueAction.Successful);
         });
 
         test("should prioritize refund for expired swaps over other actions", async () => {
@@ -485,7 +561,10 @@ describe("rescue", () => {
 
             mockGetSwapUTXOs.mockResolvedValue([{ hex: "mock-tx" }]);
 
-            const result = (await createRescueList(swaps)) as RescueListResult;
+            const result = (await createRescueList(
+                swaps,
+                zeroConf,
+            )) as RescueListResult;
             expect(result).toHaveLength(1);
             expect(result[0].action).toBe(RescueAction.Refund);
             expect(result[0].timedOut).toBe(true);
@@ -500,7 +579,7 @@ describe("rescue", () => {
                 }),
             ];
 
-            const result = await createRescueList(swaps);
+            const result = await createRescueList(swaps, zeroConf);
             expect(result).toHaveLength(1);
             expect(result[0].action).toBe(RescueAction.Pending);
         });
@@ -508,12 +587,12 @@ describe("rescue", () => {
         test.each([
             {
                 status: swapStatusSuccess.TransactionClaimed,
-                action: RescueAction.None,
+                action: RescueAction.Successful,
                 createSwap: createMockSubmarineSwap,
             },
             {
                 status: swapStatusSuccess.InvoiceSettled,
-                action: RescueAction.None,
+                action: RescueAction.Successful,
                 createSwap: createMockSubmarineSwap,
             },
             ...Object.values(swapStatusPending).map((status) => ({
@@ -545,7 +624,7 @@ describe("rescue", () => {
                     hex: "lockup-tx-hex",
                 });
 
-                const result = await createRescueList(swaps);
+                const result = await createRescueList(swaps, zeroConf);
                 expect(result).toHaveLength(1);
                 expect(result[0].action).toBe(action);
             },

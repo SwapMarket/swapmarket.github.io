@@ -1,10 +1,8 @@
-import { OutputType } from "boltz-core";
 import log from "loglevel";
 import { createEffect, onCleanup, onMount } from "solid-js";
 import { createStore } from "solid-js/store";
 
 import { config } from "../config";
-import { BTC, LBTC, RBTC } from "../consts/Assets";
 import { SwapType } from "../consts/Enums";
 import {
     swapStatusFinal,
@@ -14,27 +12,9 @@ import {
 import { useGlobalContext } from "../context/Global";
 import type { SwapStatusTransaction } from "../context/Pay";
 import { usePayContext } from "../context/Pay";
-import {
-    getChainSwapTransactions,
-    getReverseTransaction,
-    postChainSwapDetails,
-} from "../utils/boltzClient";
-import {
-    claim,
-    createSubmarineSignature,
-    createTheirPartialChainSwapSignature,
-} from "../utils/claim";
 import { formatError } from "../utils/errors";
-import { getApiUrl, getPair } from "../utils/helper";
-import { isSwapClaimable } from "../utils/rescue";
-import type {
-    ChainSwap,
-    ReverseSwap,
-    SomeSwap,
-    SubmarineSwap,
-} from "../utils/swapCreator";
-import { getRelevantAssetForSwap } from "../utils/swapCreator";
-import { hiddenInformation } from "./settings/PrivacyMode";
+import { getApiUrl } from "../utils/helper";
+import type { SomeSwap } from "../utils/swapCreator";
 
 type SwapStatus = {
     id: string;
@@ -43,8 +23,6 @@ type SwapStatus = {
     failureReason?: string;
     transaction?: SwapStatusTransaction;
 };
-
-const coopClaimableSymbols = [BTC, LBTC];
 
 const reconnectInterval = 5_000;
 
@@ -166,25 +144,14 @@ export const SwapChecker = () => {
     const {
         swap,
         setSwap,
+        claimSwap,
         setSwapStatus,
         setSwapStatusTransaction,
         setFailureReason,
         shouldIgnoreBackendStatus,
     } = usePayContext();
-    const {
-        notify,
-        updateSwapStatus,
-        getSwap,
-        getSwaps,
-        setSwapStorage,
-        t,
-        backend,
-        setBackend,
-        deriveKey,
-        allPairs,
-        backupImportTimestamp,
-        privacyMode,
-    } = useGlobalContext();
+    const { updateSwapStatus, getSwap, getSwaps, backend, setBackend } =
+        useGlobalContext();
 
     let ws: BoltzWebSocket | undefined = undefined;
 
@@ -231,171 +198,6 @@ export const SwapChecker = () => {
         if (data.status) {
             updatePendingSwaps(currentSwap, data);
             await updateSwapStatus(currentSwap.id, data.status);
-        }
-    };
-
-    const claimSwap = async (swapId: string, data: SwapStatus) => {
-        const currentSwap = await getSwap(swapId);
-        if (currentSwap === null) {
-            log.warn(`claimSwap: swap ${swapId} not found`);
-            return;
-        }
-
-        if (
-            currentSwap.type === SwapType.Chain &&
-            data.status === swapStatusPending.TransactionClaimPending &&
-            coopClaimableSymbols.includes((currentSwap as ChainSwap).assetSend)
-        ) {
-            await helpServerClaim(currentSwap as ChainSwap);
-            return;
-        }
-
-        if (getRelevantAssetForSwap(currentSwap) === RBTC) {
-            if (
-                data.status === swapStatusPending.TransactionMempool &&
-                data.transaction !== undefined
-            ) {
-                currentSwap.lockupTx = data.transaction.id;
-                await setSwapStorage(currentSwap);
-            }
-
-            return;
-        }
-
-        if (currentSwap.version !== OutputType.Taproot) {
-            return;
-        }
-
-        // Check if backend is defined
-        if (currentSwap.backend == undefined) {
-            currentSwap.backend = backend();
-        } else if (currentSwap.backend != backend()) {
-            setBackend(currentSwap.backend);
-        }
-
-        if (data.status === swapStatusSuccess.InvoiceSettled) {
-            data.transaction = await getReverseTransaction(
-                backend(),
-                currentSwap.id,
-            );
-        } else if (
-            currentSwap.type === SwapType.Chain &&
-            data.status === swapStatusSuccess.TransactionClaimed
-        ) {
-            data.transaction = (
-                await getChainSwapTransactions(backend(), currentSwap.id)
-            ).serverLock.transaction;
-        }
-
-        if (
-            currentSwap.claimTx === undefined &&
-            data.transaction !== undefined &&
-            isSwapClaimable({
-                status: data.status,
-                type: currentSwap.type,
-                includeSuccess: true,
-                swapDate: currentSwap.date,
-                backupImportTimestamp: backupImportTimestamp(),
-            })
-        ) {
-            try {
-                const res = await claim(
-                    deriveKey,
-                    currentSwap as ReverseSwap | ChainSwap,
-                    data.transaction as { hex: string },
-                    true,
-                );
-                const claimedSwap = await getSwap(res.id);
-                claimedSwap.claimTx = res.claimTx;
-                await setSwapStorage(claimedSwap);
-
-                if (claimedSwap.id === swap().id) {
-                    setSwap(claimedSwap);
-                }
-                notify(
-                    "success",
-                    t("swap_completed", {
-                        id: privacyMode() ? hiddenInformation : res.id,
-                    }),
-                    true,
-                    true,
-                );
-            } catch (e) {
-                const msg = t("claim_fail", {
-                    id: privacyMode() ? hiddenInformation : currentSwap.id,
-                });
-                log.warn(msg, e);
-                notify("error", msg);
-            }
-        } else if (
-            currentSwap.type === SwapType.Submarine &&
-            data.status === swapStatusPending.TransactionClaimPending &&
-            currentSwap.receiveAmount >=
-                getPair(
-                    allPairs[backend()],
-                    currentSwap.type,
-                    currentSwap.assetSend,
-                    currentSwap.assetReceive,
-                ).limits.minimal
-        ) {
-            try {
-                await createSubmarineSignature(
-                    deriveKey,
-                    currentSwap as SubmarineSwap,
-                );
-                notify(
-                    "success",
-                    t("swap_completed", {
-                        id: privacyMode() ? hiddenInformation : currentSwap.id,
-                    }),
-                    true,
-                    true,
-                );
-            } catch (e) {
-                if (e === "swap not eligible for a cooperative claim") {
-                    log.debug(
-                        `Server did not want help claiming ${currentSwap.id}`,
-                    );
-                    return;
-                }
-
-                const msg =
-                    "creating cooperative signature for submarine swap claim failed";
-                log.warn(msg, e);
-                notify("error", msg);
-            }
-        }
-    };
-
-    const helpServerClaim = async (swap: ChainSwap) => {
-        const { backend, setBackend } = useGlobalContext();
-
-        if (swap.claimTx === undefined) {
-            log.warn(
-                `Not helping server claim Chain Swap ${swap.id} because we have not claimed yet`,
-            );
-            return;
-        }
-
-        try {
-            log.debug(
-                `Helping server claim ${swap.assetSend} of Chain Swap ${swap.id}`,
-            );
-            const sig = await createTheirPartialChainSwapSignature(
-                deriveKey,
-                swap,
-            );
-            // Check if backend is defined
-            if (swap.backend == undefined) {
-                swap.backend = backend();
-            } else if (swap.backend != backend()) {
-                setBackend(swap.backend);
-            }
-            await postChainSwapDetails(swap.backend, swap.id, undefined, sig);
-        } catch (e) {
-            log.warn(
-                `Helping server claim Chain Swap ${swap.id} failed: ${formatError(e)}`,
-            );
         }
     };
 
