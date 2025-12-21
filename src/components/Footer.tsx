@@ -31,10 +31,7 @@ const Footer = () => {
                     href={config.githubUrl}>
                     <BsGithub size={22} color="#22374F" />
                 </ExternalLink>
-                <a
-                    title="Nostr"
-                    class="nostr"
-                    href={config.nostrUrl}>
+                <a title="Nostr" class="nostr" href={config.nostrUrl}>
                     <img src={nostr} alt="Nostr Logo" />
                 </a>
                 <a
