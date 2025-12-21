@@ -19,7 +19,7 @@ import { formatError } from "../utils/errors";
 import { decodeInvoice } from "../utils/invoice";
 import { refund } from "../utils/rescue";
 import { prefix0x, satoshiToWei } from "../utils/rootstock";
-import type { ChainSwap, SomeSwap, SubmarineSwap } from "../utils/swapCreator";
+import type { ChainSwap, SubmarineSwap } from "../utils/swapCreator";
 import ContractTransaction from "./ContractTransaction";
 import LoadingSpinner from "./LoadingSpinner";
 
@@ -32,11 +32,10 @@ export const RefundEvm = (props: {
     signerAddress: string;
     derivationPath?: string;
     timeoutBlockHeight: number;
-    setRefundTxHash?: Setter<string>;
+    setRefundTxId: Setter<string>;
 }) => {
-    const { setSwap } = usePayContext();
     const { getEtherSwap, signer } = useWeb3Signer();
-    const { setSwapStorage, getSwap, t, backend } = useGlobalContext();
+    const { t, backend } = useGlobalContext();
 
     return (
         <ContractTransaction
@@ -68,7 +67,9 @@ export const RefundEvm = (props: {
                     );
                     const decSignature = Signature.from(signature);
 
-                    tx = await contract.refundCooperative(
+                    tx = await contract[
+                        "refundCooperative(bytes32,uint256,address,uint256,uint8,bytes32,bytes32)"
+                    ](
                         prefix0x(props.preimageHash),
                         satoshiToWei(props.amount),
                         props.claimAddress,
@@ -79,16 +80,7 @@ export const RefundEvm = (props: {
                     );
                 }
 
-                if (props.setRefundTxHash !== undefined) {
-                    props.setRefundTxHash(tx.hash);
-                }
-
-                if (props.swapId !== undefined) {
-                    const currentSwap = await getSwap(props.swapId);
-                    currentSwap.refundTx = tx.hash;
-                    await setSwapStorage(currentSwap);
-                    setSwap(currentSwap);
-                }
+                props.setRefundTxId(tx.hash);
 
                 await tx.wait(1);
             }}
@@ -103,20 +95,13 @@ export const RefundEvm = (props: {
 
 export const RefundBtc = (props: {
     swap: Accessor<SubmarineSwap | ChainSwap>;
-    setRefundTxId?: Setter<string>;
+    setRefundTxId: Setter<string>;
     buttonOverride?: string;
     deriveKeyFn?: deriveKeyFn;
 }) => {
-    const {
-        getSwap,
-        setSwapStorage,
-        setRefundAddress,
-        refundAddress,
-        notify,
-        t,
-        deriveKey,
-    } = useGlobalContext();
-    const { setSwap, refundableUTXOs } = usePayContext();
+    const { setRefundAddress, refundAddress, notify, t, deriveKey } =
+        useGlobalContext();
+    const { refundableUTXOs } = usePayContext();
 
     const [timeoutEta, setTimeoutEta] = createSignal<number | null>(null);
     const [timeoutBlockheight, setTimeoutBlockheight] = createSignal<
@@ -162,7 +147,7 @@ export const RefundBtc = (props: {
         setRefundRunning(true);
 
         try {
-            const refundedSwap: SomeSwap = await refund(
+            const refundTxId = await refund(
                 props.deriveKeyFn || deriveKey,
                 props.swap(),
                 refundAddress(),
@@ -170,18 +155,7 @@ export const RefundBtc = (props: {
                 true,
             );
 
-            // save refundTx into swaps json and set it to the current swap
-            // only if the swap exist in localstorage, else it is a refund json
-            // so we save it into the signal
-            const currentSwap = await getSwap(refundedSwap.id);
-            if (currentSwap !== null) {
-                currentSwap.refundTx = refundedSwap.refundTx;
-                await setSwapStorage(currentSwap);
-                setSwap(currentSwap);
-            }
-            if (props.setRefundTxId) {
-                props.setRefundTxId(refundedSwap.refundTx);
-            }
+            props.setRefundTxId(refundTxId);
 
             setRefundAddress("");
         } catch (error) {
@@ -286,7 +260,7 @@ export const RefundBtc = (props: {
 
 const RefundButton = (props: {
     swap: Accessor<SubmarineSwap | ChainSwap>;
-    setRefundTxId?: Setter<string>;
+    setRefundTxId: Setter<string>;
     buttonOverride?: string;
     deriveKeyFn?: deriveKeyFn;
 }) => {
@@ -329,6 +303,7 @@ const RefundButton = (props: {
                                     ),
                                 )
                                 .toString("hex")}
+                            setRefundTxId={props.setRefundTxId}
                         />
                     }>
                     <Show
@@ -347,6 +322,7 @@ const RefundButton = (props: {
                                     .timeoutBlockHeight
                             }
                             preimageHash={preimageHash()}
+                            setRefundTxId={props.setRefundTxId}
                         />
                     </Show>
                 </Show>

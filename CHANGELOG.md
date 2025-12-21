@@ -3,6 +3,53 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [1.8.11](https://github.com/BoltzExchange/boltz-web-app/compare/v1.8.10..v1.8.11) - 2025-12-20
+
+### Features
+
+- add Pro-specific invoice pending message (#1113) - ([8153163](https://github.com/BoltzExchange/boltz-web-app/commit/8153163a9f745b1c64ef0f14cf02d9ee33187294))
+- define custom groups for display of different address types (#1112) - ([543efec](https://github.com/BoltzExchange/boltz-web-app/commit/543efec2d7454e737f8226f5c02dffebbc51269a))
+- add santa hat to Boltz logo (#1115) - ([7b05e06](https://github.com/BoltzExchange/boltz-web-app/commit/7b05e0679fdd677fb66bb392544f9f9c126de5c4))
+- detect timeout expiration for uncooperative refund (#1111) - ([63b2601](https://github.com/BoltzExchange/boltz-web-app/commit/63b26010098b5e02732a54b7cb16ffaf7ecbe240))
+
+### Miscellaneous Chores
+
+- bump dnssec-prover (#1108) - ([d00ec7d](https://github.com/BoltzExchange/boltz-web-app/commit/d00ec7d6d5c6c8a12f404665c90d4281b6891ba4))
+- add Blockstream App to integrations (#1109) - ([04ce41c](https://github.com/BoltzExchange/boltz-web-app/commit/04ce41c1735a6d0ead529d4430831eb293f3758b))
+- use production builds in e2e tests - ([371c077](https://github.com/BoltzExchange/boltz-web-app/commit/371c077eb50225b767e5e2d2a5009605228ef85c))
+- bump dependencies - ([d578a15](https://github.com/BoltzExchange/boltz-web-app/commit/d578a15e472bd336a4f875d0d77b9861ace58a1e))
+
+### Refactoring
+
+- component for external links - ([aa1e5c8](https://github.com/BoltzExchange/boltz-web-app/commit/aa1e5c8ddf5f58b3c6a49ca2976017254cbbc5ae))
+- tighter block explorer link type checks - ([872a944](https://github.com/BoltzExchange/boltz-web-app/commit/872a94484203cdcafb9b7aa60c726e0e2bb00718))
+- use new boltzr-cli in e2e tests - ([0c22c4e](https://github.com/BoltzExchange/boltz-web-app/commit/0c22c4eae1728e7aa83989efaa9bd6aaf25ac49a))
+
+---
+## [1.8.10](https://github.com/BoltzExchange/boltz-web-app/compare/v1.8.9..v1.8.10) - 2025-12-10
+
+### Bug Fixes
+
+- always have zeroConf enabled on mobile (#1096) - ([626797d](https://github.com/BoltzExchange/boltz-web-app/commit/626797d21403c711843d4c8fa547b9db7c8f920f))
+- chatwoot overlap with settings menu (#1097) - ([4d5adc7](https://github.com/BoltzExchange/boltz-web-app/commit/4d5adc7abeab46d9ed68b72906b69316faef9741))
+- incorrect error message for failed lockups (#1099) - ([7c547c5](https://github.com/BoltzExchange/boltz-web-app/commit/7c547c59ab0f3542fe680312ff6227838b9f2d86))
+- Dockerfile builds (#1102) - ([7785fb4](https://github.com/BoltzExchange/boltz-web-app/commit/7785fb4d830964d22b9bdfd50ce45f4d8a82199d))
+- log previously uncaught exception (#1103) - ([bf9784d](https://github.com/BoltzExchange/boltz-web-app/commit/bf9784d907d47e0edeb6ffdf5442206a2361424d))
+
+### Miscellaneous Chores
+
+- optimize e2e github actions (#1098) - ([92f9ae6](https://github.com/BoltzExchange/boltz-web-app/commit/92f9ae63d817647b17bbf15a9bd840fd7003df9c))
+- update to Node v24 (#1100) - ([4696949](https://github.com/BoltzExchange/boltz-web-app/commit/46969493d2d748ed02c364520c082c42d14633d2))
+- update for contracts v5 compatibility - ([afcbecf](https://github.com/BoltzExchange/boltz-web-app/commit/afcbecf4762afe32969196ebbd82258a888ed558))
+- remove vite mkcert dependency - ([3cf9900](https://github.com/BoltzExchange/boltz-web-app/commit/3cf990041cd89da28d8babd8a0ce606af8789787))
+- bump version to v1.8.10 (#1106) - ([06832f1](https://github.com/BoltzExchange/boltz-web-app/commit/06832f181d7dea49e25450e76cb5218c613658ed))
+
+### Refactoring
+
+- use onion URL from config (#1095) - ([2471b78](https://github.com/BoltzExchange/boltz-web-app/commit/2471b78d1b244a11ee8062372433482630e8439f))
+- nicer 404 (#1105) - ([edb98d1](https://github.com/BoltzExchange/boltz-web-app/commit/edb98d10f05be9048dff0867d647f447ac24dee1))
+
+---
 ## [1.8.9](https://github.com/BoltzExchange/boltz-web-app/compare/v1.8.8..v1.8.9) - 2025-12-04
 
 ### Bug Fixes
@@ -27,6 +74,7 @@ All notable changes to this project will be documented in this file. See [conven
 
 - remove unused strings (#1088) - ([a2c5dab](https://github.com/BoltzExchange/boltz-web-app/commit/a2c5dab4c70ac9c7be7ada4fc0fe3ffb2e72cf07))
 - update release script (#1092) - ([5707053](https://github.com/BoltzExchange/boltz-web-app/commit/5707053b6d03418332260730eedd0df2defda97a))
+- bump version to v1.8.9 (#1093) - ([da3cb80](https://github.com/BoltzExchange/boltz-web-app/commit/da3cb80e98196fe0a67ee8dbfad4facb5c94cd13))
 
 ### Refactoring
 

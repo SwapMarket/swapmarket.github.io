@@ -1,6 +1,4 @@
-FROM node:22 AS builder
-
-RUN npm i -g npm
+FROM node:24 AS builder
 
 WORKDIR /app
 
