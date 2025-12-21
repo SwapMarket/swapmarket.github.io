@@ -9,7 +9,13 @@
         "moduleResolution": "node",
         "jsx": "preserve",
         "jsxImportSource": "solid-js",
-        "types": ["vite/client", "bignumber.js", "vitest/globals", "node"],
+        "types": [
+            "vite/client",
+            "bignumber.js",
+            "vitest/globals",
+            "node",
+            "@testing-library/jest-dom"
+        ],
         "baseUrl": ".",
         "outDir": "ts-out",
         "noImplicitReturns": true,
