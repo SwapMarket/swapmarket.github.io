@@ -22,7 +22,7 @@ import type {
     SubmarineSwap,
 } from "./swapCreator";
 
-export const requestTimeoutDuration = 15_000;
+export const defaultTimeoutDuration = 15_000;
 
 export const isIos = () =>
     !!navigator.userAgent.match(/iphone|ipad/gi) || false;
@@ -59,13 +59,15 @@ export const cropString = (str: string, maxLen = 40, subStrSize = 19) => {
     );
 };
 
-export const formatAddress = (address?: string | null): string[] => {
-    const GROUP_SIZE = 5;
+export const formatAddress = (
+    address?: string | null,
+    groupSize = 5,
+): string[] => {
     if (!address) return [];
     const clean = address.replace(/\s/g, "");
     const groups: string[] = [];
-    for (let i = 0; i < clean.length; i += GROUP_SIZE) {
-        groups.push(clean.substring(i, i + GROUP_SIZE));
+    for (let i = 0; i < clean.length; i += groupSize) {
+        groups.push(clean.substring(i, i + groupSize));
     }
     return groups;
 };
@@ -104,7 +106,7 @@ export const getPair = <
 
 export const constructRequestOptions = (
     options: RequestInit = {},
-    timeout: number = requestTimeoutDuration,
+    timeout: number = defaultTimeoutDuration,
 ) => {
     const controller = new AbortController();
     const requestTimeout = setTimeout(
@@ -125,6 +127,7 @@ export const fetcher = async <T = unknown>(
     url: string,
     params?: Record<string, unknown>,
     options?: RequestInit,
+    requestTimeoutDuration: number = defaultTimeoutDuration,
 ): Promise<T> => {
     const controller = new AbortController();
     const requestTimeout = setTimeout(
@@ -175,7 +178,7 @@ export const fetcher = async <T = unknown>(
         }
         return (await response.json()) as T;
     } catch (e) {
-        throw new Error(e);
+        throw new Error(formatError(e));
     } finally {
         clearTimeout(requestTimeout);
     }

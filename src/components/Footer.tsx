@@ -6,6 +6,7 @@ import simplex from "../assets/simplex.svg";
 import { config } from "../config";
 import { useGlobalContext } from "../context/Global";
 import "../style/footer.scss";
+import ExternalLink from "./ExternalLink";
 
 const Footer = () => {
     const { t, backend } = useGlobalContext();
@@ -24,24 +25,18 @@ const Footer = () => {
                 </a>
             </h4>
             <div class="socials">
-                <a
+                <ExternalLink
                     title="Github"
                     class="github"
-                    target="_blank"
                     href={config.githubUrl}>
                     <BsGithub size={22} color="#22374F" />
-                </a>
-                <a
-                    title="Nostr"
-                    class="nostr"
-                    target="_blank"
-                    href={config.nostrUrl}>
+                </ExternalLink>
+                <a title="Nostr" class="nostr" href={config.nostrUrl}>
                     <img src={nostr} alt="Nostr Logo" />
                 </a>
                 <a
                     title={t("email")}
                     class="email"
-                    target="_blank"
                     href={"mailto:" + config.email}>
                     <BsEnvelopeFill size={22} color="#22374F" />
                 </a>
@@ -58,18 +53,18 @@ const Footer = () => {
                     {t("blog")}
                 </a>{" "}
                 |{" "}
-                <a target="_blank" href={config.regtestUrl}>
+                <ExternalLink href={config.regtestUrl}>
                     {t("regtest")}
-                </a>{" "}
+                </ExternalLink>{" "}
                 |{" "}
                 <a target="_blank" href={config.testnetUrl}>
                     {t("testnet")}
                 </a>
                 <Show when={config.torUrl}>
                     |{" "}
-                    <a target="_blank" href={config.torUrl}>
+                    <ExternalLink href={config.torUrl}>
                         {t("onion")}
-                    </a>
+                    </ExternalLink>
                 </Show>
             </p>
             <p class="legal-nav">
@@ -82,11 +77,10 @@ const Footer = () => {
                     {__APP_VERSION__}
                 </a>
                 , {t("commithash")}:{" "}
-                <a
-                    target="_blank"
+                <ExternalLink
                     href={`${config.repoUrl}/commit/${__GIT_COMMIT__}`}>
                     {__GIT_COMMIT__}
-                </a>
+                </ExternalLink>
             </p>
             <p>{t("footer")}</p>
         </footer>

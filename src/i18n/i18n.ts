@@ -120,6 +120,8 @@ const dict = {
         tx_in_mempool_warning:
             "Keep this page open, otherwise your swap can't complete!",
         invoice_pending: "Transaction received, paying invoice.",
+        invoice_pending_pro:
+            "Transaction received, invoice queued. In some occasions, swap might be cancelled.",
         invoice_expired: "Invoice expired, try again!",
         create_invoice_webln: "create invoice via WebLN",
         pay_invoice_webln: "pay invoice via WebLN",
@@ -158,8 +160,8 @@ const dict = {
             "Return to this page after paying the invoice! The payment might show pending until you return to this page.",
         warning_expiry:
             "Make sure your transaction confirms within ~24 hours after creation of this swap!",
-        not_found: "404 - Page Not Found",
-        not_found_subline: "The page you are looking for does not exist.",
+        not_found: "404 - Not Found",
+        not_found_subline: "This page seems to have vanished.",
         back_to_home: "Back to Home",
         transaction_prompt:
             'Press "{{ button }}" in order to open your connected wallet and confirm the displayed transaction.',
@@ -563,6 +565,8 @@ const dict = {
         tx_in_mempool_warning:
             "Seite nicht schließen, sonst kann Swap nicht abgeschlossen werden!",
         invoice_pending: "Transaktion erhalten, Rechnung wird bezahlt.",
+        invoice_pending_pro:
+            "Transaktion erhalten, Rechnung in Warteschlange. In manchen Fällen kann der Swap abgebrochen werden.",
         invoice_expired: "Rechnung ist abgelaufen, bitte erneut versuchen!",
         create_invoice_webln: "Rechnung über WebLN erstellen",
         pay_invoice_webln: "Rechnung über WebLN bezahlen",
@@ -602,8 +606,8 @@ const dict = {
             "Kehre nach dem Bezahlen der Rechnung zu dieser Seite zurück! Die Zahlung wird möglicherweise als ausstehend angezeigt, bis du zu dieser Seite zurückkehrst.",
         warning_expiry:
             "Wichtig: Die Transaktion muss innerhalb ~24 Stunden nach Erstellung dieses Swaps bestätigt sein!",
-        not_found: "404 - Seite nicht gefunden",
-        not_found_subline: "Die gesuchte Seite existiert nicht.",
+        not_found: "404 - Not Found",
+        not_found_subline: "Diese Seite scheint verschwunden zu sein.",
         back_to_home: "Zurück zur Startseite",
         transaction_prompt:
             '"{{ button }}" klicken um das verbundene Wallet zu öffnen und bestätige die angezeigte Transaktion.',
@@ -1016,6 +1020,8 @@ const dict = {
         tx_in_mempool_warning:
             "Mantenga la página abierta, o el intercambio no se completará!",
         invoice_pending: "Transacción recibida, pagando la factura...",
+        invoice_pending_pro:
+            "Transacción recibida, factura en cola. En algunas ocasiones, el intercambio podría ser cancelado.",
         invoice_expired: "La factura ha expirado, ¡intente nuevamente!",
         create_invoice_webln: "Crear factura a través de WebLN",
         pay_invoice_webln: "Pagar factura a través de WebLN",
@@ -1056,8 +1062,8 @@ const dict = {
             "Regresa a esta página después de pagar la factura! El pago puede aparecer como pendiente hasta que vuelvas a esta página.",
         warning_expiry:
             "Importante: Asegúrate de que la transacción se confirme en ~24 horas",
-        not_found: "404 - Página no encontrada",
-        not_found_subline: "La página buscada no existe.",
+        not_found: "404 - Not Found",
+        not_found_subline: "Esta página parece haber desaparecido.",
         back_to_home: "Volver al inicio",
         transaction_prompt:
             'Pulse "{{ button }}" para abrir tu monedero conectado y confirmar la transacción mostrada.',
@@ -1467,6 +1473,8 @@ const dict = {
         tx_in_mempool_warning:
             "Mantenha esta página aberta, senão a troca não termina!",
         invoice_pending: "Transação recebida, a pagar o invoice.",
+        invoice_pending_pro:
+            "Transação recebida, invoice em fila. Em algumas ocasiões, a troca pode ser cancelada.",
         invoice_expired: "Invoice expirado, tente novamente!",
         create_invoice_webln: "criar invoice via WebLN",
         pay_invoice_webln: "pagar invoice via WebLN",
@@ -1506,8 +1514,8 @@ const dict = {
             "Volte a esta página após pagar o invoice! O pagamento pode aparecer como pendente até que volte a esta página.",
         warning_expiry:
             "Certifique-se de que sua transação seja confirmada em até 24h após a criação da troca!",
-        not_found: "404 - Página não encontrada",
-        not_found_subline: "A página solicitada não existe.",
+        not_found: "404 - Not Found",
+        not_found_subline: "Esta página parece ter desaparecido.",
         back_to_home: "Voltar à página inicial",
         transaction_prompt:
             'Pressione "{{ button }}" para abrir sua carteira conectada e confirmar a transação exibida.',
@@ -1899,6 +1907,8 @@ const dict = {
         tx_in_mempool_subline: "等待确认以完成交换",
         tx_in_mempool_warning: "请保持此页打开，否则兑换无法完成！",
         invoice_pending: "收到交易，正在支付发票。",
+        invoice_pending_pro:
+            "收到交易，发票已排队。在某些情况下，兑换可能会被取消。",
         invoice_expired: "发票已过期，请重试！",
         create_invoice_webln: "通过WebLN创建发票",
         pay_invoice_webln: "通过WebLN支付发票",
@@ -1934,8 +1944,8 @@ const dict = {
         warning_return:
             "重要：支付发票后返回此页面！在您返回此页面之前，付款可能显示为待定。",
         warning_expiry: "确保您的交易在创建此交换后的约24小时内确认！",
-        not_found: "404 - 页面未找到",
-        not_found_subline: "您要查找的页面不存在。",
+        not_found: "404 - Not Found",
+        not_found_subline: "此页面似乎已经消失。",
         back_to_home: "返回首页",
         transaction_prompt:
             "按“{{ button }}”以打开已连接的钱包并确认显示的交易。",
@@ -2317,6 +2327,8 @@ const dict = {
             "ページを開いたままにしないと、スワップは完了しません！",
         invoice_pending:
             "トランザクションを受け取りました。インボイスを支払っています",
+        invoice_pending_pro:
+            "トランザクションを受け取りました。インボイスはキューに入りました。場合によっては、スワップがキャンセルされることがあります。",
         invoice_expired:
             "インボイスの有効期限が切れました。もう一度試してください",
         create_invoice_webln: "WebLNを使用してインボイスを作成",
@@ -2356,8 +2368,8 @@ const dict = {
             "重要：インボイスのお支払い後、このページへ戻ってください！このページに戻るまで、支払いは保留中と表示される場合があります。",
         warning_expiry:
             "必ず24時間以内にトランザクションが承認されるようにしてください",
-        not_found: "404 - Page Not Found",
-        not_found_subline: "お探しのページは存在しません",
+        not_found: "404 - Not Found",
+        not_found_subline: "このページは消えてしまったようです。",
         back_to_home: "ホームに戻る",
         transaction_prompt:
             " 接続したウォレットを開いて、表示されたトランザクションを確認するために　{{ button }} を押してください",
@@ -2760,6 +2772,8 @@ const dict = {
         tx_in_mempool_warning:
             "Пожалуйста, держите эту вкладку открытой до завершения обмена!",
         invoice_pending: "Транзакция получена, оплачиваю инвойс.",
+        invoice_pending_pro:
+            "Транзакция получена, инвойс в очереди. В некоторых случаях своп может быть отменен.",
         invoice_expired: "Инвойс истек, попробуйте снова!",
         create_invoice_webln: "создать инвойс через WebLN",
         pay_invoice_webln: "оплатить инвойс через WebLN",

@@ -49,6 +49,10 @@
             :root {
                 --backgroundColor: $backgroundColor;
             }
+            html {
+                height: 100%;
+                background: var(--backgroundColor);
+            }
             @keyframes boltzing {
                 0% {
                     transform: translate(-50%, -50%) scale(1);
@@ -63,6 +67,11 @@
             body > svg {
                 display: none;
             }
+            body {
+                height: 100%;
+                margin: 0;
+                background: var(--backgroundColor);
+            }
             .loading {
                 background: var(--backgroundColor);
             }
@@ -73,6 +82,8 @@
                 transform: translate(-50%, -50%);
                 display: block;
                 animation: boltzing 3s infinite;
+                max-width: 200px;
+                height: auto;
             }
         </style>
     </head>
