@@ -377,7 +377,7 @@ export const refund = async <T extends SubmarineSwap | ChainSwap>(
 export const isRefundableSwapType = (swap: SomeSwap) =>
     [SwapType.Chain, SwapType.Submarine].includes(swap.type);
 
-export const getRefundableUTXOs = async (currentSwap: SomeSwap) => {
+export const getRescuableUTXOs = async (currentSwap: SomeSwap) => {
     const [lockupTxResult, utxosResult] = await Promise.allSettled([
         getLockupTransaction(
             currentSwap.backend || 0,
@@ -459,7 +459,7 @@ export const createRescueList = async (
         swaps.map(async (swap) => {
             try {
                 const utxos = isRefundableSwapType(swap)
-                    ? await getRefundableUTXOs(swap)
+                    ? await getRescuableUTXOs(swap)
                     : [];
 
                 if (utxos.length === 0) {

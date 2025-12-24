@@ -13,6 +13,7 @@ import {
     createSignal,
     onCleanup,
 } from "solid-js";
+import { getSwapUTXOs } from "src/utils/blockchain";
 
 import BlockExplorer from "../components/BlockExplorer";
 import BlockExplorerLink from "../components/BlockExplorerLink";
@@ -54,7 +55,6 @@ import {
 } from "../utils/helper";
 import {
     getCurrentBlockHeight,
-    getRefundableUTXOs,
     getTimeoutEta,
     hasSwapTimedOut,
     isRefundableSwapType,
@@ -102,6 +102,26 @@ const Pay = () => {
         setTimeout(() => {
             setCopyDestinationActive(false);
         }, copyIconTimeout);
+    };
+
+    const getRefundableUTXOs = async () => {
+        const [lockupTxResult, utxosResult] = await Promise.allSettled([
+            getLockupTransaction(backend(), swap().id, swap().type),
+            getSwapUTXOs(swap() as ChainSwap | SubmarineSwap),
+        ]);
+
+        const lockupTx =
+            lockupTxResult.status === "fulfilled" ? lockupTxResult.value : null;
+        const utxos =
+            utxosResult.status === "fulfilled" ? utxosResult.value : null;
+
+        // to avoid the racing condition where WebApp has broadcast the claim tx for the lockup address
+        // but it hasn't reached block explorers yet
+        if (utxos?.length === 1 && utxos[0].id === lockupTx?.id) {
+            return [];
+        }
+
+        return utxos;
     };
 
     createEffect(() => {
@@ -193,8 +213,9 @@ const Pay = () => {
 
         try {
             setLoading(true);
+
             const utxos = shouldCheckBlockExplorer
-                ? await getRefundableUTXOs(swap() as ChainSwap | SubmarineSwap)
+                ? await getRefundableUTXOs()
                 : [
                       await getLockupTransaction(
                           backend(),
