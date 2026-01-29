@@ -3103,6 +3103,7 @@ const dict = {
         display: "Дисплей",
         security: "Безопасность",
         failed: "Неуспешный",
+        swaps_found: "Сканирую, найдено ({{ count }} свопов)",
     },
 };
 
