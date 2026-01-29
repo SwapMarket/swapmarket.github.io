@@ -4,8 +4,12 @@ on:
   # Runs on pushes and PRs targeting the main and test branches
   push:
     branches: ['test']
+    paths-ignore:
+      - README.md
   pull_request:
     branches: ['main']
+    paths-ignore:
+      - README.md
 
 jobs:
   ci:
