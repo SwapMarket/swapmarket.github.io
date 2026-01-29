@@ -15,3 +15,4 @@ src/config.ts
 docs/.vitepress/cache/
 index.html
 rescue.json
+.index-build-cache

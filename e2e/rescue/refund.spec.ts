@@ -30,7 +30,7 @@ import {
 
 const fileName = "rescue.json";
 
-const navigateToSwapDetails = async (page: Page, swapId: string) => {
+const navigateToSwapRescue = async (page: Page, swapId: string) => {
     await page.getByRole("link", { name: "Rescue" }).click();
     const swapItem = page.locator(`div[data-testid='swaplist-item-${swapId}']`);
     await expect(page.getByTestId("loading-spinner")).not.toBeVisible({
@@ -248,62 +248,218 @@ test.describe("Refund", () => {
         }
     });
 
-    test("Refunds all UTXOs of `invoice.failedToPay`", async ({ page }) => {
+    const setupSwapWithMultipleUTXOs = async (
+        page: Page,
+        amount: number,
+        utxoCount: number,
+    ) => {
         await createAndVerifySwap(page, refundFileJson);
 
         const swapId = getCurrentSwapId(page);
         const address = await page.evaluate(() => {
             return navigator.clipboard.readText();
         });
-        const amount = 0.005;
-        const utxoCount = 3;
 
-        await setFailedToPay(swapId);
-
-        await elementsSendToAddress(address, amount);
-        await elementsSendToAddress(address, amount);
-        await elementsSendToAddress(address, amount);
+        for (let i = 0; i < utxoCount; i++) {
+            await elementsSendToAddress(address, amount);
+        }
 
         await waitForUTXOs(LBTC, address, utxoCount);
 
-        await navigateToSwapDetails(page, swapId);
+        return { swapId, address };
+    };
 
-        await expect(page.getByText("invoice.failedToPay")).toBeVisible();
+    const performRefundAction = async (page: Page, statusText: string) => {
+        await expect(page.getByText(statusText)).toBeVisible();
         await page.getByTestId("refundAddress").fill(await getLiquidAddress());
         await page.getByTestId("refundButton").click();
+    };
 
-        // Validate that the UTXOs are refunded on the same transaction
+    test("Refunds all UTXOs of `invoice.failedToPay` via swap page", async ({
+        page,
+    }) => {
+        const utxoCount = 3;
+        const amount = 0.005;
+        const statusText = "invoice.failedToPay";
+
+        const { swapId, address } = await setupSwapWithMultipleUTXOs(
+            page,
+            amount,
+            utxoCount,
+        );
+
+        await setFailedToPay(swapId);
+
+        await performRefundAction(page, statusText);
+
         await validateRefundTxInputs(page, utxoCount);
         await validateRefundTransaction(page, LBTC, address);
     });
 
-    test("Refunds all UTXOs of `transaction.lockupFailed`", async ({
+    test("Refunds all UTXOs of `invoice.failedToPay` via Rescue", async ({
         page,
     }) => {
-        await createAndVerifySwap(page, refundFileJson);
+        const utxoCount = 3;
+        const amount = 0.005;
+        const statusText = "invoice.failedToPay";
 
-        const swapId = getCurrentSwapId(page);
-        const address = await page.evaluate(() => {
-            return navigator.clipboard.readText();
-        });
-        const amount = 0.01;
-        const utxoCount = 2;
+        const { swapId, address } = await setupSwapWithMultipleUTXOs(
+            page,
+            amount,
+            utxoCount,
+        );
 
-        // Pay swap with incorrect amount & pay additional UTXO
-        await elementsSendToAddress(address, amount);
-        await elementsSendToAddress(address, amount);
+        await setFailedToPay(swapId);
 
-        await waitForUTXOs(LBTC, address, utxoCount);
-
-        await navigateToSwapDetails(page, swapId);
-
-        await expect(page.getByText("transaction.lockupFailed")).toBeVisible();
-        await page.getByTestId("refundAddress").fill(await getLiquidAddress());
-        await page.getByTestId("refundButton").click();
-
-        // Validate that the UTXOs are refunded on the same transaction
+        await navigateToSwapRescue(page, swapId);
+        await performRefundAction(page, statusText);
         await validateRefundTxInputs(page, utxoCount);
         await validateRefundTransaction(page, LBTC, address);
+    });
+
+    test("Refunds all UTXOs of `transaction.lockupFailed` via swap page", async ({
+        page,
+    }) => {
+        const utxoCount = 3;
+        const amount = 0.01;
+        const statusText = "transaction.lockupFailed";
+
+        const { address } = await setupSwapWithMultipleUTXOs(
+            page,
+            amount,
+            utxoCount,
+        );
+
+        await page.reload();
+
+        await performRefundAction(page, statusText);
+
+        await validateRefundTxInputs(page, utxoCount);
+        await validateRefundTransaction(page, LBTC, address);
+    });
+
+    test("Refunds all UTXOs of `transaction.lockupFailed` via Rescue", async ({
+        page,
+    }) => {
+        const utxoCount = 3;
+        const amount = 0.01;
+        const statusText = "transaction.lockupFailed";
+
+        const { swapId, address } = await setupSwapWithMultipleUTXOs(
+            page,
+            amount,
+            utxoCount,
+        );
+
+        await navigateToSwapRescue(page, swapId);
+
+        await performRefundAction(page, statusText);
+
+        await validateRefundTxInputs(page, utxoCount);
+        await validateRefundTransaction(page, LBTC, address);
+    });
+
+    [
+        {
+            sendAsset: BTC,
+            type: SwapType.Submarine,
+            paymentAmount: "0.00001",
+            paymentType: "underpayment",
+            viaRescue: false,
+        },
+        {
+            sendAsset: BTC,
+            type: SwapType.Submarine,
+            paymentAmount: "1",
+            paymentType: "overpayment",
+            viaRescue: true,
+        },
+        {
+            sendAsset: BTC,
+            type: SwapType.Chain,
+            paymentAmount: "0.00001",
+            paymentType: "underpayment",
+            viaRescue: false,
+        },
+        {
+            sendAsset: BTC,
+            type: SwapType.Chain,
+            paymentAmount: "1",
+            paymentType: "overpayment",
+            viaRescue: true,
+        },
+        {
+            sendAsset: LBTC,
+            type: SwapType.Submarine,
+            paymentAmount: "0.00001",
+            paymentType: "underpayment",
+            viaRescue: false,
+        },
+        {
+            sendAsset: LBTC,
+            type: SwapType.Submarine,
+            paymentAmount: "1",
+            paymentType: "overpayment",
+            viaRescue: true,
+        },
+        {
+            sendAsset: LBTC,
+            type: SwapType.Chain,
+            paymentAmount: "0.00001",
+            paymentType: "underpayment",
+            viaRescue: false,
+        },
+        {
+            sendAsset: LBTC,
+            type: SwapType.Chain,
+            paymentAmount: "1",
+            paymentType: "overpayment",
+            viaRescue: true,
+        },
+    ].forEach(({ sendAsset, type, paymentAmount, paymentType, viaRescue }) => {
+        test(`Refund transaction.lockupFailed due to ${paymentType} for ${sendAsset} ${type} swap${viaRescue ? " via Rescue" : ""}`, async ({
+            page,
+        }) => {
+            await page.goto("/");
+
+            await createSwapAndGetDetails(page, type, sendAsset);
+            await backupRescueFile(page, fileName);
+
+            const { address } = await getAddressAndAmount(page);
+            const swapId = viaRescue ? getCurrentSwapId(page) : undefined;
+
+            const sendPayment =
+                sendAsset === BTC
+                    ? bitcoinSendToAddress
+                    : elementsSendToAddress;
+            await sendPayment(address, paymentAmount);
+
+            const generateBlock =
+                sendAsset === BTC ? generateBitcoinBlock : generateLiquidBlock;
+            await generateBlock();
+            await waitForNodesToSync();
+
+            await expect(
+                page.getByText("transaction.lockupFailed"),
+            ).toBeVisible({
+                timeout: 15_000,
+            });
+
+            await waitForUTXOs(sendAsset as AssetType, address, 1);
+
+            if (viaRescue) {
+                await navigateToSwapRescue(page, swapId);
+            }
+
+            const refundAddress =
+                sendAsset === BTC
+                    ? await getBitcoinAddress()
+                    : await getLiquidAddress();
+            await page.getByTestId("refundAddress").fill(refundAddress);
+            await page.getByTestId("refundButton").click();
+
+            await validateRefundTransaction(page, sendAsset, address);
+        });
     });
 
     [

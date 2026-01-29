@@ -17,11 +17,13 @@ import { getEipRefundSignature } from "../utils/boltzClient";
 import { getAddress, getNetwork } from "../utils/compat";
 import { formatError } from "../utils/errors";
 import { decodeInvoice } from "../utils/invoice";
-import { refund } from "../utils/rescue";
+import { RefundType, refund } from "../utils/rescue";
 import { prefix0x, satoshiToWei } from "../utils/rootstock";
 import type { ChainSwap, SubmarineSwap } from "../utils/swapCreator";
 import ContractTransaction from "./ContractTransaction";
 import LoadingSpinner from "./LoadingSpinner";
+
+export const incorrectAssetError = "incorrect asset was sent";
 
 export const RefundEvm = (props: {
     disabled?: boolean;
@@ -101,7 +103,7 @@ export const RefundBtc = (props: {
 }) => {
     const { setRefundAddress, refundAddress, notify, t, deriveKey } =
         useGlobalContext();
-    const { refundableUTXOs } = usePayContext();
+    const { refundableUTXOs, failureReason } = usePayContext();
 
     const [timeoutEta, setTimeoutEta] = createSignal<number | null>(null);
     const [timeoutBlockheight, setTimeoutBlockheight] = createSignal<
@@ -152,7 +154,9 @@ export const RefundBtc = (props: {
                 props.swap(),
                 refundAddress(),
                 refundableUTXOs(),
-                true,
+                failureReason() === incorrectAssetError
+                    ? RefundType.AssetRescue
+                    : RefundType.Cooperative,
             );
 
             props.setRefundTxId(refundTxId);
@@ -241,7 +245,7 @@ export const RefundBtc = (props: {
             </Show>
             <Show
                 when={!props.buttonOverride && refundableUTXOs().length === 0}>
-                <p>{t("refresh_for_refund")}</p>
+                <p class="frame-text">{t("refresh_for_refund")}</p>
             </Show>
             <button
                 data-testid="refundButton"

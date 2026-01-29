@@ -566,8 +566,51 @@ export const acceptChainSwapNewQuote = (
 export const getSubmarinePreimage = (backend: number, id: string) =>
     fetcher<{ preimage: string }>(backend, `/v2/swap/submarine/${id}/preimage`);
 
-export const getRestorableSwaps = (backend: number, xpub: string) =>
-    fetcher<RestorableSwap[]>(backend, `/v2/swap/restore`, { xpub });
+export const getRestorableSwaps = (
+    backend: number, xpub: string,
+    pagination?: { startIndex: number; limit: number },
+) =>
+    fetcher<RestorableSwap[]>(backend, 
+        `/v2/swap/restore`,
+        { xpub, pagination },
+        null,
+        30_000,
+    );
+
+export const assetRescueSetup = (
+    asset: string,
+    swapId: string,
+    transactionId: string,
+    vout: number,
+    destination: string,
+) =>
+    fetcher<{
+        musig: {
+            serverPublicKey: string;
+            pubNonce: string;
+            message: string;
+        };
+        transaction: string;
+    }>(`/v2/asset/${asset}/rescue/setup`, {
+        swapId,
+        transactionId,
+        vout,
+        destination,
+    });
+
+export const assetRescueBroadcast = (
+    asset: string,
+    swapId: string,
+    pubNonce: Buffer,
+    partialSignature: Buffer,
+) =>
+    fetcher<{
+        transactionId: string;
+    }>(`/v2/asset/${asset}/rescue/broadcast`, {
+        swapId,
+        pubNonce: pubNonce.toString("hex"),
+        partialSignature: partialSignature.toString("hex"),
+    });
 
 export {
     Pairs,
