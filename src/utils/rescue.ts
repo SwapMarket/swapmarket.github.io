@@ -330,6 +330,7 @@ const assetRescueRefund = async <T extends SubmarineSwap | ChainSwap>(
     const output = detectSwap(tweakedKey, transaction);
 
     const setup = await assetRescueSetup(
+        swap.backend || 0,
         swap.assetSend,
         swap.id,
         transaction.getId(),
@@ -344,6 +345,7 @@ const assetRescueRefund = async <T extends SubmarineSwap | ChainSwap>(
 
     const partialSignature = musig.signPartial();
     const res = await assetRescueBroadcast(
+        swap.backend || 0,
         swap.assetSend,
         swap.id,
         Buffer.from(musig.getPublicNonce()),

@@ -567,10 +567,12 @@ export const getSubmarinePreimage = (backend: number, id: string) =>
     fetcher<{ preimage: string }>(backend, `/v2/swap/submarine/${id}/preimage`);
 
 export const getRestorableSwaps = (
-    backend: number, xpub: string,
+    backend: number,
+    xpub: string,
     pagination?: { startIndex: number; limit: number },
 ) =>
-    fetcher<RestorableSwap[]>(backend, 
+    fetcher<RestorableSwap[]>(
+        backend,
         `/v2/swap/restore`,
         { xpub, pagination },
         null,
@@ -578,6 +580,7 @@ export const getRestorableSwaps = (
     );
 
 export const assetRescueSetup = (
+    backend: number,
     asset: string,
     swapId: string,
     transactionId: string,
@@ -591,7 +594,7 @@ export const assetRescueSetup = (
             message: string;
         };
         transaction: string;
-    }>(`/v2/asset/${asset}/rescue/setup`, {
+    }>(backend, `/v2/asset/${asset}/rescue/setup`, {
         swapId,
         transactionId,
         vout,
@@ -599,6 +602,7 @@ export const assetRescueSetup = (
     });
 
 export const assetRescueBroadcast = (
+    backend: number,
     asset: string,
     swapId: string,
     pubNonce: Buffer,
@@ -606,7 +610,7 @@ export const assetRescueBroadcast = (
 ) =>
     fetcher<{
         transactionId: string;
-    }>(`/v2/asset/${asset}/rescue/broadcast`, {
+    }>(backend, `/v2/asset/${asset}/rescue/broadcast`, {
         swapId,
         pubNonce: pubNonce.toString("hex"),
         partialSignature: partialSignature.toString("hex"),

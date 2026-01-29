@@ -139,10 +139,14 @@ export const RefundBtcLike = () => {
 
         while (true) {
             try {
-                const res = await getRestorableSwaps(backend(),getXpub(refundJson()), {
-                    startIndex,
-                    limit: paginationLimit,
-                });
+                const res = await getRestorableSwaps(
+                    backend(),
+                    getXpub(refundJson()),
+                    {
+                        startIndex,
+                        limit: paginationLimit,
+                    },
+                );
 
                 if (res.length === 0) {
                     break;

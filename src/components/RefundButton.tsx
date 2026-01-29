@@ -101,7 +101,7 @@ export const RefundBtc = (props: {
     buttonOverride?: string;
     deriveKeyFn?: deriveKeyFn;
 }) => {
-    const { setRefundAddress, refundAddress, notify, t, deriveKey } =
+    const { backend, setRefundAddress, refundAddress, notify, t, deriveKey } =
         useGlobalContext();
     const { refundableUTXOs, failureReason } = usePayContext();
 
@@ -147,6 +147,10 @@ export const RefundBtc = (props: {
 
     const refundAction = async () => {
         setRefundRunning(true);
+
+        if (props.swap().backend === undefined) {
+            props.swap().backend = backend();
+        }
 
         try {
             const refundTxId = await refund(
