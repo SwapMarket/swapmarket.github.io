@@ -1,6 +1,6 @@
 [submodule "regtest"]
 	path = regtest
-	url = https://github.com/BoltzExchange/regtest.git
+	url = https://github.com/SwapMarket/regtest.git
 [submodule "dnssec-prover"]
 	path = dnssec-prover
 	url = https://git.bitcoin.ninja/dnssec-prover
