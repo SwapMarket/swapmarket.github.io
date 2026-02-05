@@ -440,6 +440,7 @@ const dict = {
         display: "Display",
         security: "Security",
         failed: "Failed",
+        swaps_found: "Scanning swaps ({{ count }} found)",
     },
     de: {
         language: "Deutsch",
@@ -895,6 +896,7 @@ const dict = {
         display: "Anzeige",
         security: "Sicherheit",
         failed: "Fehlgeschlagen",
+        swaps_found: "Scanne Swaps ({{ count }} gefunden)",
     },
     es: {
         language: "Español",
@@ -1348,6 +1350,7 @@ const dict = {
         display: "Pantalla",
         security: "Seguridad",
         failed: "Fallido",
+        swaps_found: "Escaneando intercambios ({{ count }} encontrados)",
     },
     pt: {
         language: "Português",
@@ -1797,6 +1800,7 @@ const dict = {
         display: "Exibição",
         security: "Segurança",
         failed: "Falhou",
+        swaps_found: "Buscando trocas ({{ count }} encontradas)",
     },
     zh: {
         language: "中文",
@@ -2204,6 +2208,7 @@ const dict = {
         display: "显示",
         security: "安全",
         failed: "失败",
+        swaps_found: "正在扫描交换（已找到 {{ count }} 个）",
     },
     ja: {
         language: "日本語",
@@ -2649,6 +2654,7 @@ const dict = {
         display: "表示",
         security: "セキュリティ",
         failed: "失敗",
+        swaps_found: "スワップをスキャン中（{{ count }} 件見つかりました）",
     },
     ru: {
         language: "Русский",
@@ -3097,6 +3103,7 @@ const dict = {
         display: "Дисплей",
         security: "Безопасность",
         failed: "Неуспешный",
+        swaps_found: "Сканирую, найдено ({{ count }} свопов)",
     },
 };
 

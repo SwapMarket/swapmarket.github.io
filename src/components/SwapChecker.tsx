@@ -275,7 +275,7 @@ export const SwapChecker = () => {
     });
 
     window.onbeforeunload = (event: BeforeUnloadEvent) => {
-        if (pendingSwaps?.length > 0) {
+        if (config.preventReloadOnPendingSwaps && pendingSwaps?.length > 0) {
             event.preventDefault();
             return "";
         }

@@ -5,6 +5,7 @@ const config = {
     ...baseConfig,
     network: "regtest",
     loglevel: "debug",
+    preventReloadOnPendingSwaps: false,
     backends: [
         {
             alias: "Regtest 1",
