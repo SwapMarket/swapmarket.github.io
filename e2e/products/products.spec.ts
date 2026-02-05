@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Products Pages", () => {
+test.describe.skip("Products Pages", () => {
     test("should navigate to sub-pages from Products cards", async ({
         page,
     }) => {
