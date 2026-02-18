@@ -21,7 +21,7 @@ const dict = {
         history: "History",
         swap: "Swap",
         refund: "Refund",
-        blog: "Blog",
+        partner: "Partner",
         support: "Support",
         docs: "Docs",
         onion: "Onion",
@@ -432,9 +432,10 @@ const dict = {
         boltz_pro_option_web_title: "Web App",
         boltz_pro_option_web_description:
             "Monitor and execute swap opportunities via web",
-        boltz_pro_option_telegram_title: "Telegram Bot",
-        boltz_pro_option_telegram_description:
-            "Get instant alerts about earn opportunities in Telegram",
+        boltz_pro_option_chat_title: "Chat Bots",
+        boltz_pro_option_chat_description_prefix: "Get instant alerts in",
+        boltz_pro_option_chat_description_middle: "or",
+        boltz_pro_option_chat_description_suffix: ".",
 
         balance: "Balance",
         display: "Display",
@@ -465,7 +466,7 @@ const dict = {
         history: "Historie",
         swap: "Swap",
         refund: "Rückerstattung",
-        blog: "Blog",
+        partner: "Partner",
         support: "Hilfe",
         docs: "Docs",
         onion: "Onion",
@@ -888,9 +889,11 @@ const dict = {
         boltz_pro_option_web_title: "Web App",
         boltz_pro_option_web_description:
             "Beobachte und swappe mit unserer Boltz Pro Web App",
-        boltz_pro_option_telegram_title: "Telegram Bot",
-        boltz_pro_option_telegram_description:
-            "Erhalte Benachrichtigungen über Boltz Pro Möglichkeiten",
+        boltz_pro_option_chat_title: "Chat-Bots",
+        boltz_pro_option_chat_description_prefix:
+            "Erhalte Benachrichtigungen in",
+        boltz_pro_option_chat_description_middle: "oder",
+        boltz_pro_option_chat_description_suffix: ".",
 
         balance: "Guthaben",
         display: "Anzeige",
@@ -920,7 +923,7 @@ const dict = {
         history: "Historia",
         swap: "Intercambio",
         refund: "Reembolso",
-        blog: "Blog",
+        partner: "Socio",
         support: "Ayuda",
         docs: "Docs",
         onion: "Onion",
@@ -1342,9 +1345,11 @@ const dict = {
         boltz_pro_option_web_title: "Aplicación Web",
         boltz_pro_option_web_description:
             "Observa y ejecuta intercambios con nuestra aplicación web",
-        boltz_pro_option_telegram_title: "Bot de Telegram",
-        boltz_pro_option_telegram_description:
-            "Recibe notificaciones sobre oportunidades de Boltz Pro",
+        boltz_pro_option_chat_title: "Bots de chat",
+        boltz_pro_option_chat_description_prefix:
+            "Recibe alertas instantáneas en",
+        boltz_pro_option_chat_description_middle: "o",
+        boltz_pro_option_chat_description_suffix: ".",
 
         balance: "Saldo",
         display: "Pantalla",
@@ -1375,7 +1380,7 @@ const dict = {
         history: "Histórico",
         swap: "Trocar",
         refund: "Reembolsar",
-        blog: "Blog",
+        partner: "Parceiro",
         support: "Suporte",
         docs: "Docs",
         onion: "Onion",
@@ -1792,9 +1797,11 @@ const dict = {
         boltz_pro_option_web_title: "App Web",
         boltz_pro_option_web_description:
             "Observe e execute trocas com nosso app web Boltz Pro",
-        boltz_pro_option_telegram_title: "Bot do Telegram",
-        boltz_pro_option_telegram_description:
-            "Receba notificações sobre oportunidades da Boltz Pro",
+        boltz_pro_option_chat_title: "Bots de chat",
+        boltz_pro_option_chat_description_prefix:
+            "Receba alertas instantâneos no",
+        boltz_pro_option_chat_description_middle: "ou",
+        boltz_pro_option_chat_description_suffix: ".",
 
         balance: "Saldo",
         display: "Exibição",
@@ -1823,7 +1830,7 @@ const dict = {
         history: "历史",
         swap: "交换",
         refund: "退款",
-        blog: "博客",
+        partner: "合作伙伴",
         support: "支持",
         docs: "文档",
         onion: "洋葱",
@@ -2201,8 +2208,11 @@ const dict = {
         boltz_pro_option_web_title: "网络应用",
         boltz_pro_option_web_description:
             "使用我们的 Boltz Pro 网络应用观察和交换",
-        boltz_pro_option_telegram_title: "Telegram 机器人",
-        boltz_pro_option_telegram_description: "接收有关 Boltz Pro 机会的通知",
+        boltz_pro_option_chat_title: "聊天机器人",
+        boltz_pro_option_chat_description_prefix: "在",
+        boltz_pro_option_chat_description_middle: "或",
+        boltz_pro_option_chat_description_suffix:
+            "中接收有关 Boltz Pro 机会的即时提醒。",
 
         balance: "余额",
         display: "显示",
@@ -2232,7 +2242,7 @@ const dict = {
         history: "履歴",
         swap: "スワップ",
         refund: "返金",
-        blog: "ブログ",
+        partner: "パートナー",
         support: "ヘルプ",
         docs: "ドキュメント",
         onion: "Onion",
@@ -2646,9 +2656,11 @@ const dict = {
         boltz_pro_option_web_title: "Webアプリ",
         boltz_pro_option_web_description:
             "Boltz Pro Webアプリで観察してスワップ",
-        boltz_pro_option_telegram_title: "Telegramボット",
-        boltz_pro_option_telegram_description:
-            "Boltz Proの機会についての通知を受信",
+        boltz_pro_option_chat_title: "チャットボット",
+        boltz_pro_option_chat_description_prefix:
+            "Boltz Pro の機会に関する即時通知を",
+        boltz_pro_option_chat_description_middle: "または",
+        boltz_pro_option_chat_description_suffix: "で受け取る。",
 
         balance: "残高",
         display: "表示",
@@ -2678,7 +2690,7 @@ const dict = {
         history: "История",
         swap: "Своп",
         refund: "Возврат",
-        blog: "Блог",
+        partner: "Партнер",
         support: "Поддержка",
         docs: "Документация",
         onion: "Onion",
@@ -3096,9 +3108,10 @@ const dict = {
         boltz_pro_option_web_title: "Веб-приложение",
         boltz_pro_option_web_description:
             "Контролируйте и выполняйте возможности обмена через веб",
-        boltz_pro_option_telegram_title: "Telegram бот",
-        boltz_pro_option_telegram_description:
-            "Получайте мгновенные уведомления о возможностях заработка в Telegram",
+        boltz_pro_option_chat_title: "Chat Bots",
+        boltz_pro_option_chat_description_prefix: "Get instant alerts in",
+        boltz_pro_option_chat_description_middle: "or",
+        boltz_pro_option_chat_description_suffix: ".",
         balance: "Баланс",
         display: "Дисплей",
         security: "Безопасность",
