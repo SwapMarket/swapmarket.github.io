@@ -30,7 +30,7 @@ jobs:
             - name: Build and push
               run:
                   docker buildx build --push --platform linux/amd64 --build-arg
-                  NETWORK=regtest -t ghcr.io/swapmarket:amd64 .
+                  NETWORK=regtest -t ghcr.io/swapmarket/web-app:amd64 .
 
     create-manifest:
         name: Create Manifest
