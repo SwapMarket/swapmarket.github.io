@@ -1,7 +1,6 @@
 /* @refresh skip */
 import { flatten, resolveTemplate, translator } from "@solid-primitives/i18n";
 import { makePersisted } from "@solid-primitives/storage";
-import type { ECPairInterface } from "ecpair";
 import localforage from "localforage";
 import log from "loglevel";
 import {
@@ -15,17 +14,17 @@ import type { Accessor, JSX, Setter } from "solid-js";
 import { getBtcPriceFailover } from "src/utils/fiat";
 
 import { config } from "../config";
-import { LBTC } from "../consts/Assets";
+import { type AssetType, LBTC, evmChains } from "../consts/Assets";
 import { Denomination, UrlParam } from "../consts/Enums";
-import { referralIdKey } from "../consts/LocalStorage";
 import { detectLanguage } from "../i18n/detect";
 import type { DictKey } from "../i18n/i18n";
 import dict from "../i18n/i18n";
 import type { Pairs } from "../utils/boltzClient";
 import { getPairs } from "../utils/boltzClient";
+import type { ECKeys } from "../utils/ecpair";
 import { ECPair } from "../utils/ecpair";
 import { formatError } from "../utils/errors";
-import { isMobile } from "../utils/helper";
+import { getReferral, isMobile } from "../utils/helper";
 import { deleteOldLogs, injectLogWriter } from "../utils/logs";
 import { migrateStorage } from "../utils/migration";
 import type { RescueFile } from "../utils/rescueFile";
@@ -36,11 +35,12 @@ import { checkWasmSupported } from "../utils/wasmSupport";
 import { detectWebLNProvider } from "../utils/webln";
 
 export const liquidUncooperativeExtra = 3;
-const proReferral = "pro";
 
 type NotificationType = "success" | "error";
-export type deriveKeyFn = (index: number) => ECPairInterface;
-export type newKeyFn = () => { index: number; key: ECPairInterface };
+export type deriveKeyFn = (index: number, asset: AssetType) => ECKeys;
+export type newKeyFn = (
+    asset: AssetType,
+) => Promise<{ index: number; key: ECKeys }>;
 export type tFn = (key: DictKey, values?: Record<string, unknown>) => string;
 export type notifyFn = (type: NotificationType, message: string) => void;
 
@@ -65,8 +65,6 @@ export type GlobalContextType = {
     setNotificationType: Setter<string>;
     webln: Accessor<boolean>;
     setWebln: Setter<boolean>;
-    ref: Accessor<string>;
-    setRef: Setter<string>;
     i18nConfigured: Accessor<string | null>;
     setI18nConfigured: Setter<string | null>;
     denomination: Accessor<Denomination>;
@@ -114,6 +112,9 @@ export type GlobalContextType = {
     deriveKey: deriveKeyFn;
     getXpub: () => string;
     setLastUsedKey: Setter<number>;
+    getLastUsedEvmIndex: (currency: string) => Promise<number>;
+    setLastUsedEvmIndex: (currency: string, value: number) => Promise<number>;
+    clearLastUsedEvmIndex: () => Promise<void>;
     rescueFile: Accessor<RescueFile | null>;
     setRescueFile: Setter<RescueFile | null>;
     rescueFileBackupDone: Accessor<boolean>;
@@ -123,16 +124,6 @@ export type GlobalContextType = {
     // Used to prevent auto-claiming swaps that were created before the backup
     backupImportTimestamp: Accessor<number | undefined>;
     setBackupImportTimestamp: Setter<number | undefined>;
-};
-
-const regularReferral = () => (isMobile() ? "swapmarket_mobile" : "swapmarket");
-
-const defaultReferral = () => {
-    if (config.isPro) {
-        return proReferral;
-    }
-
-    return regularReferral();
 };
 
 // Local storage serializer to support the values created by the deprecated "createStorageSignal"
@@ -177,15 +168,6 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
         null,
     );
     const [lastPriceFetch, setLastPriceFetch] = createSignal<number>(0);
-
-    const [ref, setRef] = makePersisted(
-        // eslint-disable-next-line solid/reactivity
-        createSignal(defaultReferral()),
-        {
-            name: referralIdKey,
-            ...stringSerializer,
-        },
-    );
 
     const [i18nConfigured, setI18nConfigured] = makePersisted(
         // eslint-disable-next-line solid/reactivity
@@ -258,16 +240,25 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
         }
     });
 
-    const deriveKeyWrapper = (index: number) => {
+    const deriveKeyWrapper = (index: number, asset: AssetType) => {
         return ECPair.fromPrivateKey(
-            Buffer.from(deriveKey(rescueFile(), index).privateKey),
+            new Uint8Array(deriveKey(rescueFile(), index, asset).privateKey),
         );
     };
 
-    const newKey = () => {
+    const newKey = async (asset: AssetType) => {
+        if (evmChains.includes(asset)) {
+            const index = await getLastUsedEvmIndex(asset);
+            await setLastUsedEvmIndex(asset, index + 1);
+            return {
+                index,
+                key: deriveKeyWrapper(index, asset),
+            };
+        }
+
         const index = lastUsedKey();
         setLastUsedKey(index + 1);
-        return { index, key: deriveKeyWrapper(index) };
+        return { index, key: deriveKeyWrapper(index, asset) };
     };
 
     const getXpubWrapper = () => {
@@ -328,7 +319,7 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
             const data = await getPairs(0, {
                 // only Boltz
                 headers: {
-                    referral: regularReferral(),
+                    referral: getReferral(),
                 },
             });
 
@@ -425,6 +416,20 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
     const setRdns = (address: string, rdns: string) =>
         rdnsForage.setItem(address.toLowerCase(), rdns);
 
+    const lastUsedEvmIndexForage = localforage.createInstance({
+        name: "lastUsedEvmIndex",
+    });
+
+    const getLastUsedEvmIndex = async (currency: string): Promise<number> => {
+        const value = await lastUsedEvmIndexForage.getItem<number>(currency);
+        return value ?? 0;
+    };
+
+    const setLastUsedEvmIndex = (currency: string, value: number) =>
+        lastUsedEvmIndexForage.setItem(currency, value);
+
+    const clearLastUsedEvmIndex = () => lastUsedEvmIndexForage.clear();
+
     const getRdnsAll = async () => {
         const result: { address: string; rdns: string }[] = [];
 
@@ -459,17 +464,6 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
             );
         }
     };
-
-    if (!config.isPro) {
-        // Get the referral from the URL parameters if this is not pro
-        const refParam = getUrlParam(UrlParam.Ref);
-        if (refParam && refParam !== "") {
-            setRef(refParam);
-            resetUrlParam(UrlParam.Ref);
-        }
-    } else {
-        setRef(proReferral);
-    }
 
     // Get the backend from the URL parameters
     const backendParam = getUrlParam(UrlParam.Backend);
@@ -561,8 +555,6 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
                 setNotificationType,
                 webln,
                 setWebln,
-                ref,
-                setRef,
                 i18nConfigured,
                 setI18nConfigured,
                 denomination,
@@ -607,6 +599,9 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
                 rescueFile,
                 setRescueFile,
                 setLastUsedKey,
+                getLastUsedEvmIndex,
+                setLastUsedEvmIndex,
+                clearLastUsedEvmIndex,
                 getXpub: getXpubWrapper,
                 deriveKey: deriveKeyWrapper,
 
@@ -629,4 +624,4 @@ const useGlobalContext = () => {
     return context;
 };
 
-export { useGlobalContext, GlobalProvider, defaultReferral };
+export { useGlobalContext, GlobalProvider };

@@ -31,9 +31,9 @@ import MnemonicVerify from "./pages/MnemonicVerify";
 import NotFound from "./pages/NotFound";
 import Pay from "./pages/Pay";
 import Privacy from "./pages/Privacy";
-import RefundEvm from "./pages/RefundEvm";
 import RefundRescue from "./pages/RefundRescue";
 import Rescue from "./pages/Rescue";
+import RescueEvm from "./pages/RescueEvm";
 import RescueExternal from "./pages/RescueExternal";
 import Terms from "./pages/Terms";
 import Btcpay from "./pages/products/Btcpay";
@@ -41,7 +41,6 @@ import Client from "./pages/products/Client";
 import Pro from "./pages/products/Pro";
 import Products from "./pages/products/Products";
 import "./style/index.scss";
-import { initEcc } from "./utils/ecpair";
 import "./utils/patches";
 
 if ("serviceWorker" in navigator) {
@@ -63,7 +62,6 @@ document.documentElement.setAttribute(
 document.body.classList.remove("loading");
 
 const App = (props: RouteSectionProps) => {
-    initEcc();
     return (
         <GlobalProvider>
             <Web3SignerProvider>
@@ -135,15 +133,18 @@ const cleanup = render(
             <Route path="/backup/mnemonic" component={BackupMnemonic} />
             <Route path="/backup/mnemonic/verify" component={MnemonicVerify} />
             <Route path="/backup/verify" component={BackupVerify} />
-            <Route path="/backup/verify/:type" component={BackupVerify} />
             <Route
-                path="/swap/refund/evm/:asset/:txHash"
-                component={RefundEvm}
+                path="/swap/rescue/evm/:asset/:txHash/:action"
+                component={RescueEvm}
             />
             <Route path="/error" component={() => <Error />} />
             <Route path="/rescue" component={Rescue} />
             <Route path="/rescue/external" component={RescueExternal} />
             <Route path="/rescue/external/:type" component={RescueExternal} />
+            <Route
+                path="/rescue/external/:type/:mode"
+                component={RescueExternal}
+            />
             <Route path="/rescue/claim/:id" component={ClaimRescue} />
             <Route path="/rescue/refund/:id" component={RefundRescue} />
             {redirectRefundToRescue()}

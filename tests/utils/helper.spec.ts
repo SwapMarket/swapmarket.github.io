@@ -1,3 +1,7 @@
+import { secp256k1 } from "@noble/curves/secp256k1.js";
+import { hex } from "@scure/base";
+
+import { BTC } from "../../src/consts/Assets";
 import { SwapType } from "../../src/consts/Enums";
 import type { Pairs } from "../../src/utils/boltzClient";
 import { ECPair } from "../../src/utils/ecpair";
@@ -68,24 +72,26 @@ describe("helper", () => {
             const key = { key: "data" };
             const mockDerive = vi.fn().mockReturnValue(key);
 
-            expect(parsePrivateKey(mockDerive, keyIndex)).toBe(key);
+            expect(parsePrivateKey(mockDerive, BTC, keyIndex)).toBe(key);
             expect(mockDerive).toHaveBeenCalledTimes(1);
-            expect(mockDerive).toHaveBeenCalledWith(keyIndex);
+            expect(mockDerive).toHaveBeenCalledWith(keyIndex, BTC);
         });
 
         test("should parse hex private key", () => {
-            const originalKey = { key: "data" };
-            const privateKeyHex = originalKey.key;
+            const privateKeyHex = hex.encode(secp256k1.utils.randomSecretKey());
+            const mockResult = { key: "data" };
+            vi.mocked(ECPair.fromPrivateKey).mockReturnValueOnce(
+                mockResult as never,
+            );
 
             const mockDerive = vi.fn();
 
             expect(
-                parsePrivateKey(mockDerive, undefined, privateKeyHex),
-            ).toEqual(originalKey);
+                parsePrivateKey(mockDerive, BTC, undefined, privateKeyHex),
+            ).toEqual(mockResult);
 
             // Verify derive function wasn't called
             expect(mockDerive).not.toHaveBeenCalled();
-            // eslint-disable-next-line @typescript-eslint/unbound-method
             expect(ECPair.fromPrivateKey).toHaveBeenCalledTimes(1);
         });
     });

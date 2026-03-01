@@ -1,16 +1,16 @@
-import { crypto } from "bitcoinjs-lib";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { hex } from "@scure/base";
 import type { ClaimDetails } from "boltz-core";
 import { OutputType, SwapTreeSerializer, detectSwap } from "boltz-core";
 import type { LiquidClaimDetails } from "boltz-core/dist/lib/liquid";
+import { type Buffer } from "buffer";
 import type { Network as LiquidNetwork } from "liquidjs-lib/src/networks";
 import log from "loglevel";
 
-import { LBTC, RBTC } from "../consts/Assets";
+import { type AssetType, LBTC, RBTC } from "../consts/Assets";
 import { SwapType } from "../consts/Enums";
 import type { deriveKeyFn } from "../context/Global";
-import type { RescueFile } from "../utils/rescueFile";
-import { deriveKey } from "../utils/rescueFile";
-import type { TransactionInterface } from "./boltzClient";
+import secp from "../lazy/secp";
 import {
     broadcastTransaction,
     getChainSwapClaimDetails,
@@ -19,12 +19,16 @@ import {
     postChainSwapDetails,
     postSubmarineClaimDetails,
 } from "./boltzClient";
+import type { TransactionInterface } from "./compat";
 import {
     decodeAddress,
     getConstructClaimTransaction,
     getNetwork,
     getOutputAmount,
     getTransaction,
+    setCooperativeWitness,
+    txToHex,
+    txToId,
 } from "./compat";
 import { parseBlindingKey, parsePrivateKey } from "./helper";
 import { decodeInvoice } from "./invoice";
@@ -34,12 +38,12 @@ import { createMusig, hashForWitnessV1, tweakMusig } from "./taproot/musig";
 
 const createAdjustedClaim = async <
     T extends
-        | (ClaimDetails & { blindingPrivateKey?: Buffer })
+        | (ClaimDetails & { blindingPrivateKey?: Uint8Array })
         | LiquidClaimDetails,
 >(
     swap: ReverseSwap | ChainSwap,
     claimDetails: T[],
-    destination: Buffer,
+    destination: Uint8Array,
     liquidNetwork?: LiquidNetwork,
     blindingKey?: Buffer,
 ) => {
@@ -48,6 +52,11 @@ const createAdjustedClaim = async <
     }
 
     const asset = getRelevantAssetForSwap(swap);
+
+    // Ensure secp256k1-zkp is initialized for Liquid transaction construction
+    if (asset === LBTC) {
+        await secp.get();
+    }
 
     let inputSum = 0;
     for (const details of claimDetails) {
@@ -79,17 +88,18 @@ const claimReverseSwap = async (
 
     const privateKey = parsePrivateKey(
         deriveKey,
+        swap.assetReceive as AssetType,
         swap.claimPrivateKeyIndex,
         swap.claimPrivateKey,
     );
-    const preimage = Buffer.from(swap.preimage, "hex");
+    const preimage = hex.decode(swap.preimage);
 
     const decodedAddress = decodeAddress(asset, swap.claimAddress);
-    const boltzPublicKey = Buffer.from(swap.refundPublicKey, "hex");
-    const musig = await createMusig(privateKey, boltzPublicKey);
+    const boltzPublicKey = hex.decode(swap.refundPublicKey);
+    const keyAgg = createMusig(privateKey, boltzPublicKey);
     const tree = SwapTreeSerializer.deserializeSwapTree(swap.swapTree);
-    const tweakedKey = tweakMusig(asset, musig, tree.tree);
-    const swapOutput = detectSwap(tweakedKey, lockupTx);
+    const tweaked = tweakMusig(asset, keyAgg, tree.tree);
+    const swapOutput = detectSwap(tweaked.aggPubkey, lockupTx);
 
     if (swapOutput === undefined) {
         throw new Error("Swap output is undefined");
@@ -100,14 +110,14 @@ const claimReverseSwap = async (
             ...swapOutput,
             cooperative,
             swapTree: tree,
-            keys: privateKey,
+            privateKey: privateKey.privateKey,
             preimage: preimage,
             type: OutputType.Taproot,
-            txHash: lockupTx.getHash(),
+            transactionId: txToId(lockupTx),
             blindingPrivateKey: parseBlindingKey(swap, false),
-            internalKey: musig.getAggregatedPublicKey(),
+            internalKey: keyAgg.aggPubkey,
         },
-    ] as (ClaimDetails & { blindingPrivateKey: Buffer })[];
+    ] as unknown as (ClaimDetails & { blindingPrivateKey: Uint8Array })[];
     const claimTx = await createAdjustedClaim(
         swap,
         details,
@@ -121,23 +131,34 @@ const claimReverseSwap = async (
     }
 
     try {
-        const boltzSig = await getPartialReverseClaimSignature(
-            swap.backend,
-            swap.id,
-            preimage,
-            Buffer.from(musig.getPublicNonce()),
+        const sigHash = hashForWitnessV1(
+            asset,
+            getNetwork(asset),
+            details,
             claimTx,
             0,
         );
 
-        musig.aggregateNonces([[boltzPublicKey, boltzSig.pubNonce]]);
-        musig.initializeSession(
-            hashForWitnessV1(asset, getNetwork(asset), details, claimTx, 0),
-        );
-        musig.signPartial();
-        musig.addPartial(boltzPublicKey, boltzSig.signature);
+        const withMsg = tweaked.message(sigHash);
+        const withNonce = withMsg.generateNonce();
 
-        claimTx.ins[0].witness = [musig.aggregatePartials()];
+        const boltzSig = await getPartialReverseClaimSignature(
+            swap.backend,
+            swap.id,
+            preimage,
+            withNonce.publicNonce,
+            claimTx,
+            0,
+        );
+
+        const aggNonces = withNonce.aggregateNonces([
+            [boltzPublicKey, boltzSig.pubNonce],
+        ]);
+        const session = aggNonces.initializeSession();
+        const signed = session.signPartial();
+        const withBoltz = signed.addPartial(boltzPublicKey, boltzSig.signature);
+
+        setCooperativeWitness(claimTx, 0, withBoltz.aggregatePartials());
 
         return claimTx;
     } catch (e) {
@@ -162,41 +183,37 @@ export const createTheirPartialChainSwapSignature = async (
             swap.id,
         );
 
-        const boltzClaimPublicKey = Buffer.from(
-            serverClaimDetails.publicKey,
-            "hex",
-        );
-        const theirClaimMusig = await createMusig(
+        const boltzClaimPublicKey = hex.decode(serverClaimDetails.publicKey);
+        const theirClaimKeyAgg = createMusig(
             parsePrivateKey(
                 deriveKey,
+                swap.assetSend as AssetType,
                 swap.refundPrivateKeyIndex,
                 swap.refundPrivateKey,
             ),
             boltzClaimPublicKey,
         );
-        tweakMusig(
+        const tweaked = tweakMusig(
             swap.assetSend,
-            theirClaimMusig,
+            theirClaimKeyAgg,
             SwapTreeSerializer.deserializeSwapTree(swap.lockupDetails.swapTree)
                 .tree,
         );
-        theirClaimMusig.aggregateNonces([
-            [
-                boltzClaimPublicKey,
-                Buffer.from(serverClaimDetails.pubNonce, "hex"),
-            ],
-        ]);
-        theirClaimMusig.initializeSession(
-            Buffer.from(serverClaimDetails.transactionHash, "hex"),
+
+        const withMsg = tweaked.message(
+            hex.decode(serverClaimDetails.transactionHash),
         );
+        const withNonce = withMsg.generateNonce();
+
+        const aggNonces = withNonce.aggregateNonces([
+            [boltzClaimPublicKey, hex.decode(serverClaimDetails.pubNonce)],
+        ]);
+        const session = aggNonces.initializeSession();
+        const signed = session.signPartial();
 
         return {
-            pubNonce: Buffer.from(theirClaimMusig.getPublicNonce()).toString(
-                "hex",
-            ),
-            partialSignature: Buffer.from(
-                theirClaimMusig.signPartial(),
-            ).toString("hex"),
+            pubNonce: hex.encode(withNonce.publicNonce),
+            partialSignature: hex.encode(signed.ourPartialSignature),
         };
     } catch (err) {
         if (err === "swap not eligible for a cooperative claim") {
@@ -217,43 +234,38 @@ const claimChainSwap = async (
     cooperative = true,
 ): Promise<TransactionInterface> => {
     log.info(`Claiming Chain swap cooperatively: ${cooperative}`);
-    const boltzRefundPublicKey = Buffer.from(
-        swap.claimDetails.serverPublicKey,
-        "hex",
-    );
+    const boltzRefundPublicKey = hex.decode(swap.claimDetails.serverPublicKey);
     const claimPrivateKey = parsePrivateKey(
         deriveKey,
+        swap.assetReceive as AssetType,
         swap.claimPrivateKeyIndex,
         swap.claimPrivateKey,
     );
-    const ourClaimMusig = await createMusig(
-        claimPrivateKey,
-        boltzRefundPublicKey,
-    );
+    const ourClaimKeyAgg = createMusig(claimPrivateKey, boltzRefundPublicKey);
     const claimTree = SwapTreeSerializer.deserializeSwapTree(
         swap.claimDetails.swapTree,
     );
-    const tweakedKey = tweakMusig(
+    const tweaked = tweakMusig(
         swap.assetReceive,
-        ourClaimMusig,
+        ourClaimKeyAgg,
         claimTree.tree,
     );
 
-    const swapOutput = detectSwap(tweakedKey, lockupTx);
+    const swapOutput = detectSwap(tweaked.aggPubkey, lockupTx);
 
     const details = [
         {
             ...swapOutput,
             cooperative: cooperative,
             swapTree: claimTree,
-            keys: claimPrivateKey,
+            privateKey: claimPrivateKey.privateKey,
             type: OutputType.Taproot,
-            txHash: lockupTx.getHash(),
+            transactionId: txToId(lockupTx),
             blindingPrivateKey: parseBlindingKey(swap, false),
-            internalKey: ourClaimMusig.getAggregatedPublicKey(),
-            preimage: Buffer.from(swap.preimage, "hex"),
+            internalKey: ourClaimKeyAgg.aggPubkey,
+            preimage: hex.decode(swap.preimage),
         },
-    ] as (ClaimDetails & { blindingPrivateKey: Buffer })[];
+    ] as unknown as (ClaimDetails & { blindingPrivateKey: Uint8Array })[];
     const decodedAddress = decodeAddress(swap.assetReceive, swap.claimAddress);
     const claimTx = await createAdjustedClaim(
         swap,
@@ -270,6 +282,17 @@ const claimChainSwap = async (
     }
 
     try {
+        const sigHash = hashForWitnessV1(
+            swap.assetReceive,
+            getNetwork(swap.assetReceive),
+            details,
+            claimTx,
+            0,
+        );
+
+        const withMsg = tweaked.message(sigHash);
+        const withNonce = withMsg.generateNonce();
+
         // Post our partial signature to ask for theirs
         const theirPartial = await postChainSwapDetails(
             swap.backend,
@@ -278,32 +301,22 @@ const claimChainSwap = async (
             await createTheirPartialChainSwapSignature(deriveKey, swap),
             {
                 index: 0,
-                transaction: claimTx.toHex(),
-                pubNonce: Buffer.from(ourClaimMusig.getPublicNonce()).toString(
-                    "hex",
-                ),
+                transaction: txToHex(claimTx),
+                pubNonce: hex.encode(withNonce.publicNonce),
             },
         );
 
-        ourClaimMusig.aggregateNonces([
-            [boltzRefundPublicKey, Buffer.from(theirPartial.pubNonce, "hex")],
+        const aggNonces = withNonce.aggregateNonces([
+            [boltzRefundPublicKey, hex.decode(theirPartial.pubNonce)],
         ]);
-        ourClaimMusig.initializeSession(
-            hashForWitnessV1(
-                swap.assetReceive,
-                getNetwork(swap.assetReceive),
-                details,
-                claimTx,
-                0,
-            ),
-        );
-        ourClaimMusig.addPartial(
+        const session = aggNonces.initializeSession();
+        const withTheirs = session.addPartial(
             boltzRefundPublicKey,
-            Buffer.from(theirPartial.partialSignature, "hex"),
+            hex.decode(theirPartial.partialSignature),
         );
-        ourClaimMusig.signPartial();
+        const signed = withTheirs.signPartial();
 
-        claimTx.ins[0].witness = [ourClaimMusig.aggregatePartials()];
+        setCooperativeWitness(claimTx, 0, signed.aggregatePartials());
 
         return claimTx;
     } catch (e) {
@@ -348,7 +361,7 @@ export const claim = async <T extends ReverseSwap | ChainSwap>(
     const res = await broadcastTransaction(
         swap.backend,
         asset,
-        claimTransaction.toHex(),
+        txToHex(claimTransaction),
     );
     log.debug("Claim transaction broadcast result", res);
 
@@ -372,40 +385,38 @@ export const createSubmarineSignature = async (
 
     const claimDetails = await getSubmarineClaimDetails(swap.backend, swap.id);
     if (
-        crypto.sha256(claimDetails.preimage).toString("hex") !==
+        hex.encode(sha256(claimDetails.preimage)) !==
         (await decodeInvoice(swap.invoice)).preimageHash
     ) {
         throw "invalid preimage";
     }
 
-    const boltzPublicKey = Buffer.from(swap.claimPublicKey, "hex");
-    const musig = await createMusig(
+    const boltzPublicKey = hex.decode(swap.claimPublicKey);
+    const keyAgg = createMusig(
         parsePrivateKey(
             deriveKey,
+            swap.assetSend as AssetType,
             swap.refundPrivateKeyIndex,
             swap.refundPrivateKey,
         ),
         boltzPublicKey,
     );
     const tree = SwapTreeSerializer.deserializeSwapTree(swap.swapTree);
-    tweakMusig(swapAsset, musig, tree.tree);
+    const tweaked = tweakMusig(swapAsset, keyAgg, tree.tree);
 
-    musig.aggregateNonces([[boltzPublicKey, claimDetails.pubNonce]]);
-    musig.initializeSession(claimDetails.transactionHash);
+    const withMsg = tweaked.message(claimDetails.transactionHash);
+    const withNonce = withMsg.generateNonce();
+
+    const aggNonces = withNonce.aggregateNonces([
+        [boltzPublicKey, claimDetails.pubNonce],
+    ]);
+    const session = aggNonces.initializeSession();
+    const signed = session.signPartial();
 
     await postSubmarineClaimDetails(
         swap.backend,
         swap.id,
-        musig.getPublicNonce(),
-        musig.signPartial(),
+        withNonce.publicNonce,
+        signed.ourPartialSignature,
     );
-};
-
-export const derivePreimageFromRescueKey = (
-    rescueKey: RescueFile,
-    keyIndex: number,
-): Buffer => {
-    const privateKey = deriveKey(rescueKey, keyIndex).privateKey;
-
-    return crypto.sha256(Buffer.from(privateKey));
 };

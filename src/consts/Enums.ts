@@ -33,3 +33,8 @@ export enum InvoiceValidation {
 export enum Currency {
     USD = "USD",
 }
+
+export enum RskRescueMode {
+    Refund = "refund",
+    Claim = "resume",
+}

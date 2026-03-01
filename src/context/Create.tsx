@@ -2,7 +2,6 @@ import { makePersisted } from "@solid-primitives/storage";
 import type { Navigator } from "@solidjs/router";
 import { useNavigate } from "@solidjs/router";
 import BigNumber from "bignumber.js";
-import type { Network as LiquidNetwork } from "liquidjs-lib/src/networks";
 import {
     createContext,
     createEffect,
@@ -15,17 +14,13 @@ import { config } from "../config";
 import { type AssetType, BTC, LBTC, LN, RBTC, assets } from "../consts/Assets";
 import { Side, SwapType, UrlParam } from "../consts/Enums";
 import type { DictKey } from "../i18n/i18n";
-import { getAddress, getNetwork } from "../utils/compat";
+import { validateAddress } from "../utils/compat";
 import { isInvoice, isLnurl } from "../utils/invoice";
 import { getUrlParam, resetUrlParam, urlParamIsSet } from "../utils/urlParams";
 
 const isValidForAsset = (asset: typeof BTC | typeof LBTC, address: string) => {
     try {
-        getAddress(asset).toOutputScript(
-            address,
-            getNetwork(asset) as LiquidNetwork,
-        );
-        return true;
+        return validateAddress(asset, address);
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
@@ -176,8 +171,8 @@ const handleUrlParams = (
         }
     }
 
-    // Lightning invoice amounts take precedence unless this is a LN addr
-    if (destinationAsset !== LN || isLnurl(destination)) {
+    // Lightning invoice amounts take precedence unless this is a LN addr or bolt12 offer
+    if (destinationAsset !== LN || !isInvoice(destination)) {
         const sendAmount = parseAmount(getUrlParam(UrlParam.SendAmount));
         if (sendAmount) {
             setAmountChanged(Side.Send);
@@ -269,6 +264,8 @@ export type CreateContextType = {
     setMinerFee: Setter<number>;
     setInvoiceError: Setter<DictKey>;
     invoiceError: Accessor<DictKey>;
+    bolt12Loading: Accessor<boolean>;
+    setBolt12Loading: Setter<boolean>;
 };
 
 const CreateContext = createContext<CreateContextType>();
@@ -319,6 +316,7 @@ const CreateProvider = (props: { children: JSX.Element }) => {
     const [invoiceError, setInvoiceError] = createSignal<DictKey | undefined>(
         undefined,
     );
+    const [bolt12Loading, setBolt12Loading] = createSignal(false);
 
     createEffect(() => {
         if (amountValid() && pairValid()) {
@@ -419,6 +417,8 @@ const CreateProvider = (props: { children: JSX.Element }) => {
                 setMinerFee,
                 invoiceError,
                 setInvoiceError,
+                bolt12Loading,
+                setBolt12Loading,
             }}>
             {props.children}
         </CreateContext.Provider>

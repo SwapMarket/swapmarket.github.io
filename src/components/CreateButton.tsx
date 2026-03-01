@@ -61,7 +61,7 @@ export const getClaimAddress = async (
     signer: Accessor<Signer>,
     onchainAddress: Accessor<string>,
 ): Promise<{ useRif: boolean; gasPrice: bigint; claimAddress: string }> => {
-    if (assetReceive() === RBTC) {
+    if (assetReceive() === RBTC && signer() !== undefined) {
         const [balance, gasPrice] = await Promise.all([
             signer().provider.getBalance(await signer().getAddress()),
             signer()
@@ -103,7 +103,6 @@ const CreateButton = () => {
         setAllPairs,
         online,
         notify,
-        ref,
         t,
         newKey,
         deriveKey,
@@ -139,6 +138,7 @@ const CreateButton = () => {
         setSwapType,
         setSendAmount,
         setReceiveAmount,
+        bolt12Loading,
     } = useCreateContext();
     const { getEtherSwap, signer, providers, walletConnected } =
         useWeb3Signer();
@@ -408,7 +408,6 @@ const CreateButton = () => {
                             sendAmount(),
                             receiveAmount(),
                             invoice(),
-                            ref(),
                             useRif,
                             newKey,
                             originalDestination(),
@@ -517,7 +516,6 @@ const CreateButton = () => {
                             sendAmount(),
                             receiveAmount(),
                             onchainAddress(),
-                            ref(),
                             useRif,
                             rescueFile(),
                             newKey,
@@ -545,7 +543,6 @@ const CreateButton = () => {
                         sendAmount(),
                         receiveAmount(),
                         claimAddress,
-                        ref(),
                         useRif,
                         rescueFile(),
                         newKey,
@@ -561,7 +558,6 @@ const CreateButton = () => {
                         sendAmount(),
                         receiveAmount(),
                         claimAddress,
-                        ref(),
                         useRif,
                         rescueFile(),
                         newKey,
@@ -681,7 +677,7 @@ const CreateButton = () => {
                     lnurl() === "")
             }
             onClick={buttonClick}>
-            {loading() ? (
+            {loading() || bolt12Loading() ? (
                 <LoadingSpinner class="inner-spinner" />
             ) : (
                 getButtonLabel(buttonLabel())

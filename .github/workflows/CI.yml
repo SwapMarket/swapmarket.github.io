@@ -1,120 +1,119 @@
 name: CI
 
 on:
-  # Runs on pushes and PRs targeting the main and test branches
-  push:
-    branches: ['test']
-    paths-ignore:
-      - README.md
-  pull_request:
-    branches: ['main']
-    paths-ignore:
-      - README.md
+    # Runs on pushes and PRs targeting the main and test branches
+    push:
+        branches: ["test"]
+        paths-ignore:
+            - README.md
+    pull_request:
+        branches: ["main"]
+        paths-ignore:
+            - README.md
 
 jobs:
-  ci:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
+    ci:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
 
-      - name: Use Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: "24"
-          cache: "npm"
+            - name: Use Node.js
+              uses: actions/setup-node@v5
+              with:
+                  node-version: "24"
+                  cache: "npm"
 
-      - run: npm ci
+            - run: npm ci
 
-      #- run: npm run check:assets
+            #- run: npm run check:assets
 
-      - run: npm run check:html-template
+            - run: npm run check:html-template
 
-      - run: npm run lint
+            - run: npm run lint
 
-      - run: npm run prettier:check
+            - run: npm run prettier:check
 
-      - run: npm run test
+            - run: npm run test
 
-      - run: npm run tsc
+            - run: npm run tsc
 
-  e2e:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shardIndex: [1, 2, 3, 4]
-        shardTotal: [4]
-    steps:
-      - uses: actions/checkout@v5
+    e2e:
+        timeout-minutes: 60
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                shardIndex: [1, 2, 3, 4]
+                shardTotal: [4]
+        steps:
+            - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v5
-        with:
-          node-version: "24"
-          cache: "npm"
+            - uses: actions/setup-node@v5
+              with:
+                  node-version: "24"
+                  cache: "npm"
 
-      - name: Start regtest
-        env:
-          COMPOSE_PROFILES: webapp-ci
-        run: |
-          git submodule init
-          git submodule update
-          chmod -R 777 regtest
-          git apply boltz.conf.patch
-          cd regtest
-          ./start.sh
+            - name: Start regtest
+              env:
+                  COMPOSE_PROFILES: webapp-ci
+              run: |
+                  git submodule init
+                  git submodule update
+                  chmod -R 777 regtest
+                  git apply boltz.conf.patch
+                  cd regtest
+                  ./start.sh
 
-      # If there's an error, capture and show logs.
-      - name: Show boltz-backend logs on failure
-        if: failure()
-        run: |
-          echo "Displaying logs for the boltz-backend container"
-          docker logs boltz-backend
+            - name: Install dependencies
+              run: npm ci
 
-      - name: Install dependencies
-        run: npm ci
+            - name: Install Playwright Browsers
+              run: npm run playwright:install
 
-      - name: Install Playwright Browsers
-        run: npm run playwright:install
+            - name: Run Playwright tests
+              env:
+                  CI: true
+                  VITE_RSK_LOG_SCAN_ENDPOINT: "http://localhost:8545"
+              run:
+                  npm run test:e2e -- --shard=${{ matrix.shardIndex }}/${{
+                  matrix.shardTotal }}
 
-      - name: Run Playwright tests
-        env:
-          CI: true
-        run: npm run test:e2e -- --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+            - name: Upload blob report to GitHub Actions Artifacts
+              if: ${{ !cancelled() }}
+              uses: actions/upload-artifact@v5
+              with:
+                  name: blob-report-${{ matrix.shardIndex }}
+                  path: blob-report
+                  retention-days: 1
 
-      - name: Upload blob report to GitHub Actions Artifacts
+    playwright-reports:
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v5
-        with:
-          name: blob-report-${{ matrix.shardIndex }}
-          path: blob-report
-          retention-days: 1
+        needs: [e2e]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - uses: actions/setup-node@v5
+              with:
+                  node-version: "24"
+                  cache: "npm"
 
-  playwright-reports:
-    if: ${{ !cancelled() }}
-    needs: [e2e]
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v5
-    - uses: actions/setup-node@v5
-      with:
-        node-version: "24"
+            - run: npm ci
 
-    - run: npm ci
+            - name: Download blob reports from GitHub Actions Artifacts
+              uses: actions/download-artifact@v5
+              with:
+                  path: all-blob-reports
+                  pattern: blob-report-*
+                  merge-multiple: true
 
-    - name: Download blob reports from GitHub Actions Artifacts
-      uses: actions/download-artifact@v5
-      with:
-        path: all-blob-reports
-        pattern: blob-report-*
-        merge-multiple: true
+            - name: Merge into HTML Report
+              run:
+                  npx playwright merge-reports --reporter html
+                  ./all-blob-reports
 
-    - name: Merge into HTML Report
-      run: npx playwright merge-reports --reporter html ./all-blob-reports
-
-    - name: Upload HTML report
-      uses: actions/upload-artifact@v5
-      with:
-        name: html-report-attempt-${{ github.run_attempt }}
-        path: playwright-report
-        retention-days: 7
+            - name: Upload HTML report
+              uses: actions/upload-artifact@v5
+              with:
+                  name: html-report-attempt-${{ github.run_attempt }}
+                  path: playwright-report
+                  retention-days: 7

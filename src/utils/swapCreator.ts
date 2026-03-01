@@ -1,9 +1,9 @@
+import { sha256 } from "@noble/hashes/sha2.js";
+import { hex } from "@scure/base";
 import type BigNumber from "bignumber.js";
-import { crypto } from "bitcoinjs-lib";
 import { OutputType } from "boltz-core";
-import { randomBytes } from "crypto";
 
-import { RBTC } from "../consts/Assets";
+import { type AssetType, RBTC } from "../consts/Assets";
 import { SwapType } from "../consts/Enums";
 import type { newKeyFn } from "../context/Global";
 import type {
@@ -17,9 +17,8 @@ import {
     createReverseSwap,
     createSubmarineSwap,
 } from "./boltzClient";
-import { derivePreimageFromRescueKey } from "./claim";
 import { getPair } from "./helper";
-import type { RescueFile } from "./rescueFile";
+import { type RescueFile, derivePreimageFromRescueKey } from "./rescueFile";
 
 export type SwapBase = {
     type: SwapType;
@@ -95,18 +94,15 @@ export const getRelevantAssetForSwap = (swap: SwapBase) => {
 export const isRsk = (swap: SomeSwap) => getRelevantAssetForSwap(swap) === RBTC;
 
 const generatePreimage = ({
-    isRsk,
+    asset,
     keyIndex,
     rescueFile,
 }: {
-    isRsk: boolean;
+    asset: AssetType;
     keyIndex: number;
     rescueFile: RescueFile;
 }) => {
-    if (isRsk) {
-        return randomBytes(32);
-    }
-    return derivePreimageFromRescueKey(rescueFile, keyIndex);
+    return derivePreimageFromRescueKey(rescueFile, keyIndex, asset);
 };
 
 export const createSubmarine = async (
@@ -117,20 +113,17 @@ export const createSubmarine = async (
     sendAmount: BigNumber,
     receiveAmount: BigNumber,
     invoice: string,
-    referralId: string,
     useRif: boolean,
     newKey: newKeyFn,
     originalDestination?: string,
 ): Promise<SubmarineSwap> => {
-    const isRsk = assetReceive === RBTC;
-    const key = !isRsk ? newKey() : undefined;
+    const key = await newKey(assetSend as AssetType);
     const res = await createSubmarineSwap(
         backend,
         assetSend,
         assetReceive,
         invoice,
         getPair(pairs, SwapType.Submarine, assetSend, assetReceive).hash,
-        referralId,
         key !== undefined
             ? Buffer.from(key.key.publicKey).toString("hex")
             : undefined,
@@ -161,17 +154,14 @@ export const createReverse = async (
     sendAmount: BigNumber,
     receiveAmount: BigNumber,
     claimAddress: string,
-    referralId: string,
     useRif: boolean,
     rescueFile: RescueFile,
     newKey: newKeyFn,
     originalDestination?: string,
 ): Promise<ReverseSwap> => {
-    const isRsk = assetReceive === RBTC;
-
-    const key = !isRsk ? newKey() : undefined;
+    const key = await newKey(assetReceive as AssetType);
     const preimage = generatePreimage({
-        isRsk,
+        asset: assetReceive as AssetType,
         keyIndex: key?.index,
         rescueFile,
     });
@@ -181,9 +171,8 @@ export const createReverse = async (
         assetSend,
         assetReceive,
         Number(sendAmount),
-        crypto.sha256(preimage).toString("hex"),
+        hex.encode(sha256(preimage)),
         getPair(pairs, SwapType.Reverse, assetSend, assetReceive).hash,
-        referralId,
         key !== undefined
             ? Buffer.from(key.key.publicKey).toString("hex")
             : undefined,
@@ -203,7 +192,7 @@ export const createReverse = async (
         ),
         claimAddress,
         originalDestination,
-        preimage: preimage.toString("hex"),
+        preimage: hex.encode(preimage),
         claimPrivateKeyIndex: key?.index,
     };
 };
@@ -216,17 +205,15 @@ export const createChain = async (
     sendAmount: BigNumber,
     receiveAmount: BigNumber,
     claimAddress: string,
-    referralId: string,
     useRif: boolean,
     rescueFile: RescueFile,
     newKey: newKeyFn,
     originalDestination?: string,
 ): Promise<ChainSwap> => {
-    const claimKey = assetReceive !== RBTC ? newKey() : undefined;
-    const refundKey = assetSend !== RBTC ? newKey() : undefined;
-    const isRsk = assetReceive === RBTC || assetSend === RBTC;
+    const claimKey = await newKey(assetReceive as AssetType);
+    const refundKey = await newKey(assetSend as AssetType);
     const preimage = generatePreimage({
-        isRsk,
+        asset: assetReceive as AssetType,
         keyIndex: claimKey?.index,
         rescueFile,
     });
@@ -237,7 +224,7 @@ export const createChain = async (
         sendAmount.isZero() || sendAmount.isNaN()
             ? undefined
             : Number(sendAmount),
-        crypto.sha256(preimage).toString("hex"),
+        hex.encode(sha256(preimage)),
         claimKey !== undefined
             ? Buffer.from(claimKey.key.publicKey).toString("hex")
             : undefined,
@@ -246,7 +233,6 @@ export const createChain = async (
             : undefined,
         claimAddress,
         getPair(pairs, SwapType.Chain, assetSend, assetReceive).hash,
-        referralId,
     );
 
     return {
@@ -262,7 +248,7 @@ export const createChain = async (
         ),
         claimAddress,
         originalDestination,
-        preimage: preimage.toString("hex"),
+        preimage: hex.encode(preimage),
         claimPrivateKeyIndex: claimKey?.index,
         refundPrivateKeyIndex: refundKey?.index,
     };

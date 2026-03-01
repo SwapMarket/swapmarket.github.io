@@ -667,6 +667,12 @@ textarea.invalid {
     margin: 0 auto;
 }
 
+.frame-text-spaced {
+    @extend .frame-text;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
 @media (max-width: 488px) {
     .frame {
         max-width: 480px;

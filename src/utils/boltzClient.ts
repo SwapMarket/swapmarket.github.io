@@ -1,13 +1,12 @@
-import type { Transaction } from "bitcoinjs-lib";
-import { Musig } from "boltz-core";
-import { Buffer } from "buffer";
-import type { Transaction as LiquidTransaction } from "liquidjs-lib";
+import { hex } from "@scure/base";
 import log from "loglevel";
 
 import { config } from "../config";
 import { SwapType } from "../consts/Enums";
 import { broadcastToExplorer } from "./blockchain";
-import { fetcher } from "./helper";
+import type { TransactionInterface } from "./compat";
+import { txToHex } from "./compat";
+import { fetcher, getReferral } from "./helper";
 import { validateInvoiceForOffer } from "./invoice";
 
 const cooperativeErrorMessage = "cooperative signatures for swaps are disabled";
@@ -87,8 +86,8 @@ type Pairs = {
 };
 
 type PartialSignature = {
-    pubNonce: Buffer;
-    signature: Buffer;
+    pubNonce: Uint8Array;
+    signature: Uint8Array;
 };
 
 type Contracts = {
@@ -166,8 +165,6 @@ type ChainSwapTransaction = {
         eta?: number;
     };
 };
-
-type TransactionInterface = Transaction | LiquidTransaction;
 
 type RestorableSwapDetails = {
     tree: SwapTree;
@@ -287,7 +284,6 @@ export const createSubmarineSwap = (
     to: string,
     invoice: string,
     pairHash: string,
-    referralId: string,
     refundPublicKey?: string,
 ): Promise<SubmarineCreatedResponse> => {
     // remember the backend
@@ -297,7 +293,7 @@ export const createSubmarineSwap = (
         invoice,
         refundPublicKey,
         pairHash,
-        referralId,
+        referralId: getReferral(),
     });
 };
 
@@ -308,7 +304,6 @@ export const createReverseSwap = (
     invoiceAmount: number,
     preimageHash: string,
     pairHash: string,
-    referralId: string,
     claimPublicKey?: string,
     claimAddress?: string,
 ): Promise<ReverseCreatedResponse> => {
@@ -319,7 +314,7 @@ export const createReverseSwap = (
         preimageHash,
         claimPublicKey,
         claimAddress,
-        referralId,
+        referralId: getReferral(),
         pairHash,
     });
 };
@@ -334,7 +329,6 @@ export const createChainSwap = (
     refundPublicKey: string | undefined,
     claimAddress: string | undefined,
     pairHash: string,
-    referralId: string,
 ): Promise<ChainSwapCreatedResponse> => {
     return fetcher(backend, "/v2/swap/chain", {
         from,
@@ -344,7 +338,7 @@ export const createChainSwap = (
         refundPublicKey,
         claimAddress,
         pairHash,
-        referralId,
+        referralId: getReferral(),
         userLockAmount,
     });
 };
@@ -353,7 +347,7 @@ export const getPartialRefundSignature = async (
     backend: number,
     id: string,
     type: SwapType,
-    pubNonce: Buffer,
+    pubNonce: Uint8Array,
     transaction: TransactionInterface,
     index: number,
 ): Promise<PartialSignature> => {
@@ -365,21 +359,21 @@ export const getPartialRefundSignature = async (
         }/${id}/refund`,
         {
             index,
-            pubNonce: pubNonce.toString("hex"),
-            transaction: transaction.toHex(),
+            pubNonce: hex.encode(pubNonce),
+            transaction: txToHex(transaction),
         },
     );
     return {
-        pubNonce: Musig.parsePubNonce(res.pubNonce),
-        signature: Buffer.from(res.partialSignature, "hex"),
+        pubNonce: hex.decode(res.pubNonce),
+        signature: hex.decode(res.partialSignature),
     };
 };
 
 export const getPartialReverseClaimSignature = async (
     backend: number,
     id: string,
-    preimage: Buffer,
-    pubNonce: Buffer,
+    preimage: Uint8Array,
+    pubNonce: Uint8Array,
     transaction: TransactionInterface,
     index: number,
 ): Promise<PartialSignature> => {
@@ -389,14 +383,14 @@ export const getPartialReverseClaimSignature = async (
         `/v2/swap/reverse/${id}/claim`,
         {
             index,
-            preimage: preimage.toString("hex"),
-            pubNonce: pubNonce.toString("hex"),
-            transaction: transaction.toHex(),
+            preimage: hex.encode(preimage),
+            pubNonce: hex.encode(pubNonce),
+            transaction: txToHex(transaction),
         },
     );
     return {
-        pubNonce: Musig.parsePubNonce(res.pubNonce),
-        signature: Buffer.from(res.partialSignature, "hex"),
+        pubNonce: hex.decode(res.pubNonce),
+        signature: hex.decode(res.partialSignature),
     };
 };
 
@@ -407,22 +401,22 @@ export const getSubmarineClaimDetails = async (backend: number, id: string) => {
         transactionHash: string;
     }>(backend, `/v2/swap/submarine/${id}/claim`);
     return {
-        pubNonce: Musig.parsePubNonce(res.pubNonce),
-        preimage: Buffer.from(res.preimage, "hex"),
-        transactionHash: Buffer.from(res.transactionHash, "hex"),
+        pubNonce: hex.decode(res.pubNonce),
+        preimage: hex.decode(res.preimage),
+        transactionHash: hex.decode(res.transactionHash),
     };
 };
 
 export const postSubmarineClaimDetails = (
     backend: number,
     id: string,
-    pubNonce: Buffer | Uint8Array,
-    partialSignature: Buffer | Uint8Array,
+    pubNonce: Uint8Array,
+    partialSignature: Uint8Array,
 ) => {
     checkCooperative();
     return fetcher(backend, `/v2/swap/submarine/${id}/claim`, {
-        pubNonce: Buffer.from(pubNonce).toString("hex"),
-        partialSignature: Buffer.from(partialSignature).toString("hex"),
+        pubNonce: hex.encode(pubNonce),
+        partialSignature: hex.encode(partialSignature),
     });
 };
 
@@ -605,15 +599,15 @@ export const assetRescueBroadcast = (
     backend: number,
     asset: string,
     swapId: string,
-    pubNonce: Buffer,
-    partialSignature: Buffer,
+    pubNonce: Uint8Array,
+    partialSignature: Uint8Array,
 ) =>
     fetcher<{
         transactionId: string;
     }>(backend, `/v2/asset/${asset}/rescue/broadcast`, {
         swapId,
-        pubNonce: pubNonce.toString("hex"),
-        partialSignature: partialSignature.toString("hex"),
+        pubNonce: hex.encode(pubNonce),
+        partialSignature: hex.encode(partialSignature),
     });
 
 export {
@@ -621,7 +615,6 @@ export {
     Contracts,
     PartialSignature,
     ChainPairTypeTaproot,
-    TransactionInterface,
     ReversePairTypeTaproot,
     SubmarineCreatedResponse,
     SubmarinePairTypeTaproot,
