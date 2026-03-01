@@ -129,20 +129,14 @@ test.describe("URL params", () => {
 
         await toggleRescueModeOnClick(page);
 
-        await page.goto("/backup/verify/existing");
-
-        await toggleRescueModeOnClick(page);
-
         await page.goto("/refund/external?mode=rescue-key");
-        await assertMnemonicVisible();
-
-        await page.goto("/backup/verify/existing?mode=rescue-key");
         await assertMnemonicVisible();
 
         await page.goto("/rescue/external/btc?mode=rescue-key");
         await assertMnemonicVisible();
 
         await page.goto("/rescue/external/rsk?mode=rescue-key");
+        await page.getByTestId("rsk-rescue-refund-button").click();
         await expect(page.getByText(/connect wallet/i)).toBeVisible();
     });
 
@@ -154,6 +148,8 @@ test.describe("URL params", () => {
     const bitcoinAddress = "bcrt1qcewlsq7cy3dhs6hyd7aajj2jam6jxzfanp5648";
     const liquidAddress =
         "el1qqt9gjfexzshhw6nnxeaqt9ryjzafnqs56td9505cczv908433tzxgm7g275u5zwkpgla9lu3n7wqctl740xt2nl3wzr057xjj";
+    const bolt12Offer =
+        "lno1qgsqvgnwgcg35z6ee2h3yczraddm72xrfua9uve2rlrm9deu7xyfzrc2qqtzzq5p5cxdsl5uxty7qp0s25vpqsjrs7mqrwcfuk4swv2afmddh79ss5";
     [
         {
             description: "Invalid address destination",
@@ -233,6 +229,15 @@ test.describe("URL params", () => {
             expectedDestinationField: invoiceField,
             expectedDestinationValue: invoice,
             expectedCreateButtonDisabled: false,
+        },
+        {
+            description: "Lightning Bolt12 offer destination",
+            params: `?sendAsset=${BTC}&receiveAsset=${LN}&sendAmount=100000&destination=${bolt12Offer}`,
+            expectedSendAsset: BTC,
+            expectedReceiveAsset: LN,
+            expectedSendAmount: 100000,
+            expectedDestinationField: invoiceField,
+            expectedDestinationValue: bolt12Offer,
         },
         {
             description: "RBTC destination",

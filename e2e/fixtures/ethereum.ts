@@ -4,9 +4,9 @@ import {
     createWalletClient,
     defineChain,
     http,
+    parseEther,
 } from "viem";
-import { type WalletClient } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 
 const rskRegtest = defineChain({
     id: 33,
@@ -15,18 +15,30 @@ const rskRegtest = defineChain({
     rpcUrls: { default: { http: ["http://localhost:8545"] } },
 });
 
-const account = privateKeyToAccount(
-    "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
-);
-
 type EthereumFixtures = {
-    walletClient: WalletClient; // ← replace ReturnType<typeof createWalletClient>
+    walletClient: ReturnType<typeof createWalletClient>;
     injectProvider: () => Promise<void>;
 };
 
 export const test = base.extend<EthereumFixtures>({
     // eslint-disable-next-line no-empty-pattern
     walletClient: async ({}, use) => {
+        const privateKey = generatePrivateKey();
+        const account = privateKeyToAccount(privateKey);
+
+        const publicClient = createPublicClient({
+            chain: rskRegtest,
+            transport: http(),
+        });
+
+        await publicClient.request({
+            method: "anvil_setBalance" as never,
+            params: [
+                account.address,
+                "0x" + parseEther("10").toString(16),
+            ] as never,
+        });
+
         const client = createWalletClient({
             account,
             chain: rskRegtest,
@@ -61,7 +73,7 @@ export const test = base.extend<EthereumFixtures>({
                     gas?: string;
                 }) => {
                     return await walletClient.sendTransaction({
-                        account,
+                        account: walletClient.account,
                         chain: rskRegtest,
                         to: tx.to as `0x${string}`,
                         value: tx.value ? BigInt(tx.value) : undefined,

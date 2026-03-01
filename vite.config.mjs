@@ -76,5 +76,10 @@ export default defineConfig({
         environment: "jsdom",
         setupFiles: "./tests/setup.ts",
         pool: "forks",
+        server: {
+            deps: {
+                inline: [/@solidjs\/router/],
+            },
+        },
     },
 });

@@ -5,6 +5,7 @@ import { btcToSat } from "../src/utils/denomination";
 import {
     addReferral,
     bitcoinSendToAddress,
+    expectApproxAmount,
     generateBitcoinBlock,
     generateInvoiceLnd,
     generateInvoiceWithRoutingHint,
@@ -35,8 +36,10 @@ test.describe("Submarine swap", () => {
         await inputReceiveAmount.fill(receiveAmount);
 
         const inputSendAmount = page.locator("input[data-testid='sendAmount']");
-        const sendAmount = "0.01001146";
-        await expect(inputSendAmount).toHaveValue(sendAmount);
+        const sendAmount = await expectApproxAmount(
+            inputSendAmount,
+            "0.01001146",
+        );
 
         const invoiceInput = page.locator("textarea[data-testid='invoice']");
         const invoice = await generateInvoiceLnd(1000000);
@@ -99,9 +102,7 @@ test.describe("Submarine swap", () => {
     });
 
     test("BTC/LN with expensive MRH doesn't use MRH", async ({ page }) => {
-        await page.goto("/?ref=expensive");
-
-        const referral = "expensive";
+        const referral = "boltz_webapp_desktop";
         const referrals = await getReferrals();
 
         if (!referrals.some((r) => r.id === referral)) {
@@ -114,6 +115,8 @@ test.describe("Submarine swap", () => {
                 "L-BTC/BTC": { premiums: { "2": { "0": 100, "1": 100 } } },
             },
         });
+
+        await page.goto("/");
 
         const btcAsset = page.locator("div[class='asset asset-BTC'] div");
         await btcAsset.click();

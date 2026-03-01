@@ -1,18 +1,17 @@
+import { hex } from "@scure/base";
 import { Buffer } from "buffer";
-import type { ECPairInterface } from "ecpair";
 
 import { chooseUrl, config } from "../config";
-import { BTC, LN, RBTC } from "../consts/Assets";
+import { type AssetType, BTC, LN, RBTC } from "../consts/Assets";
 import { SwapType } from "../consts/Enums";
-import { referralIdKey } from "../consts/LocalStorage";
 import type { deriveKeyFn } from "../context/Global";
-import { defaultReferral } from "../context/Global";
 import type {
     ChainPairTypeTaproot,
     Pairs,
     ReversePairTypeTaproot,
     SubmarinePairTypeTaproot,
 } from "./boltzClient";
+import type { ECKeys } from "./ecpair";
 import { ECPair } from "./ecpair";
 import { formatError } from "./errors";
 import type {
@@ -29,6 +28,13 @@ export const isIos = () =>
 
 export const isMobile = () =>
     isIos() || !!navigator.userAgent.match(/android|blackberry/gi) || false;
+
+export const getReferral = (): string => {
+    if (config.isPro) {
+        return "pro";
+    }
+    return isMobile() ? "boltz_webapp_mobile" : "boltz_webapp_desktop";
+};
 
 export const parseBlindingKey = (swap: SomeSwap, isRefund: boolean) => {
     let blindingKey: string | undefined;
@@ -136,9 +142,7 @@ export const fetcher = async <T = unknown>(
     );
 
     try {
-        // We cannot use the context here, so we get the data directly from local storage
-        const referral =
-            localStorage.getItem(referralIdKey) || defaultReferral();
+        const referral = getReferral();
 
         let opts: RequestInit = {
             headers: {
@@ -186,15 +190,16 @@ export const fetcher = async <T = unknown>(
 
 export const parsePrivateKey = (
     deriveKey: deriveKeyFn,
+    asset: AssetType,
     keyIndex?: number,
     privateKeyHex?: string,
-): ECPairInterface => {
+): ECKeys => {
     if (keyIndex !== undefined) {
-        return deriveKey(keyIndex);
+        return deriveKey(keyIndex, asset);
     }
 
     try {
-        return ECPair.fromPrivateKey(Buffer.from(privateKeyHex, "hex"));
+        return ECPair.fromPrivateKey(hex.decode(privateKeyHex));
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
