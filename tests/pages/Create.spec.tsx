@@ -1,11 +1,18 @@
-import { fireEvent, render, screen } from "@solidjs/testing-library";
+import {
+    fireEvent,
+    render,
+    screen,
+    waitFor,
+    within,
+} from "@solidjs/testing-library";
 import { BigNumber } from "bignumber.js";
 
-import { BTC, LBTC, LN } from "../../src/consts/Assets";
+import { BTC, LBTC, LN, RBTC } from "../../src/consts/Assets";
 import { Side, SwapType } from "../../src/consts/Enums";
 import { Denomination } from "../../src/consts/Enums";
 import i18n from "../../src/i18n/i18n";
 import Create from "../../src/pages/Create";
+import Pair from "../../src/utils/Pair";
 import { calculateReceiveAmount } from "../../src/utils/calculate";
 import { formatAmount } from "../../src/utils/denomination";
 import {
@@ -15,6 +22,17 @@ import {
     signals,
 } from "../helper";
 import { pairs } from "../pairs";
+
+vi.mock("../../src/utils/boltzClient", () => ({
+    getPairs: vi.fn(() => Promise.resolve(structuredClone(pairs))),
+}));
+vi.mock("../../src/components/ConnectWallet", () => ({
+    default: () => <div data-testid="connect-wallet" />,
+}));
+
+const setPairAssets = (fromAsset: string, toAsset: string) => {
+    signals.setPair(new Pair(signals.pair().pairs, fromAsset, toAsset));
+};
 
 describe("Create", () => {
     test("should render Create", async () => {
@@ -31,6 +49,48 @@ describe("Create", () => {
         );
         const button = await screen.findAllByText(i18n.en.create_swap);
         expect(button).not.toBeUndefined();
+    });
+
+    test("should hide wallet section for non-EVM pairs", async () => {
+        render(
+            () => (
+                <>
+                    <TestComponent />
+                    <Create />
+                </>
+            ),
+            {
+                wrapper: contextWrapper,
+            },
+        );
+
+        globalSignals.setAllPairs([pairs]);
+        setPairAssets(BTC, LN);
+
+        await waitFor(() => {
+            expect(
+                screen.queryByTestId("connect-wallet"),
+            ).not.toBeInTheDocument();
+        });
+    });
+
+    test("should show wallet section for EVM pairs", async () => {
+        render(
+            () => (
+                <>
+                    <TestComponent />
+                    <Create />
+                </>
+            ),
+            {
+                wrapper: contextWrapper,
+            },
+        );
+
+        globalSignals.setAllPairs([pairs]);
+        setPairAssets(BTC, RBTC);
+
+        expect(await screen.findByTestId("connect-wallet")).toBeInTheDocument();
     });
 
     test("should show WASM error", async () => {
@@ -51,7 +111,73 @@ describe("Create", () => {
         ).not.toBeUndefined();
     });
 
-    test("should update receive amount on asset change", () => {
+    test("should show the create button spinner while recalculating network quotes", async () => {
+        vi.useFakeTimers();
+
+        try {
+            render(
+                () => (
+                    <>
+                        <TestComponent />
+                        <Create />
+                    </>
+                ),
+                {
+                    wrapper: contextWrapper,
+                },
+            );
+
+            const button = await screen.findByTestId("create-swap-button");
+
+            const currentPair = signals.pair();
+            let resolveQuote: ((amount: BigNumber) => void) | undefined;
+            const quotePromise = new Promise<BigNumber>((resolve) => {
+                resolveQuote = resolve;
+            });
+
+            Object.defineProperty(currentPair, "needsNetworkForQuote", {
+                configurable: true,
+                get: () => true,
+            });
+            currentPair.calculateReceiveAmount = vi
+                .fn(() => quotePromise)
+                .mockName("calculateReceiveAmount");
+
+            expect(
+                within(button).queryByTestId("loading-spinner"),
+            ).not.toBeInTheDocument();
+
+            fireEvent.input(await screen.findByTestId("sendAmount"), {
+                target: { value: "100000" },
+            });
+
+            expect(
+                within(button).getByTestId("loading-spinner"),
+            ).toBeInTheDocument();
+
+            await vi.advanceTimersByTimeAsync(500);
+
+            await waitFor(() => {
+                expect(currentPair.calculateReceiveAmount).toHaveBeenCalled();
+            });
+
+            expect(
+                within(button).getByTestId("loading-spinner"),
+            ).toBeInTheDocument();
+
+            resolveQuote?.(BigNumber(90000));
+
+            await waitFor(() => {
+                expect(
+                    within(button).queryByTestId("loading-spinner"),
+                ).not.toBeInTheDocument();
+            });
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    test("should update receive amount on asset change", async () => {
         render(
             () => (
                 <>
@@ -65,22 +191,25 @@ describe("Create", () => {
         );
 
         globalSignals.setAllPairs([pairs]);
-        signals.setAssetSend(LN);
-        signals.setAssetReceive(BTC);
+        setPairAssets(LN, BTC);
         signals.setSendAmount(BigNumber(50_000));
 
         // To force trigger a recalculation
-        signals.setAssetReceive(LBTC);
-        signals.setAssetReceive(BTC);
+        setPairAssets(LN, LBTC);
+        setPairAssets(LN, BTC);
 
-        expect(signals.receiveAmount()).toEqual(BigNumber(38110));
+        await waitFor(() => {
+            expect(signals.receiveAmount()).toEqual(BigNumber(38110));
+        });
 
-        signals.setAssetReceive(LBTC);
+        setPairAssets(LN, LBTC);
 
-        expect(signals.receiveAmount()).toEqual(BigNumber(49825));
+        await waitFor(() => {
+            expect(signals.receiveAmount()).toEqual(BigNumber(49822));
+        });
     });
 
-    test("should update receive amount on miner fee change", () => {
+    test("should update receive amount on miner fee change", async () => {
         render(
             () => (
                 <>
@@ -94,21 +223,24 @@ describe("Create", () => {
         );
 
         globalSignals.setAllPairs([pairs]);
-        signals.setAssetSend(LN);
-        signals.setAssetReceive(BTC);
+        setPairAssets(LN, BTC);
         signals.setSendAmount(BigNumber(50_000));
 
         // // To force trigger a recalculation
-        signals.setAssetReceive(LBTC);
-        signals.setAssetReceive(BTC);
+        setPairAssets(LN, LBTC);
+        setPairAssets(LN, BTC);
 
-        expect(signals.receiveAmount()).toEqual(BigNumber(38110));
+        await waitFor(() => {
+            expect(signals.receiveAmount()).toEqual(BigNumber(38110));
+        });
 
-        const updatedCfg = { ...pairs };
-        pairs.reverse[BTC][BTC].fees.minerFees.claim += 1;
+        const updatedCfg = structuredClone(pairs);
+        updatedCfg.reverse[BTC][BTC].fees.minerFees.claim += 1;
         globalSignals.setAllPairs([updatedCfg]);
 
-        expect(signals.receiveAmount()).toEqual(BigNumber(38110 - 1));
+        await waitFor(() => {
+            expect(signals.receiveAmount()).toEqual(BigNumber(38110 - 1));
+        });
     });
 
     test("should update calculated value on fee change", async () => {
@@ -126,12 +258,11 @@ describe("Create", () => {
 
         globalSignals.setAllPairs([pairs]);
         signals.setMinimum(pairs.reverse[BTC][BTC].limits.minimal);
-        signals.setAssetSend(LN);
-        signals.setAssetReceive(BTC);
+        setPairAssets(LN, BTC);
 
         const updateConfig = () => {
-            const updatedCfg = { ...pairs };
-            pairs.reverse[BTC][BTC].fees.minerFees.claim += 1;
+            const updatedCfg = structuredClone(pairs);
+            updatedCfg.reverse[BTC][BTC].fees.minerFees.claim += 1;
             globalSignals.setAllPairs([updatedCfg]);
         };
 
@@ -140,29 +271,35 @@ describe("Create", () => {
             target: { value: amount },
         });
 
-        expect(signals.amountChanged()).toEqual(Side.Receive);
-
-        expect(signals.sendAmount()).toEqual(BigNumber(112203));
-        expect(signals.receiveAmount()).toEqual(BigNumber(amount));
+        await waitFor(() => {
+            expect(signals.amountChanged()).toEqual(Side.Receive);
+            expect(signals.sendAmount()).toEqual(BigNumber(112202));
+            expect(signals.receiveAmount()).toEqual(BigNumber(amount));
+        });
 
         updateConfig();
 
-        expect(signals.sendAmount()).toEqual(BigNumber(112204));
-        expect(signals.receiveAmount()).toEqual(BigNumber(amount));
+        await waitFor(() => {
+            expect(signals.sendAmount()).toEqual(BigNumber(112203));
+            expect(signals.receiveAmount()).toEqual(BigNumber(amount));
+        });
 
         fireEvent.input(await screen.findByTestId("sendAmount"), {
             target: { value: amount },
         });
 
-        expect(signals.amountChanged()).toEqual(Side.Send);
-
-        expect(signals.sendAmount()).toEqual(BigNumber(amount));
-        expect(signals.receiveAmount()).toEqual(BigNumber(87858));
+        await waitFor(() => {
+            expect(signals.amountChanged()).toEqual(Side.Send);
+            expect(signals.sendAmount()).toEqual(BigNumber(amount));
+            expect(signals.receiveAmount()).toEqual(BigNumber(87859));
+        });
 
         updateConfig();
 
-        expect(signals.sendAmount()).toEqual(BigNumber(amount));
-        expect(signals.receiveAmount()).toEqual(BigNumber(87857));
+        await waitFor(() => {
+            expect(signals.sendAmount()).toEqual(BigNumber(amount));
+            expect(signals.receiveAmount()).toEqual(BigNumber(87859));
+        });
     });
 
     test.each`
@@ -191,6 +328,7 @@ describe("Create", () => {
             BigNumber(amount),
             Denomination.Sat,
             globalSignals.separator(),
+            BTC,
         );
         fireEvent.click(await screen.findByText(formattedAmount));
 
@@ -218,8 +356,10 @@ describe("Create", () => {
             },
         );
         globalSignals.setAllPairs([pairs]);
-        signals.setAssetSend(LN);
-        signals.setAssetReceive(BTC);
+        setPairAssets(LN, BTC);
+        await waitFor(() => {
+            expect(signals.minimum()).toBeGreaterThan(0);
+        });
 
         const sendAmountInput = await screen.findByTestId("sendAmount");
         fireEvent.input(sendAmountInput, {
@@ -240,8 +380,10 @@ describe("Create", () => {
         )) as HTMLButtonElement;
         globalSignals.setOnline(true);
 
-        expect(createButton.disabled).toEqual(true);
-        expect(createButton.innerHTML).toEqual("Invalid BTC address");
+        await waitFor(() => {
+            expect(createButton.disabled).toEqual(true);
+            expect(createButton.textContent).toEqual("Invalid BTC address");
+        });
 
         fireEvent.input(sendAmountInput, {
             target: {
@@ -249,8 +391,12 @@ describe("Create", () => {
             },
         });
 
-        expect(createButton.disabled).toEqual(true);
-        expect(createButton.innerHTML).toEqual("Minimum amount is 50 000 sats");
+        await waitFor(() => {
+            expect(createButton.disabled).toEqual(true);
+            expect(createButton.textContent).toEqual(
+                "Minimum amount is 50 000 sats",
+            );
+        });
     });
 
     test("should allow comma in pasted amounts", async () => {
@@ -268,8 +414,10 @@ describe("Create", () => {
         globalSignals.setAllPairs([pairs]);
         globalSignals.setSeparator(".");
         globalSignals.setDenomination(Denomination.Sat);
-        signals.setAssetSend(LN);
-        signals.setAssetReceive(BTC);
+        setPairAssets(LN, BTC);
+        await waitFor(() => {
+            expect(signals.maximum()).toBeGreaterThan(0);
+        });
 
         const pasteEvent = new Event("paste");
 
@@ -293,9 +441,11 @@ describe("Create", () => {
         });
 
         expect(preventDefaultSpy).not.toHaveBeenCalled(); // no errors on onPaste
-        expect(globalSignals.denomination()).toEqual(Denomination.Btc);
-        expect(globalSignals.separator()).toEqual(".");
-        expect(sendAmountInput.value).toEqual("0.01");
+        await waitFor(() => {
+            expect(globalSignals.denomination()).toEqual(Denomination.Btc);
+            expect(globalSignals.separator()).toEqual(".");
+            expect(sendAmountInput.value).toEqual("0.01");
+        });
     });
 
     test("should allow space in pasted amounts", async () => {
@@ -315,8 +465,10 @@ describe("Create", () => {
 
         globalSignals.setAllPairs([pairs]);
         globalSignals.setDenomination(Denomination.Btc);
-        signals.setAssetSend(LN);
-        signals.setAssetReceive(BTC);
+        setPairAssets(LN, BTC);
+        await waitFor(() => {
+            expect(signals.maximum()).toBeGreaterThan(0);
+        });
 
         const pasteEvent = new Event("paste");
 
@@ -340,7 +492,9 @@ describe("Create", () => {
         });
 
         expect(preventDefaultSpy).not.toHaveBeenCalled(); // no errors on onPaste
-        expect(globalSignals.denomination()).toEqual(Denomination.Sat);
-        expect(sendAmountInput.value).toEqual(amount);
+        await waitFor(() => {
+            expect(globalSignals.denomination()).toEqual(Denomination.Sat);
+            expect(sendAmountInput.value).toEqual(amount);
+        });
     });
 });

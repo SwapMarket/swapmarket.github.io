@@ -1,22 +1,25 @@
 import { ImArrowDown } from "solid-icons/im";
 
 import { useCreateContext } from "../context/Create";
+import { useGlobalContext } from "../context/Global";
+import Pair from "../utils/Pair";
 
 const Reverse = () => {
-    const {
-        assetReceive,
-        assetSend,
-        setAssetSend,
-        setAssetReceive,
-        setOnchainAddress,
-        setInvoice,
-    } = useCreateContext();
+    const { allPairs, regularPairs, backend } = useGlobalContext();
+    const { pair, setPair, setOnchainAddress, setInvoice } = useCreateContext();
+
     const setDirection = () => {
         setOnchainAddress("");
         setInvoice("");
-        const sendOld = assetSend();
-        setAssetSend(assetReceive());
-        setAssetReceive(sendOld);
+        setPair(
+            new Pair(
+                allPairs()[backend()],
+                pair().toAsset,
+                pair().fromAsset,
+                regularPairs(),
+                backend(),
+            ),
+        );
     };
 
     return (

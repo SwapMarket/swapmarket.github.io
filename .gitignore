@@ -16,3 +16,4 @@ docs/.vitepress/cache/
 index.html
 rescue.json
 .index-build-cache
+CLAUDE.md

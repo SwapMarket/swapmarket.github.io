@@ -1,5 +1,5 @@
 import { BigNumber } from "bignumber.js";
-import { describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { Currency } from "../../src/consts/Enums";
 import {
@@ -16,11 +16,30 @@ describe("fiat", () => {
         expect(result.toNumber()).toBeGreaterThan(0);
     };
 
+    let savedFetch: typeof fetch;
+
+    beforeEach(() => {
+        savedFetch = globalThis.fetch;
+    });
+
+    afterEach(() => {
+        globalThis.fetch = savedFetch;
+    });
+
     test.each([
-        ["Mempool", getBtcPriceMempool],
-        ["Kraken", getBtcPriceKraken],
-        ["Yadio", getBtcPriceYadio],
-    ])("should fetch BTC price from $1", async (_, getBtcPrice) => {
+        ["Mempool", getBtcPriceMempool, { USD: 50_000 }],
+        [
+            "Kraken",
+            getBtcPriceKraken,
+            { result: { XXBTZUSD: { c: ["50000"] } } },
+        ],
+        ["Yadio", getBtcPriceYadio, { BTC: { USD: 50_000 } }],
+    ])("should fetch BTC price from $1", async (_, getBtcPrice, mockData) => {
+        globalThis.fetch = vi
+            .fn()
+            .mockResolvedValueOnce({
+                json: () => Promise.resolve(mockData),
+            }) as unknown as typeof fetch;
         const result = await getBtcPrice(Currency.USD);
         checkResult(result);
     });

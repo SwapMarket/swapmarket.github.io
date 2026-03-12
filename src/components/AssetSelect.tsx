@@ -1,64 +1,108 @@
 import log from "loglevel";
 import { IoClose } from "solid-icons/io";
-import { For, createEffect } from "solid-js";
+import { For, Show } from "solid-js";
 
 import { config } from "../config";
-import { LN } from "../consts/Assets";
+import { BTC, LBTC, LN, RBTC, getNetworkBadge } from "../consts/Assets";
 import { Side } from "../consts/Enums";
 import { useCreateContext } from "../context/Create";
 import { useGlobalContext } from "../context/Global";
+import Pair from "../utils/Pair";
 import { getPair } from "../utils/helper";
-import { isPairValid } from "../utils/pairs";
+
+const getAssetNetwork = (asset: string): string | null => {
+    switch (asset) {
+        case BTC:
+            return "Bitcoin";
+        case LN:
+            return "Lightning";
+        case LBTC:
+            return "Liquid";
+        case RBTC:
+            return "Rootstock";
+        default: {
+            const assetConfig = config.assets?.[asset];
+            if (assetConfig?.network?.chainName) {
+                return assetConfig.network.chainName;
+            }
+            return null;
+        }
+    }
+};
 
 const SelectAsset = () => {
-    const assets = Object.keys(config.assets);
-    assets.push(LN);
+    const assets = [...Object.keys(config.assets), LN].sort();
 
-    const { t, fetchPairs, allPairs, backend, setBackend } = useGlobalContext();
+    const { t, fetchPairs, allPairs, backend, setBackend, regularPairs } =
+        useGlobalContext();
 
     const {
-        assetReceive,
+        pair,
+        setPair,
         assetSelect,
         assetSelected,
-        assetSend,
-        setAssetReceive,
         setAssetSelect,
-        setAssetSend,
         setInvoice,
         setOnchainAddress,
-        setPairValid,
-        swapType,
     } = useCreateContext();
 
     const changeAsset = (newAsset: string) => {
-        if (isSelected(newAsset)) return;
+        if (isSelected(newAsset)) {
+            setAssetSelect(false);
+            return;
+        }
 
         // clear invoice every time asset changes
         setInvoice("");
 
         // set new asset and swap assets if the other asset is the same
         if (assetSelected() === Side.Send) {
-            if (assetReceive() === newAsset) {
-                setAssetReceive(assetSend());
+            let toAsset = pair().toAsset;
+            if (toAsset === newAsset) {
+                toAsset = pair().fromAsset;
                 // only clear onchain address if assetReceive did change
                 setOnchainAddress("");
             }
-            setAssetSend(newAsset);
+            setPair(
+                new Pair(
+                    allPairs()[backend()],
+                    newAsset,
+                    toAsset,
+                    regularPairs(),
+                    backend(),
+                ),
+            );
         } else {
-            if (assetSend() === newAsset) {
-                setAssetSend(assetReceive());
+            let fromAsset = pair().fromAsset;
+            if (fromAsset === newAsset) {
+                fromAsset = pair().toAsset;
             }
-            setAssetReceive(newAsset);
-            // always clear onchain address if assetChange did change
+            setPair(
+                new Pair(
+                    allPairs()[backend()],
+                    fromAsset,
+                    newAsset,
+                    regularPairs(),
+                    backend(),
+                ),
+            );
+            // always clear onchain address if assetReceive changes
             setOnchainAddress("");
         }
+
+        setAssetSelect(false);
 
         void fetchPairs()
             .then(() => {
                 // verify if the current backend supports the pair
                 const pairs = allPairs()[backend()]; // Get pairs for the current backend
                 const cfg = pairs
-                    ? getPair(pairs, swapType(), assetSend(), assetReceive())
+                    ? getPair(
+                          pairs,
+                          pair().swapToCreate?.type,
+                          pair().fromAsset,
+                          pair().toAsset,
+                      )
                     : null;
                 if (!cfg) {
                     //switch to Boltz
@@ -71,46 +115,65 @@ const SelectAsset = () => {
     const isSelected = (asset: string) => {
         return (
             asset ===
-            (assetSelected() === Side.Send ? assetSend() : assetReceive())
+            (assetSelected() === Side.Send ? pair().fromAsset : pair().toAsset)
         );
     };
 
-    createEffect(() => {
-        setPairValid(
-            isPairValid(allPairs()[backend()], assetSend(), assetReceive()),
-        );
-    });
-
     return (
-        <div
-            class="frame assets-select"
-            onClick={() => setAssetSelect(false)}
-            style={assetSelect() ? "display: block;" : "display: none;"}>
-            <h2>
-                {t("select_asset", {
-                    direction:
-                        assetSelected() === Side.Send
-                            ? t("send")
-                            : t("receive"),
-                })}
-            </h2>
-            <span class="close" onClick={() => setAssetSelect(!assetSelect())}>
-                <IoClose />
-            </span>
-            <hr />
-            <For each={assets}>
-                {(asset) => (
-                    <div
-                        class={`asset-select asset-${asset}`}
-                        data-selected={isSelected(asset)}
-                        data-testid={`select-${asset}`}
-                        onClick={() => changeAsset(asset)}>
-                        <span class="icon" />
-                        <span class="asset-text" />
+        <Show when={assetSelect()}>
+            <div
+                class="asset-select-overlay"
+                onClick={() => setAssetSelect(false)}>
+                <div
+                    class="asset-select-modal"
+                    onClick={(e) => e.stopPropagation()}>
+                    <div class="asset-select-header">
+                        <h3>
+                            {t("select_asset", {
+                                direction:
+                                    assetSelected() === Side.Send
+                                        ? t("send")
+                                        : t("receive"),
+                            })}
+                        </h3>
+                        <button
+                            type="button"
+                            class="asset-select-close"
+                            onClick={() => setAssetSelect(false)}>
+                            <IoClose />
+                        </button>
                     </div>
-                )}
-            </For>
-        </div>
+                    <div class="asset-select-list">
+                        <For each={assets}>
+                            {(asset) => {
+                                const network = getAssetNetwork(asset);
+                                return (
+                                    <button
+                                        type="button"
+                                        class={`asset-select-item asset-${asset}`}
+                                        data-network={getNetworkBadge(asset)}
+                                        data-selected={isSelected(asset)}
+                                        data-testid={`select-${asset}`}
+                                        onClick={() => changeAsset(asset)}>
+                                        <span class="icon" />
+                                        <div class="asset-select-info">
+                                            <span class="asset-select-name">
+                                                {asset}
+                                            </span>
+                                            <Show when={network}>
+                                                <span class="asset-select-network">
+                                                    {network}
+                                                </span>
+                                            </Show>
+                                        </div>
+                                    </button>
+                                );
+                            }}
+                        </For>
+                    </div>
+                </div>
+            </div>
+        </Show>
     );
 };
 

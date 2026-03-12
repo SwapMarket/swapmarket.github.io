@@ -7,7 +7,8 @@ import {
 import { wordlist } from "@scure/bip39/wordlists/english.js";
 import { crypto } from "bitcoinjs-lib";
 
-import { type AssetType, RBTC } from "../consts/Assets";
+import { config } from "../config";
+import { type AssetType, isEvmAsset } from "../consts/Assets";
 
 export enum Errors {
     InvalidFile = "invalid file",
@@ -20,11 +21,14 @@ export type RescueFile = {
 };
 
 export const derivationPath = "m/44/0/0/0";
-export const rskDerivationPath = "m/44/137/0/0";
+export const evmPath = (chainId: number) => `m/44/${chainId}/0/0`;
 
 const getPath = (index: number) => `${derivationPath}/${index}`;
 
-const getRskPath = (index: number) => `${rskDerivationPath}/${index}`;
+const getEvmPath = (chainId: number, index: number) =>
+    `${evmPath(chainId)}/${index}`;
+
+const getPathGasAbstraction = (chainId: number) => `m/44/${chainId}/1/0`;
 
 export const mnemonicToHDKey = (mnemonic: string) => {
     const seed = mnemonicToSeedSync(mnemonic);
@@ -45,11 +49,23 @@ export const deriveKey = (
     asset: AssetType,
     hdKey?: HDKey,
 ) => {
-    const derivationPath = asset === RBTC ? getRskPath(index) : getPath(index);
+    const derivationPath = isEvmAsset(asset)
+        ? getEvmPath(config.assets[asset].network.chainId, index)
+        : getPath(index);
+
     if (!hdKey) {
         return mnemonicToHDKey(rescueFile.mnemonic).derive(derivationPath);
     }
     return hdKey.derive(derivationPath);
+};
+
+export const deriveKeyGasAbstraction = (
+    rescueFile: RescueFile,
+    chainId: number,
+) => {
+    return mnemonicToHDKey(rescueFile.mnemonic).derive(
+        getPathGasAbstraction(chainId),
+    );
 };
 
 export const validateRescueFile = (

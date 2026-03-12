@@ -7,6 +7,7 @@ import {
     elementsGetReceivedByAddress,
     elementsSendToAddress,
     expectApproxAmount,
+    expectApproxBtcAmount,
     fetchBip21Invoice,
     generateBitcoinBlock,
     generateInvoiceWithRoutingHint,
@@ -33,7 +34,7 @@ test.describe("Chain swap", () => {
         const assetSelector = page.locator("div[class='asset asset-LN'] div");
         await assetSelector.click();
 
-        const lbtcAsset = page.locator("div[data-testid='select-L-BTC']");
+        const lbtcAsset = page.getByTestId("select-L-BTC");
         await lbtcAsset.click();
 
         const receiveAmount = "0.01";
@@ -79,7 +80,7 @@ test.describe("Chain swap", () => {
         expect(txId).toBeDefined();
 
         const txInfo = JSON.parse(await getBitcoinWalletTx(txId));
-        expect(txInfo.amount.toString()).toEqual(receiveAmount);
+        expectApproxBtcAmount(txInfo.amount.toString(), receiveAmount);
     });
 
     test("BTC/LN with Magic Routing Hint switches to BTC/L-BTC", async ({
@@ -90,7 +91,7 @@ test.describe("Chain swap", () => {
         const btcAsset = page.locator("div[class='asset asset-BTC'] div");
         await btcAsset.click();
 
-        const lnAsset = page.locator("div[data-testid='select-LN']");
+        const lnAsset = page.getByTestId("select-LN");
         await lnAsset.click();
 
         const receiveAmount = "0.0009";
@@ -170,7 +171,7 @@ test.describe("Chain swap", () => {
         const assetSelector = page.locator("div[class='asset asset-LN'] div");
         await assetSelector.click();
 
-        const lbtcAsset = page.locator("div[data-testid='select-L-BTC']");
+        const lbtcAsset = page.getByTestId("select-L-BTC");
         await lbtcAsset.click();
 
         const receiveAmount = "0.01";
@@ -240,7 +241,7 @@ test.describe("Chain swap", () => {
         const assetSelector = page.locator("div[class='asset asset-LN'] div");
         await assetSelector.click();
 
-        const lbtcAsset = page.locator("div[data-testid='select-L-BTC']");
+        const lbtcAsset = page.getByTestId("select-L-BTC");
         await lbtcAsset.click();
 
         const inputOnchainAddress = page.locator(

@@ -32,6 +32,7 @@ import SwapList, { getSwapListHeight, sortSwaps } from "../components/SwapList";
 import SwapListLogs from "../components/SwapListLogs";
 import SettingsCog from "../components/settings/SettingsCog";
 import SettingsMenu from "../components/settings/SettingsMenu";
+import { BTC, LBTC, RBTC } from "../consts/Assets";
 import { RskRescueMode } from "../consts/Enums";
 import { paginationLimit } from "../consts/Pagination";
 import { useGlobalContext } from "../context/Global";
@@ -55,7 +56,9 @@ import {
 } from "../utils/rescue";
 import { type RescueFile, getXpub } from "../utils/rescueFile";
 import type { ChainSwap, SomeSwap, SubmarineSwap } from "../utils/swapCreator";
+import { maxIterations } from "../workers/preimageHashes/constants";
 import ErrorWasm from "./ErrorWasm";
+import NotFound from "./NotFound";
 import { mapSwap } from "./RefundRescue";
 import { rescueListAction } from "./Rescue";
 
@@ -334,6 +337,7 @@ export const RefundBtcLike = () => {
 export const RescueRsk = (props: { mode?: string }) => {
     const { t } = useGlobalContext();
     const navigate = useNavigate();
+    const params = useParams();
     const [searchParams] = useSearchParams();
     const { signer, getEtherSwap } = useWeb3Signer();
     const { setRskRescuableSwaps, resetRescueKey } = useRescueContext();
@@ -357,6 +361,7 @@ export const RescueRsk = (props: { mode?: string }) => {
     const [rescueFileError, setRescueFileError] = createSignal<string | null>(
         null,
     );
+    const [unmatchedSwaps, setUnmatchedSwaps] = createSignal(0);
 
     let refundScanAbort: AbortController | undefined = undefined;
 
@@ -367,6 +372,7 @@ export const RescueRsk = (props: { mode?: string }) => {
         }
         setIsScanning(false);
         setRefundScanProgress(undefined);
+        setUnmatchedSwaps(0);
     };
 
     const startScan = async () => {
@@ -378,7 +384,7 @@ export const RescueRsk = (props: { mode?: string }) => {
 
         setIsScanning(true);
         setLogRefundableSwaps([]);
-
+        setUnmatchedSwaps(0);
         setRefundScanProgress(
             t("logs_scan_progress", {
                 value: Number(0).toFixed(2),
@@ -392,7 +398,7 @@ export const RescueRsk = (props: { mode?: string }) => {
 
         const generator = scanLockupEvents(
             refundScanAbort.signal,
-            getEtherSwap(),
+            getEtherSwap(RBTC),
             {
                 filter: { address: signerAddress },
                 action: rskRescueMode(),
@@ -400,19 +406,31 @@ export const RescueRsk = (props: { mode?: string }) => {
             },
         );
 
-        for await (const { progress, events } of generator) {
+        for await (const {
+            progress,
+            events,
+            derivedKeys,
+            unmatchedSwaps,
+        } of generator) {
             if (refundScanAbort?.signal.aborted) {
                 break;
             }
             setRefundScanProgress(
-                t("logs_scan_progress", {
-                    value: (progress * 100).toFixed(2),
-                }),
+                progress === 1
+                    ? t("searching_resumable_swaps", {
+                          progress: Math.floor(
+                              ((derivedKeys ?? 0) / maxIterations) * 100,
+                          ).toFixed(2),
+                      })
+                    : t("logs_scan_progress", {
+                          value: (progress * 100).toFixed(2),
+                      }),
             );
 
             const updatedSwaps = logRefundableSwaps()?.concat(events);
             setLogRefundableSwaps(updatedSwaps);
             setRskRescuableSwaps(updatedSwaps);
+            setUnmatchedSwaps(unmatchedSwaps);
         }
 
         if (!refundScanAbort?.signal.aborted) {
@@ -461,6 +479,7 @@ export const RescueRsk = (props: { mode?: string }) => {
             }
             setLogRefundableSwaps(undefined);
             setUploadedRescueFile(undefined);
+            setUnmatchedSwaps(0);
         }
     });
 
@@ -469,18 +488,19 @@ export const RescueRsk = (props: { mode?: string }) => {
         resetRescueKey();
     });
 
+    const basePath = `/rescue/external/${params.type?.toLowerCase() ?? ""}`;
+
     // Mode selection screen
     const ModeSelector = () => (
         <>
             <p class="frame-text">{t("rsk_rescue_prompt")}</p>
             <hr />
-
             <div style={{ display: "flex", gap: "12px" }}>
                 <button
                     data-testid="rsk-rescue-refund-button"
                     class="btn btn-light"
                     onClick={() =>
-                        navigate(`/rescue/external/rsk/${RskRescueMode.Refund}`)
+                        navigate(`${basePath}/${RskRescueMode.Refund}`)
                     }>
                     {t("rsk_rescue_refund_title")}
                     <br />
@@ -490,7 +510,7 @@ export const RescueRsk = (props: { mode?: string }) => {
                     data-testid="rsk-rescue-resume-button"
                     class="btn btn-light"
                     onClick={() =>
-                        navigate(`/rescue/external/rsk/${RskRescueMode.Claim}`)
+                        navigate(`${basePath}/${RskRescueMode.Claim}`)
                     }>
                     {t("rsk_rescue_resume_title")}
                 </button>
@@ -508,14 +528,20 @@ export const RescueRsk = (props: { mode?: string }) => {
                 when={
                     !isScanning() &&
                     logRefundableSwaps() !== undefined &&
-                    logRefundableSwaps().length === 0
+                    logRefundableSwaps().length === 0 &&
+                    unmatchedSwaps() === 0
                 }>
                 <h3>{t("connected_wallet_no_swaps")}</h3>
                 <button
                     class="btn btn-light"
-                    onClick={() => navigate("/rescue/external/rsk")}>
+                    onClick={() => navigate(basePath)}>
                     {t("back")}
                 </button>
+            </Match>
+            <Match when={unmatchedSwaps() > 0}>
+                <p class="frame-text">
+                    {t("unmatched_swaps", { count: unmatchedSwaps() })}
+                </p>
             </Match>
         </Switch>
     );
@@ -540,7 +566,7 @@ export const RescueRsk = (props: { mode?: string }) => {
                         class="btn btn-light"
                         onClick={() =>
                             navigate(
-                                `/rescue/external/rsk/${RskRescueMode.Claim}?mode=${rescueKeyModeConst}`,
+                                `${basePath}/${RskRescueMode.Claim}?mode=${rescueKeyModeConst}`,
                             )
                         }>
                         {t("enter_mnemonic")}
@@ -600,7 +626,10 @@ export const RescueRsk = (props: { mode?: string }) => {
                         <RescueKeyInput />
                     </Show>
                 </Show>
-                <ConnectWallet addressOverride={refundScanProgress} />
+                <ConnectWallet
+                    asset={RBTC}
+                    addressOverride={refundScanProgress}
+                />
             </>
         );
     };
@@ -626,51 +655,74 @@ const RescueExternal = () => {
     const params = useParams();
     const navigate = useNavigate();
 
-    const tabBtc = { name: "Bitcoin / Liquid", value: "btc" };
-    const tabRsk = { name: "Rootstock", value: "rsk" };
-
-    const selected = () => params.type ?? tabBtc.value;
-
     const rskAvailable =
         import.meta.env.VITE_RSK_LOG_SCAN_ENDPOINT !== undefined;
+
+    const tabBtc = {
+        name: "Bitcoin / Liquid",
+        values: [BTC, LBTC],
+    };
+    const tabRbtc = { name: "Rootstock", values: [RBTC, "RSK"] }; // keeping the network for retrocompatibility
+    const validTypes = rskAvailable
+        ? [...tabBtc.values, ...tabRbtc.values]
+        : [...tabBtc.values];
+
+    const selected = () =>
+        params.type?.toLowerCase() ?? tabBtc.values[0].toLowerCase();
+
     if (!rskAvailable) {
         log.warn("RSK log scan endpoint not available");
     }
 
+    const validType = () =>
+        params.type === undefined ||
+        validTypes.includes(params.type.toUpperCase());
+
     return (
-        <Show when={wasmSupported()} fallback={<ErrorWasm />}>
-            <div id="refund">
-                <div class="frame refund" data-testid="refundFrame">
-                    <header>
-                        <SettingsCog />
-                        <h2>{t("rescue_external_swap")}</h2>
-                    </header>
-                    <Show when={rskAvailable}>
-                        <div class="tabs">
-                            <For each={[tabBtc, tabRsk]}>
-                                {(tab) => (
-                                    <div
-                                        class={`tab ${selected() === tab.value ? "active" : ""}`}
-                                        onClick={() =>
-                                            navigate(
-                                                `/rescue/external/${tab.value}`,
-                                            )
-                                        }>
-                                        {tab.name}
-                                    </div>
-                                )}
-                            </For>
-                        </div>
-                    </Show>
-                    <Show when={selected() === tabBtc.value}>
-                        <RefundBtcLike />
-                    </Show>
-                    <Show when={selected() === tabRsk.value}>
-                        <RescueRsk mode={params.mode} />
-                    </Show>
-                    <SettingsMenu />
+        <Show when={validType()} fallback={<NotFound />}>
+            <Show when={wasmSupported()} fallback={<ErrorWasm />}>
+                <div id="refund">
+                    <div class="frame refund" data-testid="refundFrame">
+                        <header>
+                            <SettingsCog />
+                            <h2>{t("rescue_external_swap")}</h2>
+                        </header>
+                        <Show when={rskAvailable}>
+                            <div class="tabs">
+                                <For each={[tabBtc, tabRbtc]}>
+                                    {(tab) => (
+                                        <div
+                                            class={`tab ${tab.values.includes(selected().toUpperCase()) ? "active" : ""}`}
+                                            onClick={() =>
+                                                navigate(
+                                                    `/rescue/external/${tab.values[0].toLowerCase()}`,
+                                                )
+                                            }>
+                                            {tab.name}
+                                        </div>
+                                    )}
+                                </For>
+                            </div>
+                        </Show>
+                        <Show
+                            when={tabBtc.values.includes(
+                                selected().toUpperCase(),
+                            )}>
+                            <RefundBtcLike />
+                        </Show>
+                        <Show
+                            when={
+                                rskAvailable &&
+                                tabRbtc.values.includes(
+                                    selected().toUpperCase(),
+                                )
+                            }>
+                            <RescueRsk mode={params.mode} />
+                        </Show>
+                        <SettingsMenu />
+                    </div>
                 </div>
-            </div>
+            </Show>
         </Show>
     );
 };

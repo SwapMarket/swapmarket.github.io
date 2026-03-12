@@ -90,16 +90,22 @@ type PartialSignature = {
     signature: Uint8Array;
 };
 
+export type ContractAddresses = {
+    EtherSwap: string;
+    ERC20Swap: string;
+};
+
 type Contracts = {
     network: {
-        name: string;
         chainId: number;
+        name: string;
     };
+    swapContracts: ContractAddresses;
+    supportedContracts: Record<
+        string,
+        ContractAddresses & { features: string[] }
+    >;
     tokens: Record<string, string>;
-    swapContracts: {
-        EtherSwap: string;
-        ERC20Swap: string;
-    };
 };
 
 type SwapTreeLeaf = {
@@ -110,6 +116,12 @@ type SwapTreeLeaf = {
 type SwapTree = {
     claimLeaf: SwapTreeLeaf;
     refundLeaf: SwapTreeLeaf;
+};
+
+type CommitmentLockupDetails = {
+    contract: string;
+    claimAddress: string;
+    timelock: number;
 };
 
 type SubmarineCreatedResponse = {
@@ -206,6 +218,36 @@ export type SwapStatus = {
         hex: string;
     };
 };
+
+export type QuoteData = {
+    quote: string;
+    data: unknown;
+};
+
+export type QuoteCalldata = {
+    to: string;
+    value: string;
+    data: string;
+};
+
+const sortDexQuotes = (
+    quotes: QuoteData[],
+    direction: "in" | "out",
+): QuoteData[] =>
+    [...quotes].sort((first, second) => {
+        const firstAmount = BigInt(first.quote);
+        const secondAmount = BigInt(second.quote);
+
+        if (firstAmount === secondAmount) {
+            return 0;
+        }
+
+        if (direction === "in") {
+            return firstAmount > secondAmount ? -1 : 1;
+        }
+
+        return firstAmount < secondAmount ? -1 : 1;
+    });
 
 export const getPairs = async (
     backend: number,
@@ -450,6 +492,29 @@ export const getNodeStats = (backend: number) =>
 export const getContracts = (backend: number) =>
     fetcher<Record<string, Contracts>>(backend, "/v2/chain/contracts");
 
+export const getCommitmentLockupDetails = (backend: number, currency: string) =>
+    fetcher<CommitmentLockupDetails>(
+        backend,
+        `/v2/commitment/${currency}/details`,
+    );
+
+export const postCommitmentSignature = (
+    backend: number,
+    currency: string,
+    swapId: string,
+    signature: string,
+    transactionHash: string,
+    logIndex?: number,
+    maxOverpaymentPercentage?: number,
+) =>
+    fetcher<object>(backend, `/v2/commitment/${currency}`, {
+        swapId,
+        signature,
+        transactionHash,
+        logIndex,
+        maxOverpaymentPercentage,
+    });
+
 export const broadcastTransaction = async (
     backend: number,
     asset: string,
@@ -610,9 +675,67 @@ export const assetRescueBroadcast = (
         partialSignature: hex.encode(partialSignature),
     });
 
+export const quoteDexAmountIn = async (
+    backend: number,
+    chain: string,
+    tokenIn: string,
+    tokenOut: string,
+    amountIn: bigint,
+): Promise<QuoteData[]> => {
+    if (amountIn === 0n) {
+        return [];
+    }
+
+    const params = new URLSearchParams();
+    params.set("tokenIn", tokenIn);
+    params.set("tokenOut", tokenOut);
+    params.set("amountIn", amountIn.toString());
+    return sortDexQuotes(
+        await fetcher(backend, `/v2/quote/${chain}/in?${params.toString()}`),
+        "in",
+    );
+};
+
+export const quoteDexAmountOut = async (
+    backend: number,
+    chain: string,
+    tokenIn: string,
+    tokenOut: string,
+    amountOut: bigint,
+): Promise<QuoteData[]> => {
+    if (amountOut === 0n) {
+        return [];
+    }
+
+    const params = new URLSearchParams();
+    params.set("tokenIn", tokenIn);
+    params.set("tokenOut", tokenOut);
+    params.set("amountOut", amountOut.toString());
+    return sortDexQuotes(
+        await fetcher(backend, `/v2/quote/${chain}/out?${params.toString()}`),
+        "out",
+    );
+};
+
+export const encodeDexQuote = (
+    backend: number,
+    chain: string,
+    recipient: string,
+    amountIn: bigint,
+    amountOutMin: bigint,
+    data: QuoteData["data"],
+) =>
+    fetcher<{ calls: QuoteCalldata[] }>(backend, `/v2/quote/${chain}/encode`, {
+        recipient,
+        amountIn: amountIn.toString(),
+        amountOutMin: amountOutMin.toString(),
+        data,
+    });
+
 export {
     Pairs,
     Contracts,
+    CommitmentLockupDetails,
     PartialSignature,
     ChainPairTypeTaproot,
     ReversePairTypeTaproot,

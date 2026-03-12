@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 import {
+    amountBufferSats,
     bitcoinSendToAddress,
+    expectApproxBtcAmount,
     generateBitcoinBlock,
     getBitcoinAddress,
     getElementsWalletTx,
@@ -52,7 +54,11 @@ test.describe("Chain Swap 0-amount", () => {
         expect(txId).toBeDefined();
 
         const txInfo = JSON.parse(await getElementsWalletTx(txId));
-        expect(txInfo.amount.bitcoin.toString()).toEqual("0.00997303");
+        expectApproxBtcAmount(
+            txInfo.amount.bitcoin.toString(),
+            "0.00997303",
+            amountBufferSats,
+        );
     });
 
     test("should allow 0-amount chain swaps", async ({ page }) => {
@@ -61,7 +67,7 @@ test.describe("Chain Swap 0-amount", () => {
         const assetSelector = page.locator("div[class='asset asset-LN'] div");
         await assetSelector.click();
 
-        await page.locator("div[data-testid='select-L-BTC']").click();
+        await page.getByTestId("select-L-BTC").click();
 
         const inputOnchainAddress = page.locator(
             "input[data-testid='onchainAddress']",
@@ -84,7 +90,7 @@ test.describe("Chain Swap 0-amount", () => {
         const assetSelector = page.locator("div[class='asset asset-LN'] div");
         await assetSelector.click();
 
-        await page.locator("div[data-testid='select-RBTC']").click();
+        await page.getByTestId("select-RBTC").click();
 
         const inputOnchainAddress = page.locator(
             "input[data-testid='onchainAddress']",

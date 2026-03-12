@@ -28,7 +28,12 @@ import { getReferral, isMobile } from "../utils/helper";
 import { deleteOldLogs, injectLogWriter } from "../utils/logs";
 import { migrateStorage } from "../utils/migration";
 import type { RescueFile } from "../utils/rescueFile";
-import { deriveKey, generateRescueFile, getXpub } from "../utils/rescueFile";
+import {
+    deriveKey,
+    deriveKeyGasAbstraction,
+    generateRescueFile,
+    getXpub,
+} from "../utils/rescueFile";
 import type { SomeSwap } from "../utils/swapCreator";
 import { getUrlParam, resetUrlParam } from "../utils/urlParams";
 import { checkWasmSupported } from "../utils/wasmSupport";
@@ -79,6 +84,8 @@ export type GlobalContextType = {
     setSettingsMenu: Setter<boolean>;
     privacyMode: Accessor<boolean>;
     setPrivacyMode: Setter<boolean>;
+    slippage: Accessor<number>;
+    setSlippage: Setter<number>;
     zeroConf: Accessor<boolean>;
     setZeroConf: Setter<boolean>;
     showFiatAmount: Accessor<boolean>;
@@ -110,6 +117,7 @@ export type GlobalContextType = {
 
     newKey: newKeyFn;
     deriveKey: deriveKeyFn;
+    deriveKeyGasAbstraction: (chainId: number) => ECKeys;
     getXpub: () => string;
     setLastUsedKey: Setter<number>;
     getLastUsedEvmIndex: (currency: string) => Promise<number>;
@@ -246,6 +254,14 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
         );
     };
 
+    const deriveKeyGasAbstractionWrapper = (chainId: number) => {
+        return ECPair.fromPrivateKey(
+            new Uint8Array(
+                deriveKeyGasAbstraction(rescueFile(), chainId).privateKey,
+            ),
+        );
+    };
+
     const newKey = async (asset: AssetType) => {
         if (evmChains.includes(asset)) {
             const index = await getLastUsedEvmIndex(asset);
@@ -266,7 +282,7 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
     };
 
     const notify = (type: NotificationType, message: unknown) => {
-        const messageStr = formatError(message);
+        const messageStr = formatError(message, i18n());
 
         setNotificationType(type);
         setNotification(messageStr);
@@ -480,6 +496,14 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
         },
     );
 
+    const [slippage, setSlippage] = makePersisted(
+        // eslint-disable-next-line solid/reactivity
+        createSignal<number>(0.01),
+        {
+            name: "slippage",
+        },
+    );
+
     const [zeroConf, setZeroConf] = makePersisted(
         // eslint-disable-next-line solid/reactivity
         createSignal<boolean>(true),
@@ -569,6 +593,8 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
                 setSettingsMenu,
                 privacyMode,
                 setPrivacyMode,
+                slippage,
+                setSlippage,
                 zeroConf,
                 setZeroConf,
                 showFiatAmount,
@@ -604,6 +630,7 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
                 clearLastUsedEvmIndex,
                 getXpub: getXpubWrapper,
                 deriveKey: deriveKeyWrapper,
+                deriveKeyGasAbstraction: deriveKeyGasAbstractionWrapper,
 
                 rescueFileBackupDone,
                 setRescueFileBackupDone,

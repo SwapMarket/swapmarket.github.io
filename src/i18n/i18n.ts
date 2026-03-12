@@ -96,8 +96,6 @@ const dict = {
         cant_find_swap: "Can't find your swap?",
         rescue_external_explainer:
             "Try rescuing an external swap via rescue key and other emergency methods.",
-        refund_external_explainer_rsk:
-            "If you sent RBTC into a Boltz swap, connect your Rootstock Wallet to scan for refundable swaps that are not saved in this browser’s swap history.",
         refund_external_scanning_rsk:
             "Scanning for rescuable swaps in your Rootstock Wallet...",
         connected_wallet_no_swaps:
@@ -168,6 +166,8 @@ const dict = {
             'Press "{{ button }}" in order to open your connected wallet and confirm the displayed transaction.',
         transaction_prompt_receive:
             'Press "{{ button }}" in order to open your connected wallet and confirm the displayed transaction to receive {{ asset }}.',
+        transaction_failed: "Transaction failed: {{ error }}",
+        wallet_request_rejected: "Request was rejected in your wallet.",
         invalid_address: "Invalid {{ asset }} address",
         scan_qr_code: "Scan QR Code",
         version: "Version",
@@ -196,6 +196,9 @@ const dict = {
         hide_wallet_address: "Privacy Mode",
         hide_wallet_address_tooltip:
             "Hides EVM wallet address and Swap ID for privacy in demos/recordings",
+        slippage: "Slippage",
+        slippage_tooltip: "Maximum price slippage tolerance for DEX swaps",
+        dex_quote_changed: "DEX quote has changed",
         zero_conf: "Zero-Conf",
         zero_conf_tooltip:
             "Accept transactions that are not yet confirmed in a block",
@@ -283,8 +286,11 @@ const dict = {
         swap_opportunities_accordion: "Pro Opportunities",
         no_opportunities_found: {
             text: "No Pro opportunities found at the moment. Please check again later.",
-            telegram_bot_text: "For fee alerts, check out our",
-            telegram_bot: "Telegram Bot",
+            telegram_bot_text_prefix: "For fee alerts, check out our ",
+            telegram_bot_text_middle: " or ",
+            telegram_bot_text_suffix: " bot.",
+            telegram_bot: "Telegram",
+            simplex: "SimpleX",
         },
         refresh_for_refund:
             "If you sent Bitcoin into this swap, refresh the page to check for a refund.",
@@ -446,13 +452,19 @@ const dict = {
         error_occurred: "An error occurred: {{ error }}",
 
         rsk_rescue_prompt:
-            "Use refund if you were sending RBTC, resume if you were receiving RBTC of a swap that is not available in this browser’s swap history.",
+            'If you sent RBTC into a Boltz swap, use "Refund Swap"; if you were receiving RBTC, use "Resume Swap" to rescue a swap that is not available in this browser’s swap history.',
         rsk_rescue_refund_title: "Refund Swap",
         rsk_rescue_refund_explainer:
             "Connect your Rootstock wallet to scan for swaps that have expired and can be refunded.",
         rsk_rescue_resume_title: "Resume Swap",
         rsk_rescue_resume_explainer:
             "Use your rescue key to find pending swaps that can be resumed.",
+        searching_resumable_swaps:
+            "Searching for resumable swaps... {{ progress }}%",
+        unmatched_swaps:
+            "This wallet has {{ count }} additional claimable swaps. To access them, please switch to the Rescue Key used to initiate those swaps.",
+        approve_erc20: "Approve",
+        approve_erc20_line: "Set ERC20 allowance for the swap contract",
     },
     de: {
         language: "Deutsch",
@@ -554,8 +566,6 @@ const dict = {
         cant_find_swap: "Swap nicht gefunden?",
         rescue_external_explainer:
             "Versuche einen externen Swap über einen Rettungsschlüssel und andere Notfallmethoden wiederherszustellen.",
-        refund_external_explainer_rsk:
-            "Wenn du RBTC in einen Boltz-Swap geschickt hast, verbinde dein Rootstock Wallet um nach wiederherstellbaren Swaps zu suchen, die nicht im Swapverlauf dieses Browsers gespeichert sind.",
         refund_external_scanning_rsk:
             "Scanne nach wiederherstellbaren Swaps in Rootstock-Wallet...",
         connected_wallet_no_swaps:
@@ -627,6 +637,9 @@ const dict = {
             '"{{ button }}" klicken um das verbundene Wallet zu öffnen und bestätige die angezeigte Transaktion.',
         transaction_prompt_receive:
             '"{{ button }}" klicken um das verbundene Wallet zu öffnen und bestätige die angezeigte Transaktion um {{ asset }} zu empfangen.',
+        transaction_failed: "Transaktion fehlgeschlagen: {{ error }}",
+        wallet_request_rejected:
+            "Die Anfrage wurde in deinem Wallet abgelehnt.",
         invalid_address: "Ungültige {{ asset }} Adresse",
         scan_qr_code: "QR Code scannen",
         version: "Version",
@@ -657,6 +670,9 @@ const dict = {
         hide_wallet_address: "Privatsphäre-Modus",
         hide_wallet_address_tooltip:
             "Blendet EVM Wallet-Adresse und Swap ID aus für besser Privatsphäre in Demos und Bildschirmaufnahmen",
+        slippage: "Slippage",
+        slippage_tooltip: "Maximale Slippage-Toleranz bei DEX-Swaps",
+        dex_quote_changed: "DEX-Kurs hat sich geändert",
         zero_conf: "Zero-Conf",
         zero_conf_tooltip:
             "Akzeptiere Transaktionen, die noch nicht in einem Block bestätigt sind",
@@ -750,9 +766,12 @@ const dict = {
         swap_opportunities_accordion: "Pro-Optionen",
         no_opportunities_found: {
             text: "Aktuell keine Pro-Optionen verfügbar. Versuche es später noch einmal.",
-            telegram_bot_text:
-                "Für Benachrichtigungen über Progebührenupdates, nutze unseren",
-            telegram_bot: "Telegram-Bot",
+            telegram_bot_text_prefix:
+                "Für Benachrichtigungen über Progebührenupdates, nutze unseren ",
+            telegram_bot_text_middle: " oder ",
+            telegram_bot_text_suffix: " bot.",
+            telegram_bot: "Telegram",
+            simplex: "SimpleX",
         },
         refresh_for_refund:
             "Falls du Bitcoin in diesen Swap gesendet hast, aktualisiere die Seite um eine Rückerstattung zu prüfen.",
@@ -914,13 +933,19 @@ const dict = {
             "Dieser Rettungsschlüssel ist nicht mit diesem Swap verbunden. Bitte versuche es erneut mit einem anderen Rettungsschlüssel.",
         error_occurred: "Ein Fehler ist aufgetreten: {{ error }}",
         rsk_rescue_prompt:
-            "Nutze Erstattung, wenn du RBTC gesendet hast, oder Fortsetzen, wenn du RBTC empfangen hast – für einen Swap, der nicht im Swap-Verlauf dieses Browsers verfügbar ist.",
+            'Wenn du RBTC in einen Boltz-Swap gesendet hast, nutze "Swap erstatten"; wenn du RBTC empfangen hast, nutze "Swap fortsetzen", um einen Swap zu retten, der nicht im Verlauf dieses Browsers verfügbar ist.',
         rsk_rescue_refund_title: "Swap erstatten",
         rsk_rescue_refund_explainer:
             "Verbinde dein Rootstock-Wallet, um nach Swaps zu suchen, die abgelaufen sind und erstattet werden können.",
         rsk_rescue_resume_title: "Swap fortsetzen",
         rsk_rescue_resume_explainer:
             "Nutze deinen Rettungsschlüssel, um ausstehende Swaps zu finden, die fortgesetzt werden können.",
+        searching_resumable_swaps:
+            "Suche nach fortsetzbaren Swaps... {{ progress }}%",
+        unmatched_swaps:
+            "Dieses Wallet hat {{ count }} zusätzliche claimbare Swaps. Um darauf zuzugreifen, wechsle bitte zu dem Rettungsschlüssel, mit dem diese Swaps gestartet wurden.",
+        approve_erc20: "Freigeben",
+        approve_erc20_line: "ERC20-Freigabe für den Swap-Contract festlegen",
     },
     es: {
         language: "Español",
@@ -1021,8 +1046,6 @@ const dict = {
         cant_find_swap: "¿No encuentras tu intercambio?",
         rescue_external_explainer:
             "Intenta rescatar un intercambio externo mediante una clave de rescate y otros métodos de emergencia.",
-        refund_external_explainer_rsk:
-            "Si enviaste RBTC a un intercambio de Boltz, conecta tu monedero Rootstock para buscar intercambios rescatables que no estén guardados en el historial de este navegador.",
         refund_external_scanning_rsk:
             "Escaneando en busca de intercambios rescatables en tu monedero Rootstock...",
         connected_wallet_no_swaps:
@@ -1096,6 +1119,8 @@ const dict = {
             'Pulse "{{ button }}" para abrir tu monedero conectado y confirmar la transacción mostrada.',
         transaction_prompt_receive:
             'Pulse "{{ button }}" para abrir tu monedero conectado y confirmar la transacción mostrada para recibir {{ asset }}.',
+        transaction_failed: "Transacción fallida: {{ error }}",
+        wallet_request_rejected: "La solicitud fue rechazada en tu monedero.",
         invalid_address: "Dirección {{ asset }} inválida",
         scan_qr_code: "Escanear código QR",
         version: "Versión",
@@ -1126,6 +1151,9 @@ const dict = {
         hide_wallet_address: "Modo de Privacidad",
         hide_wallet_address_tooltip:
             "Oculta la dirección del monedero EVM y el ID de Swap para privacidad en demos y grabaciones",
+        slippage: "Slippage",
+        slippage_tooltip: "Tolerancia máxima de slippage para swaps en DEX",
+        dex_quote_changed: "La cotización de DEX ha cambiado",
         zero_conf: "Zero-Conf",
         zero_conf_tooltip:
             "Aceptar transacciones que aún no están confirmadas en un bloque",
@@ -1216,8 +1244,12 @@ const dict = {
         swap_opportunities_accordion: "Oportunidades Pro",
         no_opportunities_found: {
             text: "No hay oportunidades Pro disponibles. Por favor, revisa más tarde.",
-            telegram_bot_text: "Para alertas de comisiones, consulta nuestro",
-            telegram_bot: "Bot de Telegram",
+            telegram_bot_text_prefix:
+                "Para alertas de comisiones, consulta nuestro bot en ",
+            telegram_bot_text_middle: " o ",
+            telegram_bot_text_suffix: ".",
+            telegram_bot: "Telegram",
+            simplex: "SimpleX",
         },
         refresh_for_refund:
             "Si has enviado Bitcoin a este intercambio, actualiza la página para comprobar si hay un reembolso disponible.",
@@ -1380,13 +1412,20 @@ const dict = {
             "Esta clave de rescate no está asociada con este intercambio. Por favor, intenta de nuevo usando una clave de rescate diferente.",
         error_occurred: "Ocurrió un error: {{ error }}",
         rsk_rescue_prompt:
-            "Usa reembolso si estabas enviando RBTC, o reanudar si estabas recibiendo RBTC de un intercambio que no está disponible en el historial de intercambios de este navegador.",
+            'Si enviaste RBTC a un intercambio de Boltz, usa "Reembolsar intercambio"; si estabas recibiendo RBTC, usa "Reanudar intercambio" para rescatar un intercambio que no está disponible en el historial de este navegador.',
         rsk_rescue_refund_title: "Reembolsar intercambio",
         rsk_rescue_refund_explainer:
             "Conecta tu monedero Rootstock para buscar intercambios que han expirado y pueden ser reembolsados.",
         rsk_rescue_resume_title: "Reanudar intercambio",
         rsk_rescue_resume_explainer:
             "Usa tu clave de rescate para encontrar intercambios pendientes que se puedan reanudar.",
+        searching_resumable_swaps:
+            "Buscando intercambios reanudables... {{ progress }}%",
+        unmatched_swaps:
+            "Este monedero tiene {{ count }} intercambios adicionales reclamables. Para acceder a ellos, cambia a la clave de rescate usada para iniciar esos intercambios.",
+        approve_erc20: "Aprobar",
+        approve_erc20_line:
+            "Configura la asignación de ERC20 para el contrato de intercambio",
     },
     pt: {
         language: "Português",
@@ -1488,8 +1527,6 @@ const dict = {
         cant_find_swap: "Não consegue encontrar sua troca?",
         rescue_external_explainer:
             "Tente resgatar uma troca externa usando a chave de resgate ou outros métodos de emergência.",
-        refund_external_explainer_rsk:
-            "Se enviou RBTC para uma troca Boltz, conecte sua carteira Rootstock para procurar por trocas resgatáveis que não estão no histórico do navegador.",
         refund_external_scanning_rsk:
             "Procurando trocas resgatáveis na sua carteira Rootstock...",
         connected_wallet_no_swaps:
@@ -1561,6 +1598,8 @@ const dict = {
             'Pressione "{{ button }}" para abrir sua carteira conectada e confirmar a transação exibida.',
         transaction_prompt_receive:
             'Pressione "{{ button }}" para abrir sua carteira conectada e confirmar a transação para receber {{ asset }}.',
+        transaction_failed: "Falha na transação: {{ error }}",
+        wallet_request_rejected: "A solicitação foi rejeitada na sua carteira.",
         invalid_address: "Endereço {{ asset }} inválido",
         scan_qr_code: "Ler QR Code",
         version: "Versão",
@@ -1590,6 +1629,9 @@ const dict = {
         hide_wallet_address: "Modo de Privacidade",
         hide_wallet_address_tooltip:
             "Oculta o endereço da carteira EVM e o ID do Swap para privacidade em demos e gravações",
+        slippage: "Slippage",
+        slippage_tooltip: "Tolerância máxima de slippage para trocas em DEX",
+        dex_quote_changed: "A cotação da DEX mudou",
         zero_conf: "Zero-Conf",
         zero_conf_tooltip:
             "Aceitar transações que ainda não foram confirmadas num bloco",
@@ -1678,8 +1720,12 @@ const dict = {
         swap_opportunities_accordion: "Oportunidades Pro",
         no_opportunities_found: {
             text: "Nenhuma oportunidade Pro encontrada. Verifique novamente mais tarde.",
-            telegram_bot_text: "Para alertas de taxas, acesse nosso",
-            telegram_bot: "Bot do Telegram",
+            telegram_bot_text_prefix:
+                "Para alertas de taxas, acesse nosso bot no ",
+            telegram_bot_text_middle: " ou ",
+            telegram_bot_text_suffix: ".",
+            telegram_bot: "Telegram",
+            simplex: "SimpleX",
         },
         refresh_for_refund:
             "Se enviou Bitcoin para esta troca, atualize a página para verificar se existe um reembolso.",
@@ -1842,13 +1888,20 @@ const dict = {
             "Esta chave de resgate não está associada a esta troca. Por favor, tente novamente usando uma chave de resgate diferente.",
         error_occurred: "Ocorreu um erro: {{ error }}",
         rsk_rescue_prompt:
-            "Use o reembolso caso estivesse enviando RBTC, ou continue caso estivesse recebendo RBTC de uma troca ausente no histórico deste navegador.",
+            'Se você enviou RBTC para uma troca da Boltz, use "Reembolsar troca"; se estava recebendo RBTC, use "Continuar troca" para resgatar uma troca que não está disponível no histórico de trocas deste navegador.',
         rsk_rescue_refund_title: "Reembolsar troca",
         rsk_rescue_refund_explainer:
             "Conecte sua carteira Rootstock para procurar trocas que expiraram e podem ser reembolsadas.",
         rsk_rescue_resume_title: "Continuar troca",
         rsk_rescue_resume_explainer:
             "Use sua chave de resgate para encontrar trocas pendentes que podem ser continuadas.",
+        searching_resumable_swaps:
+            "Buscando trocas retomáveis... {{ progress }}%",
+        unmatched_swaps:
+            "Esta carteira tem {{ count }} trocas adicionais reivindicáveis. Para acessá-las, mude para a chave de resgate usada para iniciar essas trocas.",
+        approve_erc20: "Aprovar",
+        approve_erc20_line:
+            "Definir a permissão de ERC20 para o contrato de troca",
     },
     zh: {
         language: "中文",
@@ -1940,8 +1993,6 @@ const dict = {
         cant_find_swap: "找不到您的交换？",
         rescue_external_explainer:
             "尝试通过救援密钥和其他紧急方法恢复外部交换分区。",
-        refund_external_explainer_rsk:
-            "如果您将RBTC发送到Boltz交换中，请连接您的Rootstock钱包以扫描未保存在此浏览器交换历史记录中的可恢复交换。",
         refund_external_scanning_rsk: "正在扫描Rootstock钱包中的可恢复交换...",
         connected_wallet_no_swaps:
             "已连接的Rootstock钱包中不包含任何可恢复的交换。",
@@ -2004,6 +2055,8 @@ const dict = {
             "按“{{ button }}”以打开已连接的钱包并确认显示的交易。",
         transaction_prompt_receive:
             "按“{{ button }}”以打开已连接的钱包并确认显示的交易以便收{{ asset }}。",
+        transaction_failed: "交易失败：{{ error }}",
+        wallet_request_rejected: "该请求已在您的钱包中被拒绝。",
         invalid_address: "无效的{{ asset }}地址",
         scan_qr_code: "扫描 QR 码",
         version: "版本",
@@ -2030,6 +2083,9 @@ const dict = {
         hide_wallet_address: "隐私模式",
         hide_wallet_address_tooltip:
             "在演示和录屏时隐藏EVM钱包地址和交换ID以保护隐私",
+        slippage: "滑点",
+        slippage_tooltip: "DEX 交换的最大价格滑点容差",
+        dex_quote_changed: "DEX 报价已变更",
         zero_conf: "零确认",
         zero_conf_tooltip: "接受尚未被区块确认的交易",
         on: "开",
@@ -2108,8 +2164,11 @@ const dict = {
         swap_opportunities_accordion: "Pro机会",
         no_opportunities_found: {
             text: "当前无专业交易机会，请稍后再试",
-            telegram_bot_text: "获取费率提醒请查看",
-            telegram_bot: "Telegram机器人",
+            telegram_bot_text_prefix: "获取费率提醒，请查看我们的",
+            telegram_bot_text_middle: "或",
+            telegram_bot_text_suffix: "机器人。",
+            telegram_bot: "Telegram",
+            simplex: "SimpleX",
         },
         refresh_for_refund:
             "如果您向本次交换发送了比特币，请刷新页面检查是否有退款。",
@@ -2260,13 +2319,18 @@ const dict = {
             "此救援密钥与此交换不关联。请使用其他救援密钥重试。",
         error_occurred: "发生错误：{{ error }}",
         rsk_rescue_prompt:
-            "如果你正在发送 RBTC，请使用退款；如果你正在接收 RBTC，请使用恢复——适用于未在此浏览器交换历史中显示的交换。",
+            "如果你向 Boltz 交换发送了 RBTC，请使用“退还交换”；如果你正在接收 RBTC，请使用“继续交换”，以救援一个未在此浏览器交换历史中显示的交换。",
         rsk_rescue_refund_title: "退还交换",
         rsk_rescue_refund_explainer:
             "连接你的 Rootstock 钱包以扫描已过期且可退款的交换。",
         rsk_rescue_resume_title: "继续交换",
         rsk_rescue_resume_explainer:
             "使用你的救援密钥查找可以继续的待处理交换。",
+        searching_resumable_swaps: "正在搜索可继续的交换... {{ progress }}%",
+        unmatched_swaps:
+            "该钱包有 {{ count }} 个额外可领取的交换。要访问它们，请切换到用于发起这些交换的救援密钥。",
+        approve_erc20: "授权",
+        approve_erc20_line: "为交换合约设置 ERC20 授权额度",
     },
     ja: {
         language: "日本語",
@@ -2366,8 +2430,6 @@ const dict = {
         cant_find_swap: "スワップが見つからない？",
         rescue_external_explainer:
             "外部スワップをレスキューキーやその他の緊急手段を使用して復旧を試みてください。",
-        refund_external_explainer_rsk:
-            "RBTCをBoltzスワップに送金した場合、Rootstockウォレットを接続して、このブラウザのスワップ履歴に保存されていない救済可能なスワップを検索してください。",
         refund_external_scanning_rsk:
             "Rootstockウォレット内の救済可能なスワップを検索中です...",
         connected_wallet_no_swaps:
@@ -2439,6 +2501,8 @@ const dict = {
             " 接続したウォレットを開いて、表示されたトランザクションを確認するために　{{ button }} を押してください",
         transaction_prompt_receive:
             " 接続したウォレットを開いて、{{ asset }} を受け取るために表示されたトランザクションを確認するために {{ button }} を押してください",
+        transaction_failed: "トランザクションに失敗しました: {{ error }}",
+        wallet_request_rejected: "ウォレットでリクエストが拒否されました。",
         invalid_address: "無効な {{ asset }} アドレス",
         scan_qr_code: "QRコードをスキャンする",
         version: "バージョン",
@@ -2467,6 +2531,9 @@ const dict = {
         hide_wallet_address: "プライバシーモード",
         hide_wallet_address_tooltip:
             "デモや録画時のプライバシー保護のため、EVMウォレットアドレスとスワップIDを非表示にします",
+        slippage: "スリッページ",
+        slippage_tooltip: "DEXスワップで許容する最大価格スリッページ",
+        dex_quote_changed: "DEXのクオートが変更されました",
         zero_conf: "ゼロ確認",
         zero_conf_tooltip: "ブロック内でまだ確認されていない取引を受け入れる",
         on: "オン",
@@ -2557,8 +2624,11 @@ const dict = {
         swap_opportunities_accordion: "Pro機会",
         no_opportunities_found: {
             text: "現在利用可能なPro機会はありません。後ほど再度確認してください。。",
-            telegram_bot_text: "手数料アラートについては、当社の",
-            telegram_bot: "Telegramボット",
+            telegram_bot_text_prefix: "手数料アラートは、",
+            telegram_bot_text_middle: "または",
+            telegram_bot_text_suffix: "のボットをご確認ください。",
+            telegram_bot: "Telegram",
+            simplex: "SimpleX",
         },
         refresh_for_refund:
             "このスワップにビットコインを送金した場合は、ページを更新して払い戻しを確認してください。",
@@ -2718,13 +2788,19 @@ const dict = {
             "このレスキューキーはこのスワップに関連付けられていません。別のレスキューキーを使用してもう一度お試しください。",
         error_occurred: "エラーが発生しました：{{ error }}",
         rsk_rescue_prompt:
-            "RBTC を送金していた場合は返金を、RBTC を受け取っていた場合は再開を使用してください——このブラウザのスワップ履歴にないスワップが対象です。",
+            "Boltz スワップに RBTC を送金した場合は「スワップを返金」を使用し、RBTC を受け取っていた場合は「スワップを再開」を使用して、このブラウザのスワップ履歴にないスワップを救済してください。",
         rsk_rescue_refund_title: "スワップを返金",
         rsk_rescue_refund_explainer:
             "Rootstock ウォレットを接続して、期限切れで返金可能なスワップをスキャンします。",
         rsk_rescue_resume_title: "スワップを再開",
         rsk_rescue_resume_explainer:
             "レスキューキーを使用して、再開できる保留中のスワップを見つけます。",
+        searching_resumable_swaps:
+            "再開可能なスワップを検索中... {{ progress }}%",
+        unmatched_swaps:
+            "このウォレットには追加で {{ count }} 件の請求可能なスワップがあります。アクセスするには、これらのスワップの開始に使用したレスキューキーに切り替えてください。",
+        approve_erc20: "承認",
+        approve_erc20_line: "スワップコントラクトのERC20許可額を設定",
     },
     ru: {
         language: "Русский",
@@ -2825,8 +2901,6 @@ const dict = {
         cant_find_swap: "Не можете найти нужный своп?",
         rescue_external_explainer:
             "Попробуйте спасти внешний своп с помощью ключа спасения и других экстренных методов.",
-        refund_external_explainer_rsk:
-            "Подключите свой кошелек Rootstock для поиска возвращаемых свопов, которые не сохранены в истории свопов этого браузера.",
         refund_external_scanning_rsk:
             "Scanning for refundable swaps in your Rootstock Wallet...",
         connected_wallet_no_swaps:
@@ -2896,6 +2970,8 @@ const dict = {
             "Нажмите «{{ button }}», чтобы открыть подключенный кошелек и подтвердить отображаемую транзакцию.",
         transaction_prompt_receive:
             "Нажмите «{{ button }}», чтобы открыть подключенный кошелек и подтвердить отображаемую транзакцию для получения {{ asset }}.",
+        transaction_failed: "Транзакция не удалась: {{ error }}",
+        wallet_request_rejected: "Запрос был отклонен в вашем кошельке.",
         invalid_address: "Недействительный адрес {{ asset }}",
         scan_qr_code: "Сканировать QR-код",
         version: "Версия",
@@ -2926,6 +3002,9 @@ const dict = {
         hide_wallet_address: "Режим конфиденциальности",
         hide_wallet_address_tooltip:
             "Скрывает адрес кошелька EVM и идентификатор обмена для конфиденциальности в демонстрациях/записях",
+        slippage: "Проскальзывание",
+        slippage_tooltip: "Максимально допустимое проскальзывание цены для свопов на децентрализованных биржах (DEX).",
+        dex_quote_changed: "Цена DEX изменилась",
         zero_conf: "0-Подтверждений",
         zero_conf_tooltip:
             "Принимать транзакции, которые еще не подтверждены в блоке",
@@ -3016,8 +3095,11 @@ const dict = {
         swap_opportunities_accordion: "Pro-возможности",
         no_opportunities_found: {
             text: "В данный момент Pro-возможности не найдены. Пожалуйста, проверьте позже.",
-            telegram_bot_text: "Для уведомлений о комиссиях посетите наш",
-            telegram_bot: "Telegram-бот",
+            telegram_bot_text_prefix: "Чтобы получать уведомления о комиссиях, ознакомьтесь с нашей информацией на сайте ",
+            telegram_bot_text_middle: " или ",
+            telegram_bot_text_suffix: " в боте.",
+            telegram_bot: "Telegram",
+            simplex: "SimpleX",
         },
         refresh_for_refund:
             "Если вы отправили биткойны в этот обмен, обновите страницу, чтобы проверить возврат средств.",
@@ -3186,6 +3268,12 @@ const dict = {
         rsk_rescue_resume_title: "Продолжить свопа",
         rsk_rescue_resume_explainer:
             "Используйте клавишу восстановления, чтобы найти незавершенные операции обмена, которые можно возобновить.q",
+        searching_resumable_swaps:
+            "Поиск возобновляемых свопов... {{ progress }}%",
+        unmatched_swaps:
+            "В этом кошельке есть {{ count }} дополнительных обменов, которые можно активировать. Чтобы получить к ним доступ, пожалуйста, переключитесь на ключ восстановления, использованный для инициирования этих обменов.",
+        approve_erc20: "Утвердить",
+        approve_erc20_line: "Установите лимит ERC20 для контракта свопа.",
     },
 };
 

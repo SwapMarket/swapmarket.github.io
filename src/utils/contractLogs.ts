@@ -1,13 +1,12 @@
 import type { EtherSwap } from "boltz-core/typechain/EtherSwap";
 import type { BytesLike, Result, Signer } from "ethers";
-import { Contract, JsonRpcProvider } from "ethers";
+import { JsonRpcProvider } from "ethers";
 import log from "loglevel";
 
 import { config } from "../config";
 import type { AssetType } from "../consts/Assets";
 import { RBTC } from "../consts/Assets";
 import { RskRescueMode } from "../consts/Enums";
-import { EtherSwapAbi } from "../context/Web3";
 import {
     PreimageHashesWorker,
     type PreimageMap,
@@ -52,6 +51,8 @@ type ScanConfig = {
 type ScanResult = {
     progress: number;
     events: LogRefundData[];
+    derivedKeys?: number;
+    unmatchedSwaps: number;
 };
 
 type ScanContext = {
@@ -88,6 +89,7 @@ const reconcilePendingClaims = (
 
 const createScanContext = async (
     etherSwap: EtherSwap,
+    scanConfig: ScanConfig,
 ): Promise<ScanContext | null> => {
     const providerUrl = import.meta.env.VITE_RSK_LOG_SCAN_ENDPOINT;
     if (providerUrl === undefined) {
@@ -96,23 +98,41 @@ const createScanContext = async (
 
     const contractAddress = await etherSwap.getAddress();
     const provider = new JsonRpcProvider(providerUrl);
-    const latestBlock = await provider.getBlockNumber();
     const minBlock = config.assets[RBTC].contracts.deployHeight;
 
-    const contract = new Contract(
-        contractAddress,
-        EtherSwapAbi,
-        provider,
-    ) as unknown as EtherSwap;
+    const [latestBlock, version] = await Promise.all([
+        provider.getBlockNumber(),
+        etherSwap.version(),
+    ]);
+
+    let filter = etherSwap.filters.Lockup();
+
+    if (scanConfig.filter?.address !== undefined) {
+        if (scanConfig.action === RskRescueMode.Refund) {
+            filter = etherSwap.filters.Lockup(
+                null,
+                null,
+                null,
+                scanConfig.filter.address,
+            );
+        } else if (scanConfig.action === RskRescueMode.Claim && version >= 6) {
+            // For contracts v6 and above, the claim address is indexed
+            filter = etherSwap.filters.Lockup(
+                null,
+                null,
+                scanConfig.filter.address,
+            );
+        }
+    }
 
     return {
+        filter,
         providerUrl,
         contractAddress,
         latestBlock,
         minBlock,
-        contract,
-        filter: contract.filters.Lockup(),
         totalBlocks: latestBlock - minBlock,
+        contract: etherSwap.connect(provider),
     };
 };
 
@@ -155,19 +175,12 @@ function* generateBlockRangeBatches(
  */
 const fetchEventsForRanges = async (
     ranges: BlockRange[],
-    contractAddress: string,
-    providerUrl: string,
+    contract: EtherSwap,
     filter: ReturnType<EtherSwap["filters"]["Lockup"]>,
 ): Promise<LockupEvent[]> => {
     const results = await Promise.all(
         ranges.map(({ fromBlock, toBlock }) =>
-            (
-                new Contract(
-                    contractAddress,
-                    EtherSwapAbi,
-                    new JsonRpcProvider(providerUrl),
-                ) as unknown as EtherSwap
-            ).queryFilter(filter, fromBlock, toBlock),
+            contract.queryFilter(filter, fromBlock, toBlock),
         ),
     );
 
@@ -263,7 +276,7 @@ export async function* scanLockupEvents(
     etherSwap: EtherSwap,
     scanConfig: ScanConfig = {},
 ): AsyncGenerator<ScanResult> {
-    const ctx = await createScanContext(etherSwap);
+    const ctx = await createScanContext(etherSwap, scanConfig);
     if (ctx === null) {
         return;
     }
@@ -273,7 +286,11 @@ export async function* scanLockupEvents(
     const worker = needsPreimages ? new PreimageHashesWorker() : null;
     if (worker) {
         log.info("Starting preimage derivation in background");
-        worker.start(scanConfig.mnemonic, abortSignal);
+        worker.start(
+            scanConfig.mnemonic,
+            config.assets[RBTC].network.chainId,
+            abortSignal,
+        );
     }
 
     let blocksScanned = 0;
@@ -294,8 +311,7 @@ export async function* scanLockupEvents(
         );
         const events = await fetchEventsForRanges(
             ranges,
-            ctx.contractAddress,
-            ctx.providerUrl,
+            ctx.contract,
             ctx.filter,
         );
 
@@ -303,10 +319,12 @@ export async function* scanLockupEvents(
         const results: ScanResult = {
             progress: Math.min(blocksScanned / ctx.totalBlocks, 1),
             events: [],
+            derivedKeys: worker?.map.size,
+            unmatchedSwaps: 0,
         };
 
         for (const event of events) {
-            const { data, decoded } = parseLockupEvent(etherSwap, event);
+            const { data, decoded } = parseLockupEvent(ctx.contract, event);
             const match = matchesFilter(data, scanConfig.filter);
 
             if (match === null || match !== scanConfig.action) {
@@ -352,23 +370,27 @@ export async function* scanLockupEvents(
             results.events.push(
                 ...reconcilePendingClaims(pendingClaims, worker.map),
             );
+            results.derivedKeys = worker.map.size;
         }
+
+        results.unmatchedSwaps = pendingClaims.length;
 
         yield results;
     }
 
-    if (worker && pendingClaims.length > 0) {
+    if (worker) {
         log.info(
-            `Resolving preimages for ${pendingClaims.length} pending claims`,
+            `Deriving preimages for ${pendingClaims.length} pending claims`,
         );
-
-        // Wait for the worker to finish deriving the preimages
-        for (const claim of pendingClaims) {
-            await worker.getPreimage(claim.preimageHash);
-        }
-        const matched = reconcilePendingClaims(pendingClaims, worker.map);
-        if (matched.length > 0) {
-            yield { progress: 1, events: matched };
+        while (pendingClaims.length > 0 && !worker.isDone) {
+            await worker.waitForNextBatch();
+            const matched = reconcilePendingClaims(pendingClaims, worker.map);
+            yield {
+                progress: 1,
+                events: matched,
+                derivedKeys: worker.map.size,
+                unmatchedSwaps: pendingClaims.length,
+            };
         }
     }
 

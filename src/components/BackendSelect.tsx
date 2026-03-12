@@ -10,19 +10,18 @@ import { getPair } from "../utils/helper";
 const BackendSelect = () => {
     const { backend, setBackend, allPairs, t, denomination, separator } =
         useGlobalContext();
-    const {
-        backendSelect,
-        setBackendSelect,
-        swapType,
-        assetSend,
-        assetReceive,
-    } = useCreateContext();
+    const { backendSelect, setBackendSelect, pair } = useCreateContext();
 
     // Handle backend change
     const changeBackend = (index: number) => {
         const pairs = allPairs()[index]; // Get pairs for the current backend
         const cfg = pairs
-            ? getPair(pairs, swapType(), assetSend(), assetReceive())
+            ? getPair(
+                  pairs,
+                  pair().swapToCreate?.type,
+                  pair().fromAsset,
+                  pair().toAsset,
+              )
             : null;
         if (cfg) {
             // only switch the backend if the pair is tradeable
@@ -58,9 +57,9 @@ const BackendSelect = () => {
                         const cfg = pairs
                             ? getPair(
                                   pairs,
-                                  swapType(),
-                                  assetSend(),
-                                  assetReceive(),
+                                  pair().swapToCreate?.type,
+                                  pair().fromAsset,
+                                  pair().toAsset,
                               )
                             : null;
 
@@ -93,6 +92,7 @@ const BackendSelect = () => {
                                               BigNumber(cfg.limits.maximal),
                                               denomination(),
                                               separator(),
+                                              "BTC",
                                           )
                                         : "-"}
                                 </td>

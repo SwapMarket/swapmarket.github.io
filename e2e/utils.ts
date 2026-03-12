@@ -18,6 +18,7 @@ import { btcToSat } from "../src/utils/denomination";
 import { findMagicRoutingHint } from "../src/utils/magicRoutingHint";
 
 const execAsync = promisify(exec);
+export const amountBufferSats = 1;
 
 const executeInScriptsContainer =
     'docker exec boltz-scripts bash -c "source /etc/profile.d/utils.sh && ';
@@ -159,6 +160,31 @@ export const generateInvoiceLnd = async (amount: number): Promise<string> => {
     ).payment_request as string;
 };
 
+const getInvoicePaymentHash = (invoice: string): string => {
+    const decoded = bolt11.decode(invoice);
+    let paymentHash: string | undefined;
+
+    for (const tag of decoded.tags) {
+        switch (tag.tagName) {
+            case "payment_hash":
+                paymentHash = tag.data as string;
+                break;
+        }
+    }
+
+    if (paymentHash === undefined) {
+        throw new Error("could not decode payment hash from invoice");
+    }
+
+    return paymentHash;
+};
+
+export const cancelInvoiceLnd = async (invoice: string): Promise<void> => {
+    await execCommand(
+        `lncli-sim 1 cancelinvoice ${getInvoicePaymentHash(invoice)}`,
+    );
+};
+
 export const waitForNodesToSync = async (): Promise<void> => {
     const height = JSON.parse(
         await execCommand("bitcoin-cli-sim-client getblockchaininfo"),
@@ -217,19 +243,10 @@ export const setReferral = (
 export const lookupInvoiceLnd = async (
     invoice: string,
 ): Promise<{ state: string; r_preimage: string }> => {
-    const decoded = bolt11.decode(invoice);
-    let paymentHash: string | undefined;
-
-    for (const tag of decoded.tags) {
-        switch (tag.tagName) {
-            case "payment_hash":
-                paymentHash = tag.data as string;
-                break;
-        }
-    }
-
     return JSON.parse(
-        await execCommand(`lncli-sim 1 lookupinvoice ${paymentHash}`),
+        await execCommand(
+            `lncli-sim 1 lookupinvoice ${getInvoicePaymentHash(invoice)}`,
+        ),
     ) as never;
 };
 
@@ -403,13 +420,21 @@ export const checkBoltzConfPatch = () => {
 export const expectApproxAmount = async (
     input: Locator,
     expectedBtc: string,
-    toleranceSats: number = 1,
+    toleranceSats: number = amountBufferSats,
 ): Promise<string> => {
     const val = await input.inputValue();
+    expectApproxBtcAmount(val, expectedBtc, toleranceSats);
+    return val;
+};
+
+export const expectApproxBtcAmount = (
+    actualBtc: string,
+    expectedBtc: string,
+    toleranceSats: number = amountBufferSats,
+): void => {
     const expectedSats = btcToSat(BigNumber(expectedBtc));
-    const actualSats = btcToSat(BigNumber(val));
+    const actualSats = btcToSat(BigNumber(actualBtc));
     expect(actualSats.minus(expectedSats).abs().toNumber()).toBeLessThanOrEqual(
         toleranceSats,
     );
-    return val;
 };
