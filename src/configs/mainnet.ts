@@ -31,12 +31,12 @@ const config = {
             contact: "https://igit.me/middleway",
         },
         {
-            alias: "Eldamar",
+            alias: "Coinos",
             apiUrl: {
-                normal: "https://boltz-api.eldamar.icu",
-                tor: "http://mnyazp2duhs3jewqzw7g6vv44g73ijiujdmk5z6js72fn3epybup2yqd.onion",
+                normal: "https://swap.coinos.io",
+                tor: "https://swap.coinos.io",
             },
-            contact: "https://t.me/SynthLock",
+            contact: "https://t.me/coinoswallet",
         },
         {
             alias: "ZEUS Swaps",
