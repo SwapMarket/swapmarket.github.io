@@ -61,7 +61,7 @@ jobs:
                 git submodule update
                 chmod -R 777 regtest
                 git apply boltz.conf.patch
-                git apply docker-compose.patch
+                git apply --directory=regtest docker-compose.patch
                 cd regtest
                 echo "--- Merged compose config ---"
                 docker compose config
