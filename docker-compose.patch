@@ -1,0 +1,19 @@
+diff --git a/docker-compose.yml b/docker-compose.yml
+index f315079..72a5a85 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -47,10 +47,10 @@ x-services:
+           'lncli --network=regtest --lnddir=/app/lnd --rpcserver=$$HOSTNAME
+           getinfo',
+         ]
+-      interval: 1s
+-      timeout: 1s
+-      retries: 30
+-      start_period: 0s
++      interval: 2s
++      timeout: 2s
++      retries: 90
++      start_period: 20s
+ 
+   base-cln: &base-cln
+     image: ${CLN_IMAGE}

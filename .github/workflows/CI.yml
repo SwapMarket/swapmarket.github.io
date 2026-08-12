@@ -61,18 +61,12 @@ jobs:
                 git submodule update
                 chmod -R 777 regtest
                 git apply boltz.conf.patch
+                git apply docker-compose.patch
                 cd regtest
-                echo "--- Config WITHOUT override ---"
-                docker compose config > /tmp/no-override.yml || echo "FAILED without override"
-                echo "--- Contents of override file about to be copied ---"
-                cat ../regtest.override.yml
-                cp ../regtest.override.yml docker-compose.override.yml
-                echo "--- Config WITH override ---"
-                docker compose config > /tmp/with-override.yml || echo "FAILED with override"
-                echo "--- lnd-3 from WITHOUT ---"
-                grep -A20 "^  lnd-3:" /tmp/no-override.yml || echo "not found or file empty"
-                echo "--- lnd-3 from WITH ---"
-                grep -A20 "^  lnd-3:" /tmp/with-override.yml || echo "not found or file empty"
+                echo "--- Merged compose config ---"
+                docker compose config
+                echo "--- End merged config ---"
+                ./start.sh
 
             - name: Install dependencies
               run: npm ci
