@@ -1,0 +1,21 @@
+services:
+  lnd-1:
+    healthcheck:
+      interval: 2s
+      timeout: 2s
+      retries: 90
+      start_period: 20s
+
+  lnd-2:
+    healthcheck:
+      interval: 2s
+      timeout: 2s
+      retries: 90
+      start_period: 20s
+
+  lnd-3:
+    healthcheck:
+      interval: 2s
+      timeout: 2s
+      retries: 90
+      start_period: 20s
