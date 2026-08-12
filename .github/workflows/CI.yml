@@ -57,16 +57,16 @@ jobs:
               env:
                   COMPOSE_PROFILES: webapp-ci
               run: |
-                git submodule init
-                git submodule update
-                chmod -R 777 regtest
-                git apply boltz.conf.patch
-                git apply --directory=regtest docker-compose.patch
-                cd regtest
-                echo "--- Merged compose config ---"
-                docker compose config
-                echo "--- End merged config ---"
-                ./start.sh
+                  git submodule init
+                  git submodule update
+                  chmod -R 777 regtest
+                  git apply boltz.conf.patch
+                  git apply --directory=regtest docker-compose.patch
+                  cd regtest
+                  echo "--- Merged compose config ---"
+                  docker compose config
+                  echo "--- End merged config ---"
+                  ./start.sh
 
             - name: Install dependencies
               run: npm ci

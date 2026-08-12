@@ -10,10 +10,10 @@ index f315079..72a5a85 100644
 -      timeout: 1s
 -      retries: 30
 -      start_period: 0s
-+      interval: 2s
-+      timeout: 2s
++      interval: 3s
++      timeout: 3s
 +      retries: 90
-+      start_period: 20s
++      start_period: 30s
  
    base-cln: &base-cln
      image: ${CLN_IMAGE}
