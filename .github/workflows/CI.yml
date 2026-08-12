@@ -56,14 +56,17 @@ jobs:
             - name: Start regtest
               env:
                   COMPOSE_PROFILES: webapp-ci
-              run: |
-                  git submodule init
-                  git submodule update
-                  chmod -R 777 regtest
-                  git apply boltz.conf.patch
-                  cp regtest.override.yml regtest/docker-compose.override.yml
-                  cd regtest
-                  ./start.sh
+            - run: |
+                git submodule init
+                git submodule update
+                chmod -R 777 regtest
+                git apply --directory=regtest boltz.conf.patch
+                cp regtest.override.yml regtest/docker-compose.override.yml
+                cd regtest
+                echo "--- Merged compose config ---"
+                docker compose config
+                echo "--- End merged config ---"
+                ./start.sh
 
             - name: Install dependencies
               run: npm ci
