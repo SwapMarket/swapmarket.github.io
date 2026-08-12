@@ -56,7 +56,7 @@ jobs:
             - name: Start regtest
               env:
                   COMPOSE_PROFILES: webapp-ci
-            - run: |
+              run: |
                 git submodule init
                 git submodule update
                 chmod -R 777 regtest
