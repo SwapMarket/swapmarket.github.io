@@ -57,19 +57,19 @@ jobs:
               env:
                   COMPOSE_PROFILES: webapp-ci
               run: |
-      git submodule init
-      git submodule update
-      chmod -R 777 regtest
-      git apply boltz.conf.patch
-      git apply --directory=regtest docker-compose.patch
-      cd regtest
-      docker compose up --remove-orphans -d || true
-      sleep 30
-      echo "--- lnd-2 logs ---"
-      docker logs boltz-lnd-2 --tail 100
-      echo "--- lnd-2 healthcheck status ---"
-      docker inspect boltz-lnd-2 --format='{{json .State.Health}}'
-      ./start.sh
+                  git submodule init
+                  git submodule update
+                  chmod -R 777 regtest
+                  git apply boltz.conf.patch
+                  git apply --directory=regtest docker-compose.patch
+                  cd regtest
+                  docker compose up --remove-orphans -d || true
+                  sleep 30
+                  echo "--- lnd-2 logs ---"
+                  docker logs boltz-lnd-2 --tail 100
+                  echo "--- lnd-2 healthcheck status ---"
+                  docker inspect boltz-lnd-2 --format='{{json .State.Health}}'
+                  ./start.sh
 
             - name: Install dependencies
               run: npm ci
