@@ -62,17 +62,9 @@ jobs:
                   chmod -R 777 regtest
                   git apply boltz.conf.patch
                   git apply --directory=regtest docker-compose.patch
+                  git apply --directory=regtest env.patch
                   cd regtest
-                  timeout 300 ./start.sh || true
-                  echo "--- docker compose ps ---"
-                  docker compose ps -a
-                  echo "--- lnd-3 logs ---"
-                  docker logs boltz-lnd-3 --tail 100 || echo "container doesn't exist"
-                  docker logs boltz-regtest-start --tail 200 || true
-                  echo "--- boltz-backend logs ---"
-                  docker logs boltz-backend --tail 200 || true
-                  echo "--- bitcoind logs ---"
-                  docker logs boltz-bitcoind --tail 50 || true
+                  ./start.sh
 
             - name: Install dependencies
               run: npm ci
