@@ -1,7 +1,16 @@
 diff --git a/data/backend/boltz.conf b/data/backend/boltz.conf
-index a07ff9d..1a8786a 100755
+index a07ff9d..7b9ab57 100755
 --- a/data/backend/boltz.conf
 +++ b/data/backend/boltz.conf
+@@ -27,7 +27,7 @@ password = "boltz"
+   port = 9005
+ 
+ [swap]
+-deferredClaimSymbols = ["BTC", "L-BTC", "RBTC"]
++deferredClaimSymbols = ["BTC", "L-BTC"]
+ 
+ [[pairs]]
+ base = "BTC"
 @@ -39,11 +39,11 @@ maxSwapAmount = 40_294_967
  minSwapAmount = 50_000
  
@@ -19,11 +28,53 @@ index a07ff9d..1a8786a 100755
  
  [[pairs]]
  base = "L-BTC"
-@@ -62,11 +62,11 @@ minSwapAmount = 100
+@@ -62,53 +62,11 @@ minSwapAmount = 100
    minSwapAmount = 25_000
  
    [pairs.timeoutDelta]
 -  chain = 1440
+-  reverse = 1440
+-  swapMinimal = 1440
+-  swapMaximal = 2880
+-  swapTaproot = 10080
+-
+-[[pairs]]
+-base = "RBTC"
+-quote = "BTC"
+-rate = 1
+-fee = 0.25
+-swapInFee = 0.1
+-
+-maxSwapAmount = 4_294_967
+-minSwapAmount = 50_000
+-
+-  [pairs.timeoutDelta]
+-  chain= 1440
+-  reverse = 1440
+-  swapMinimal = 1440
+-  swapMaximal = 2880
+-  swapTaproot = 10080
+-
+-[[pairs]]
+-base = "RBTC"
+-quote = "L-BTC"
+-rate = 1
+-fee = 0.25
+-swapInFee = 0.1
+-
+-maxSwapAmount = 10_000_000
+-minSwapAmount = 2_500
+-
+-swapTypes = ["chain"]
+-
+-  [pairs.chainSwap]
+-  buyFee = 0.1
+-  sellFee = 0.1
+-
+-  minSwapAmount = 25_000
+-
+-  [pairs.timeoutDelta]
+-  chain= 1440
 -  reverse = 1440
 -  swapMinimal = 1440
 -  swapMaximal = 2880
@@ -34,43 +85,9 @@ index a07ff9d..1a8786a 100755
 +  swapMaximal = 450
 +  swapTaproot = 1200
  
- [[pairs]]
- base = "RBTC"
-@@ -79,11 +79,11 @@ maxSwapAmount = 4_294_967
- minSwapAmount = 50_000
- 
-   [pairs.timeoutDelta]
--  chain= 1440
--  reverse = 1440
--  swapMinimal = 1440
--  swapMaximal = 2880
--  swapTaproot = 10080
-+  chain = 100
-+  reverse = 100
-+  swapMinimal = 100
-+  swapMaximal = 200
-+  swapTaproot = 500
- 
- [[pairs]]
- base = "RBTC"
-@@ -104,11 +104,11 @@ swapTypes = ["chain"]
-   minSwapAmount = 25_000
- 
-   [pairs.timeoutDelta]
--  chain= 1440
--  reverse = 1440
--  swapMinimal = 1440
--  swapMaximal = 2880
--  swapTaproot = 10080
-+  chain = 100
-+  reverse = 100
-+  swapMinimal = 100
-+  swapMaximal = 200
-+  swapTaproot = 500
- 
  [[currencies]]
  symbol = "BTC"
-@@ -171,19 +171,3 @@ maxZeroConfAmount = 40_294_967
+@@ -171,19 +129,3 @@ maxZeroConfAmount = 40_294_967
    feeFloor = 0.1
  
    wallet = "regtest"
