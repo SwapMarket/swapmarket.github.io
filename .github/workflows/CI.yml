@@ -64,6 +64,12 @@ jobs:
                   git apply --directory=regtest docker-compose.patch
                   git apply --directory=regtest env.patch
                   cd regtest
+                  docker compose up --remove-orphans -d || true
+                  sleep 30
+                  echo "--- boltz-backend logs ---"
+                  docker logs boltz-backend --tail 200
+                  echo "--- boltz-backend healthcheck status ---"
+                  docker inspect boltz-backend --format='{{json .State.Health}}'
                   ./start.sh
 
             - name: Install dependencies
