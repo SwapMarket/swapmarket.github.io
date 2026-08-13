@@ -1,19 +1,13 @@
 diff --git a/docker-compose.yml b/docker-compose.yml
-index f315079..72a5a85 100644
+index f315079..dd63fa1 100644
 --- a/docker-compose.yml
 +++ b/docker-compose.yml
-@@ -47,10 +47,10 @@ x-services:
-           'lncli --network=regtest --lnddir=/app/lnd --rpcserver=$$HOSTNAME
-           getinfo',
-         ]
--      interval: 1s
--      timeout: 1s
--      retries: 30
--      start_period: 0s
-+      interval: 3s
-+      timeout: 3s
-+      retries: 90
-+      start_period: 30s
- 
-   base-cln: &base-cln
-     image: ${CLN_IMAGE}
+@@ -24,7 +24,7 @@ x-services:
+       - --listen=0.0.0.0:9735
+       - --rpclisten=0.0.0.0:10009
+       - --restlisten=0.0.0.0:8081
+-      - --bitcoin.timelockdelta=18
++      - --bitcoin.timelockdelta=24
+       - --bitcoin.active
+       - --bitcoin.regtest
+       - --bitcoin.node=bitcoind
