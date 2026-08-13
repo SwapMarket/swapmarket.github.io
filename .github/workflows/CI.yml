@@ -63,7 +63,15 @@ jobs:
                   git apply boltz.conf.patch
                   git apply --directory=regtest docker-compose.patch
                   cd regtest
-                  ./start.sh
+                  timeout 300 ./start.sh || true
+                  echo "--- docker compose ps ---"
+                  docker compose ps
+                  echo "--- regtest-start logs ---"
+                  docker logs boltz-regtest-start --tail 200 || true
+                  echo "--- boltz-backend logs ---"
+                  docker logs boltz-backend --tail 200 || true
+                  echo "--- bitcoind logs ---"
+                  docker logs boltz-bitcoind --tail 50 || true
 
             - name: Install dependencies
               run: npm ci
