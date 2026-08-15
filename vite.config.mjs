@@ -8,10 +8,13 @@ import solidPlugin from "vite-plugin-solid";
 import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";
 
-// Only obfuscates production builds ("vite build"); the dev server is unaffected
+// Only obfuscates production builds ("vite build"); the dev server is
+// unaffected. Also skipped when SKIP_OBFUSCATION=true, since obfuscation
+// takes several minutes and isn't needed for the throwaway build e2e tests
+// run against in CI
 const obfuscatorConfig = {
     excludes: [],
-    enable: true,
+    enable: process.env.SKIP_OBFUSCATION !== "true",
     log: true,
     autoExcludeNodeModules: false,
     threadPool: false,

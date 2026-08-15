@@ -42,7 +42,8 @@ jobs:
 
             - name: Build
               env:
-                  VITE_API_AUTH_SECRET_MIDDLEWAY: ${{ secrets.VITE_API_AUTH_SECRET_MIDDLEWAY }}
+                  VITE_API_AUTH_SECRET_MIDDLEWAY:
+                      ${{ secrets.VITE_API_AUTH_SECRET_MIDDLEWAY }}
                   VITE_RSK_LOG_SCAN_ENDPOINT: ""
               run: npm run build
 
