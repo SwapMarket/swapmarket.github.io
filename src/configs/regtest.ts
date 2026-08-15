@@ -54,29 +54,10 @@ const config = {
                 },
             ],
         },
-        RBTC: {
-            blockExplorerUrl: {
-                id: Explorer.Blockscout,
-                normal: "http://localhost:5100",
-            },
-            network: {
-                chainName: "Anvil",
-                chainId: 31,
-                rpcUrls: ["http://localhost:8545"],
-                nativeCurrency: {
-                    name: "RBTC",
-                    symbol: "RBTC",
-                    decimals: 18,
-                },
-            },
-            rifRelay: "http://localhost:8090",
-            contracts: {
-                deployHeight: 0,
-                smartWalletFactory:
-                    "0x59b670e9fA9D0A427751Af201D676719a970857b",
-                deployVerifier: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-            },
-        },
+        // RSK is disabled and RBTC pairs are removed from this regtest's
+        // boltz.conf (contracts aren't deployed in this regtest commit), so
+        // there's nothing to swap into/from - keep it out of asset selection
+        // until RSK is back
     },
 } as Config;
 

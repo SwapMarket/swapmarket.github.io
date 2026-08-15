@@ -20,23 +20,34 @@ const obfuscatorConfig = {
     threadPool: false,
     options: {
         compact: true,
+        // Left off: quadruples bundle size for a transform that's also
+        // mechanically reversible, poor cost/benefit versus the options below
         controlFlowFlattening: false,
         controlFlowFlatteningThreshold: 1,
         deadCodeInjection: false,
-        debugProtection: false,
-        debugProtectionInterval: 0,
+        // Forces a "debugger" trap while devtools stays open, so breakpoints
+        // can't be used to read secrets straight out of paused local
+        // variables. Real cost: freezes the tab for anyone with devtools
+        // open, including legitimate technical users - revert to false if
+        // that generates complaints
+        debugProtection: true,
+        debugProtectionInterval: 4000,
         disableConsoleOutput: true,
         identifierNamesGenerator: "hexadecimal",
         log: false,
         numbersToExpressions: false,
         renameGlobals: false,
-        selfDefending: false,
+        // Breaks output if the code is beautified/reformatted before reading,
+        // raising the bar on manual static analysis
+        selfDefending: true,
         simplify: true,
         splitStrings: true,
         stringArray: true,
         stringArrayCallsTransform: true,
         stringArrayCallsTransformThreshold: 0.5,
-        stringArrayEncoding: [],
+        // "rc4" adds a decode step beyond plain string-array shuffling, so a
+        // naive dump of the array doesn't yield readable strings directly
+        stringArrayEncoding: ["rc4"],
         stringArrayIndexShift: true,
         stringArrayRotate: true,
         stringArrayShuffle: true,

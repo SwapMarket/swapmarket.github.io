@@ -89,12 +89,21 @@ export const getApiUrl = (backend: number): string => {
 };
 
 export const apiSignatureHeader = "x-api-signature";
+export const apiTimestampHeader = "x-api-timestamp";
 
-// HMAC-SHA256 of the request payload, keyed by the backend's own secret (from
-// its "authSecretEnv" env var); verified by that backend's own copy of the
-// secret to restrict who can call its API. Backends without "authSecretEnv"
-// set never receive this header
-const signRequest = (backend: number, payload: string): HeadersInit => {
+// HMAC-SHA256 of "<ts><method><path><body>", keyed by the backend's own
+// secret (from its "authSecretEnv" env var); verified by that backend's own
+// copy of the secret to restrict who can call its API. The timestamp bounds
+// how long a captured request stays replayable, and binding method+path
+// stops a signature captured for one endpoint being replayed against another
+// that happens to accept a similarly-shaped body. Backends without
+// "authSecretEnv" set never receive these headers
+const signRequest = (
+    backend: number,
+    method: string,
+    path: string,
+    payload: string,
+): HeadersInit => {
     const backendConfig = config.backends[backend];
     if (!backendConfig.authSecretEnv) {
         return {};
@@ -109,9 +118,17 @@ const signRequest = (backend: number, payload: string): HeadersInit => {
         );
     }
 
-    const signature = hmac(sha256, utf8.decode(secret), utf8.decode(payload));
+    const ts = Math.floor(Date.now() / 1000).toString();
+    const signature = hmac(
+        sha256,
+        utf8.decode(secret),
+        utf8.decode(`${ts}${method.toUpperCase()}${path}${payload}`),
+    );
 
-    return { [apiSignatureHeader]: hex.encode(signature) };
+    return {
+        [apiSignatureHeader]: hex.encode(signature),
+        [apiTimestampHeader]: ts,
+    };
 };
 
 export const coalesceLn = (asset: string) => (asset === LN ? BTC : asset);
@@ -172,7 +189,8 @@ export const fetcher = async <T = unknown>(
     try {
         const referral = getReferral();
         const body = params ? JSON.stringify(params) : "";
-        const signature = signRequest(backend, body);
+        const method = options?.method ?? (params ? "POST" : "GET");
+        const signature = signRequest(backend, method, url, body);
 
         let opts: RequestInit = {
             headers: {

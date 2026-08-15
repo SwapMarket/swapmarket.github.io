@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import {
     bitcoinSendToAddress,
+    expectApproxBtcString,
     generateBitcoinBlock,
     getBitcoinAddress,
     getElementsWalletTx,
@@ -52,7 +53,7 @@ test.describe("Chain Swap 0-amount", () => {
         expect(txId).toBeDefined();
 
         const txInfo = JSON.parse(await getElementsWalletTx(txId));
-        expect(txInfo.amount.bitcoin.toString()).toEqual("0.00997303");
+        expectApproxBtcString(txInfo.amount.bitcoin.toString(), "0.00997303");
     });
 
     test("should allow 0-amount chain swaps", async ({ page }) => {
@@ -76,7 +77,10 @@ test.describe("Chain Swap 0-amount", () => {
         await verifyRescueFile(page);
     });
 
-    test("should not allow 0-amount chain swaps when sending RBTC", async ({
+    // RSK is disabled and RBTC pairs are removed from this regtest's
+    // boltz.conf (see cb1f8d31, f6c33ce0), so RBTC is no longer a
+    // selectable asset here. Re-enable once RSK is back
+    test.skip("should not allow 0-amount chain swaps when sending RBTC", async ({
         page,
     }) => {
         await page.goto("/");

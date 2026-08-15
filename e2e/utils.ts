@@ -134,10 +134,15 @@ export const getLiquidBlockHeight = async (): Promise<number> => {
     ).blocks as number;
 };
 
+// "dev toggle-cooperative" was replaced by granular per-swap-type signer
+// controls (boltz-backend#1302); chain swaps are the only thing this helper
+// is used for, so only the chain swap coop signers need toggling
 export const setDisableCooperativeSignatures = (
     disable: boolean,
 ): Promise<string> =>
-    boltzrCli(`dev toggle-cooperative ${disable ? "--disabled" : ""}`);
+    boltzrCli(
+        `signer ${disable ? "disable" : "enable"} chain-refund-coop chain-claim-coop`,
+    );
 
 export const decodeLiquidRawTransaction = (tx: string): Promise<string> =>
     execCommand(`elements-cli-sim-client decoderawtransaction "${tx}"`);
@@ -386,30 +391,50 @@ export const waitForBlockHeight = async (asset: string, height: number) => {
 
 export const checkBoltzConfPatch = () => {
     try {
-        execSync("git apply --check --reverse boltz.conf.patch", {
-            stdio: "pipe",
-        });
+        // The patch targets "data/backend/boltz.conf", which only exists
+        // inside the regtest submodule (CI applies it the same way: "git
+        // apply --directory=regtest boltz.conf.patch"), so the check has to
+        // use the same --directory or it always fails, patch or not
+        execSync(
+            "git apply --check --reverse --directory=regtest boltz.conf.patch",
+            {
+                stdio: "pipe",
+            },
+        );
     } catch {
         throw new Error(`
             (!) This test requires boltz.conf.patch to be applied.
             It will fail without it due to the swap timeout being different from what's expected.
 
-            Please, run "git apply boltz.conf.patch" to apply the patch (or manually update your boltz.conf with the patch's values),
+            Please, run "git apply --directory=regtest boltz.conf.patch" to apply the patch (or manually update your regtest boltz.conf with the patch's values),
             then restart your regtest containers.
         `);
     }
 };
 
+// Miner fee estimates (used for pre-broadcast quotes shown in inputs, same
+// as settled on-chain amounts) vary by a handful to a couple hundred sats
+// between runs (mempool-based fee estimation, signature DER-encoding size),
+// so exact/near-exact equality against a hardcoded amount is inherently
+// flaky. See expectApproxBtcString below
 export const expectApproxAmount = async (
     input: Locator,
     expectedBtc: string,
-    toleranceSats: number = 1,
+    toleranceSats: number = 500,
 ): Promise<string> => {
     const val = await input.inputValue();
+    expectApproxBtcString(val, expectedBtc, toleranceSats);
+    return val;
+};
+
+export const expectApproxBtcString = (
+    actualBtc: string,
+    expectedBtc: string,
+    toleranceSats: number = 500,
+): void => {
     const expectedSats = btcToSat(BigNumber(expectedBtc));
-    const actualSats = btcToSat(BigNumber(val));
+    const actualSats = btcToSat(BigNumber(actualBtc));
     expect(actualSats.minus(expectedSats).abs().toNumber()).toBeLessThanOrEqual(
         toleranceSats,
     );
-    return val;
 };
