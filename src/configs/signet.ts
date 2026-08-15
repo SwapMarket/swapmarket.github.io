@@ -12,6 +12,7 @@ const config = {
                 normal: "http://192.168.1.60",
             },
             contact: "",
+            authSecretEnv: "VITE_API_AUTH_SECRET",
         },
     ],
     assets: {

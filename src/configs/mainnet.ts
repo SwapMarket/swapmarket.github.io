@@ -29,6 +29,7 @@ const config = {
                 tor: "http://middlwayksj5gak7pgaag32kcslzkjrpois57qtquiydpaqpy5fhzhqd.onion",
             },
             contact: "https://igit.me/middleway",
+            authSecretEnv: "VITE_API_AUTH_SECRET_MIDDLEWAY",
         },
         {
             alias: "Coinos",

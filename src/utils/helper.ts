@@ -1,4 +1,6 @@
-import { hex } from "@scure/base";
+import { hmac } from "@noble/hashes/hmac.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { hex, utf8 } from "@scure/base";
 import { Buffer } from "buffer";
 
 import { chooseUrl, config } from "../config";
@@ -86,6 +88,32 @@ export const getApiUrl = (backend: number): string => {
     return chooseUrl(config.backends[backend].apiUrl);
 };
 
+export const apiSignatureHeader = "x-api-signature";
+
+// HMAC-SHA256 of the request payload, keyed by the backend's own secret (from
+// its "authSecretEnv" env var); verified by that backend's own copy of the
+// secret to restrict who can call its API. Backends without "authSecretEnv"
+// set never receive this header
+const signRequest = (backend: number, payload: string): HeadersInit => {
+    const backendConfig = config.backends[backend];
+    if (!backendConfig.authSecretEnv) {
+        return {};
+    }
+
+    const secret = (import.meta.env as Record<string, string | undefined>)[
+        backendConfig.authSecretEnv
+    ];
+    if (!secret) {
+        throw new Error(
+            `backend "${backendConfig.alias}" requires authentication, but ${backendConfig.authSecretEnv} is not set`,
+        );
+    }
+
+    const signature = hmac(sha256, utf8.decode(secret), utf8.decode(payload));
+
+    return { [apiSignatureHeader]: hex.encode(signature) };
+};
+
 export const coalesceLn = (asset: string) => (asset === LN ? BTC : asset);
 
 export const getPair = <
@@ -143,10 +171,13 @@ export const fetcher = async <T = unknown>(
 
     try {
         const referral = getReferral();
+        const body = params ? JSON.stringify(params) : "";
+        const signature = signRequest(backend, body);
 
         let opts: RequestInit = {
             headers: {
                 referral,
+                ...signature,
             },
             signal: controller.signal,
         };
@@ -156,15 +187,23 @@ export const fetcher = async <T = unknown>(
                 method: "POST",
                 headers: {
                     ...(options ? options.headers : opts.headers),
+                    ...signature,
                     "Content-Type": "application/json",
                 },
                 signal: controller.signal,
-                body: JSON.stringify(params),
+                body,
             };
         }
 
+        // "options", when passed, otherwise fully replaces "opts" above, so
+        // the signature has to be merged in here as well to still cover it
         const apiUrl = getApiUrl(backend) + url;
-        const response = await fetch(apiUrl, options || opts);
+        const response = await fetch(
+            apiUrl,
+            options
+                ? { ...options, headers: { ...options.headers, ...signature } }
+                : opts,
+        );
 
         if (!response.ok) {
             try {

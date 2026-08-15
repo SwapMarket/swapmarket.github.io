@@ -2,10 +2,49 @@ import * as child from "child_process";
 import fs from "fs";
 import path from "path";
 import { defineConfig } from "vite";
+import vitePluginBundleObfuscator from "vite-plugin-bundle-obfuscator";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import solidPlugin from "vite-plugin-solid";
 import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";
+
+// Only obfuscates production builds ("vite build"); the dev server is unaffected
+const obfuscatorConfig = {
+    excludes: [],
+    enable: true,
+    log: true,
+    autoExcludeNodeModules: false,
+    threadPool: false,
+    options: {
+        compact: true,
+        controlFlowFlattening: false,
+        controlFlowFlatteningThreshold: 1,
+        deadCodeInjection: false,
+        debugProtection: false,
+        debugProtectionInterval: 0,
+        disableConsoleOutput: true,
+        identifierNamesGenerator: "hexadecimal",
+        log: false,
+        numbersToExpressions: false,
+        renameGlobals: false,
+        selfDefending: false,
+        simplify: true,
+        splitStrings: true,
+        stringArray: true,
+        stringArrayCallsTransform: true,
+        stringArrayCallsTransformThreshold: 0.5,
+        stringArrayEncoding: [],
+        stringArrayIndexShift: true,
+        stringArrayRotate: true,
+        stringArrayShuffle: true,
+        stringArrayWrappersCount: 1,
+        stringArrayWrappersChainedCalls: true,
+        stringArrayWrappersParametersMaxCount: 2,
+        stringArrayWrappersType: "function",
+        stringArrayThreshold: 0.75,
+        unicodeEscapeSequence: false,
+    },
+};
 
 const commitHash = child
     .execSync("git rev-parse --short HEAD")
@@ -44,7 +83,13 @@ try {
 }
 
 export default defineConfig({
-    plugins: [solidPlugin(), wasm(), topLevelAwait(), nodePolyfills()],
+    plugins: [
+        solidPlugin(),
+        wasm(),
+        topLevelAwait(),
+        nodePolyfills(),
+        vitePluginBundleObfuscator(obfuscatorConfig),
+    ],
     resolve: {
         alias: {
             src: path.resolve(__dirname, "src"),

@@ -43,6 +43,10 @@ type Backend = {
     alias: string;
     apiUrl: Url;
     contact: string;
+    // Name of the Vite env var holding this backend's own secret. When set,
+    // requests to this backend are signed with an HMAC-SHA256 of the
+    // payload, keyed by that secret, sent as the "x-api-signature" header
+    authSecretEnv?: string;
 };
 
 export type Config = {
