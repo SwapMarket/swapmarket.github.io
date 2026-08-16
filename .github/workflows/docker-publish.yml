@@ -9,6 +9,12 @@ concurrency:
     group: docker-publish
     cancel-in-progress: false
 
+# GITHUB_TOKEN (rather than a PAT) is what makes GitHub auto-link the
+# pushed package to this repository
+permissions:
+    contents: read
+    packages: write
+
 jobs:
     build-amd64:
         name: Build AMD64
@@ -25,7 +31,7 @@ jobs:
               with:
                   registry: ghcr.io
                   username: ${{ github.actor }}
-                  password: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Build and push
               run:
@@ -42,7 +48,7 @@ jobs:
               with:
                   registry: ghcr.io
                   username: ${{ github.actor }}
-                  password: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Create and push manifest
               run: |
