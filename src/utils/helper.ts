@@ -1,5 +1,3 @@
-import { hmac } from "@noble/hashes/hmac.js";
-import { sha256 } from "@noble/hashes/sha2.js";
 import { hex, utf8 } from "@scure/base";
 import { Buffer } from "buffer";
 
@@ -7,6 +5,7 @@ import { chooseUrl, config } from "../config";
 import { type AssetType, BTC, LN, RBTC } from "../consts/Assets";
 import { SwapType } from "../consts/Enums";
 import type { deriveKeyFn } from "../context/Global";
+import apiAuth from "../lazy/apiAuth";
 import type {
     ChainPairTypeTaproot,
     Pairs,
@@ -91,39 +90,47 @@ export const getApiUrl = (backend: number): string => {
 export const apiSignatureHeader = "x-api-signature";
 export const apiTimestampHeader = "x-api-timestamp";
 
-// HMAC-SHA256 of "<ts><method><path><body>", keyed by the backend's own
-// secret (from its "authSecretEnv" env var); verified by that backend's own
-// copy of the secret to restrict who can call its API. The timestamp bounds
-// how long a captured request stays replayable, and binding method+path
-// stops a signature captured for one endpoint being replayed against another
-// that happens to accept a similarly-shaped body. Backends without
+// HMAC-SHA256 of "<ts><method><path><body>", computed by the wasm module
+// from "npm run build:wasm-auth" and verified by the backend's own copy of
+// the secret to restrict who can call its API. The timestamp bounds how
+// long a captured request stays replayable, and binding method+path stops a
+// signature captured for one endpoint being replayed against another that
+// happens to accept a similarly-shaped body. Backends without
 // "authSecretEnv" set never receive these headers
-const signRequest = (
+const signRequest = async (
     backend: number,
     method: string,
     path: string,
     payload: string,
-): HeadersInit => {
+): Promise<HeadersInit> => {
     const backendConfig = config.backends[backend];
     if (!backendConfig.authSecretEnv) {
         return {};
     }
 
-    const secret = (import.meta.env as Record<string, string | undefined>)[
-        backendConfig.authSecretEnv
-    ];
-    if (!secret) {
+    const { sign } = await apiAuth.get().catch(() => {
         throw new Error(
-            `backend "${backendConfig.alias}" requires authentication, but ${backendConfig.authSecretEnv} is not set`,
+            `backend "${backendConfig.alias}" requires authentication, but the signing module isn't built (run "npm run build:wasm-auth")`,
         );
-    }
+    });
 
     const ts = Math.floor(Date.now() / 1000).toString();
-    const signature = hmac(
-        sha256,
-        utf8.decode(secret),
-        utf8.decode(`${ts}${method.toUpperCase()}${path}${payload}`),
-    );
+
+    let signature: Uint8Array;
+    try {
+        signature = sign(
+            backendConfig.authSecretEnv,
+            ts,
+            method.toUpperCase(),
+            path,
+            utf8.decode(payload),
+        );
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+        throw new Error(
+            `backend "${backendConfig.alias}" requires authentication, but ${backendConfig.authSecretEnv} isn't baked into the signing module`,
+        );
+    }
 
     return {
         [apiSignatureHeader]: hex.encode(signature),
@@ -190,7 +197,7 @@ export const fetcher = async <T = unknown>(
         const referral = getReferral();
         const body = params ? JSON.stringify(params) : "";
         const method = options?.method ?? (params ? "POST" : "GET");
-        const signature = signRequest(backend, method, url, body);
+        const signature = await signRequest(backend, method, url, body);
 
         let opts: RequestInit = {
             headers: {

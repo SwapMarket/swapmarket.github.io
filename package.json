@@ -13,6 +13,7 @@
         "dev": "vite --host",
         "preview": "vite preview",
         "build": "./build.py && vite build; cp dist/index.html dist/404.html",
+        "build:wasm-auth": "./build-wasm-auth.sh",
         "build:regular": "node index-template-vars.mjs --regular && npm run build",
         "build:pro": "node index-template-vars.mjs --pro && npm run build",
         "check:html-template": "node index-template-vars.mjs --regular && node index-template-vars.mjs --pro",
