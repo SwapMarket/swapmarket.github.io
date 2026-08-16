@@ -111,7 +111,11 @@ describe("MnemonicVerify", () => {
                     .slice(i * 4, (i + 1) * 4)
                     .includes(buttonText),
             );
-            const correctButtonElement = await screen.findByText(correctButton);
+            const buttonsContainer = await screen.findByTestId(
+                "verification-buttons",
+            );
+            const correctButtonElement =
+                within(buttonsContainer).getByText(correctButton);
             fireEvent.click(correctButtonElement);
         }
 
