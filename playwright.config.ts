@@ -63,5 +63,15 @@ export default defineConfig({
         reuseExistingServer: !process.env.CI,
         stdout: "pipe",
         stderr: "pipe",
+        // Obfuscation adds minutes to the build and isn't needed for a
+        // throwaway build the e2e tests just run against and discard
+        env: {
+            ...(process.env as Record<string, string>),
+            SKIP_OBFUSCATION: "true",
+        },
+        // The production build alone takes ~1 minute even unobfuscated;
+        // the default 60s webServer timeout doesn't leave room for that
+        // plus regtest config copy and preview server startup
+        timeout: 180_000,
     },
 });

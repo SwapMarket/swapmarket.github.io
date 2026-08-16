@@ -12,7 +12,11 @@ import {
     verifyRescueFile,
 } from "../utils";
 
-test.describe("EVM", () => {
+// RSK is disabled and RBTC pairs are removed from this regtest's boltz.conf
+// (see cb1f8d31, f6c33ce0 - contracts aren't deployed in this regtest
+// commit), so there's nothing for the app to connect an EVM wallet for and
+// the "Connect wallet" button stays disabled. Re-enable once RSK is back
+test.describe.skip("EVM", () => {
     test.beforeEach(async ({ injectProvider }) => {
         await injectProvider();
         await generateBitcoinBlock();

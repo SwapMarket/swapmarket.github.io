@@ -60,7 +60,9 @@ jobs:
                   git submodule init
                   git submodule update
                   chmod -R 777 regtest
-                  git apply boltz.conf.patch
+                  git apply --directory=regtest boltz.conf.patch
+                  git apply --directory=regtest docker-compose.patch
+                  git apply --directory=regtest env.patch
                   cd regtest
                   ./start.sh
 

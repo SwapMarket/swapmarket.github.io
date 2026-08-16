@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import sys
 
 
@@ -9,6 +10,7 @@ def handle_coop_disabled():
 
 
 network: str | None = None
+needs_wasm_auth = False
 
 with open("./src/config.ts", "r") as f:
     for line in f:
@@ -18,6 +20,16 @@ with open("./src/config.ts", "r") as f:
 
         if "network:" in line and '"' in line:
             network = line.split(":")[1].strip().strip('"').strip('",')
+
+        if "authSecretEnv" in line:
+            needs_wasm_auth = True
+
+if needs_wasm_auth and not os.path.exists("./src/wasm/api-auth/api_auth_bg.wasm"):
+    print(
+        'WARN: config has a backend with "authSecretEnv" set, but the wasm '
+        'signing module isn\'t built - run "npm run build:wasm-auth" first, '
+        "or requests to that backend will fail at runtime"
+    )
 
 # .env file is not required on regtest
 if network != "regtest":

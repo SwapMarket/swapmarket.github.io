@@ -1,10 +1,11 @@
-import { hex } from "@scure/base";
+import { hex, utf8 } from "@scure/base";
 import { Buffer } from "buffer";
 
 import { chooseUrl, config } from "../config";
 import { type AssetType, BTC, LN, RBTC } from "../consts/Assets";
 import { SwapType } from "../consts/Enums";
 import type { deriveKeyFn } from "../context/Global";
+import apiAuth from "../lazy/apiAuth";
 import type {
     ChainPairTypeTaproot,
     Pairs,
@@ -86,6 +87,57 @@ export const getApiUrl = (backend: number): string => {
     return chooseUrl(config.backends[backend].apiUrl);
 };
 
+export const apiSignatureHeader = "x-api-signature";
+export const apiTimestampHeader = "x-api-timestamp";
+
+// HMAC-SHA256 of "<ts><method><path><body>", computed by the wasm module
+// from "npm run build:wasm-auth" and verified by the backend's own copy of
+// the secret to restrict who can call its API. The timestamp bounds how
+// long a captured request stays replayable, and binding method+path stops a
+// signature captured for one endpoint being replayed against another that
+// happens to accept a similarly-shaped body. Backends without
+// "authSecretEnv" set never receive these headers
+const signRequest = async (
+    backend: number,
+    method: string,
+    path: string,
+    payload: string,
+): Promise<HeadersInit> => {
+    const backendConfig = config.backends[backend];
+    if (!backendConfig.authSecretEnv) {
+        return {};
+    }
+
+    const { sign } = await apiAuth.get().catch(() => {
+        throw new Error(
+            `backend "${backendConfig.alias}" requires authentication, but the signing module isn't built (run "npm run build:wasm-auth")`,
+        );
+    });
+
+    const ts = Math.floor(Date.now() / 1000).toString();
+
+    let signature: Uint8Array;
+    try {
+        signature = sign(
+            backendConfig.authSecretEnv,
+            ts,
+            method.toUpperCase(),
+            path,
+            utf8.decode(payload),
+        );
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+        throw new Error(
+            `backend "${backendConfig.alias}" requires authentication, but ${backendConfig.authSecretEnv} isn't baked into the signing module`,
+        );
+    }
+
+    return {
+        [apiSignatureHeader]: hex.encode(signature),
+        [apiTimestampHeader]: ts,
+    };
+};
+
 export const coalesceLn = (asset: string) => (asset === LN ? BTC : asset);
 
 export const getPair = <
@@ -143,10 +195,14 @@ export const fetcher = async <T = unknown>(
 
     try {
         const referral = getReferral();
+        const body = params ? JSON.stringify(params) : "";
+        const method = options?.method ?? (params ? "POST" : "GET");
+        const signature = await signRequest(backend, method, url, body);
 
         let opts: RequestInit = {
             headers: {
                 referral,
+                ...signature,
             },
             signal: controller.signal,
         };
@@ -156,15 +212,23 @@ export const fetcher = async <T = unknown>(
                 method: "POST",
                 headers: {
                     ...(options ? options.headers : opts.headers),
+                    ...signature,
                     "Content-Type": "application/json",
                 },
                 signal: controller.signal,
-                body: JSON.stringify(params),
+                body,
             };
         }
 
+        // "options", when passed, otherwise fully replaces "opts" above, so
+        // the signature has to be merged in here as well to still cover it
         const apiUrl = getApiUrl(backend) + url;
-        const response = await fetch(apiUrl, options || opts);
+        const response = await fetch(
+            apiUrl,
+            options
+                ? { ...options, headers: { ...options.headers, ...signature } }
+                : opts,
+        );
 
         if (!response.ok) {
             try {

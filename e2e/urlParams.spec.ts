@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 import BigNumber from "bignumber.js";
 
-import { BTC, LBTC, LN, RBTC } from "../src/consts/Assets";
+import { BTC, LBTC, LN } from "../src/consts/Assets";
 import { Denomination } from "../src/consts/Enums";
 import { formatAmount } from "../src/utils/denomination";
 import {
@@ -135,9 +135,8 @@ test.describe("URL params", () => {
         await page.goto("/rescue/external/btc?mode=rescue-key");
         await assertMnemonicVisible();
 
-        await page.goto("/rescue/external/rsk?mode=rescue-key");
-        await page.getByTestId("rsk-rescue-refund-button").click();
-        await expect(page.getByText(/connect wallet/i)).toBeVisible();
+        // RSK is disabled in this regtest's boltz.conf (see cb1f8d31,
+        // f6c33ce0), so the rsk rescue flow isn't exercised here
     });
 
     const addressField = "onchainAddress";
@@ -239,13 +238,9 @@ test.describe("URL params", () => {
             expectedDestinationField: invoiceField,
             expectedDestinationValue: bolt12Offer,
         },
-        {
-            description: "RBTC destination",
-            params: `?sendAmount=100000&receiveAsset=${RBTC}&sendAsset=${BTC}`,
-            expectedReceiveAsset: RBTC,
-            expectedSendAsset: BTC,
-            expectedSendAmount: 100000,
-        },
+        // RBTC destination case removed: RSK is disabled in this regtest's
+        // boltz.conf (see cb1f8d31, f6c33ce0), so RBTC isn't a selectable
+        // asset here
     ].forEach((condition) => {
         test(`Combined params ${condition.description}`, async ({ page }) => {
             await page.goto(`/${condition.params}`);

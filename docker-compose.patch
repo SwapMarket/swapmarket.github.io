@@ -1,0 +1,13 @@
+diff --git a/docker-compose.yml b/docker-compose.yml
+index f315079..dd63fa1 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -24,7 +24,7 @@ x-services:
+       - --listen=0.0.0.0:9735
+       - --rpclisten=0.0.0.0:10009
+       - --restlisten=0.0.0.0:8081
+-      - --bitcoin.timelockdelta=18
++      - --bitcoin.timelockdelta=24
+       - --bitcoin.active
+       - --bitcoin.regtest
+       - --bitcoin.node=bitcoind

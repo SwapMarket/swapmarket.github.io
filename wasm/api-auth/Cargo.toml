@@ -1,0 +1,22 @@
+[package]
+name = "api-auth"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+hmac = "0.12"
+sha2 = "0.10"
+wasm-bindgen = "0.2"
+zeroize = "1"
+
+[build-dependencies]
+# Host-only (build.rs runs natively, not on wasm32), so this never ends up
+# in the compiled .wasm itself
+rand = "0.10"
+
+[profile.release]
+opt-level = "z"
+lto = true

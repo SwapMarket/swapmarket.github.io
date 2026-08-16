@@ -40,7 +40,20 @@ jobs:
             - name: Copy config
               run: npm run mainnet
 
+            - name: Set up Rust wasm toolchain
+              run: |
+                  rustup target add wasm32-unknown-unknown
+                  cargo install wasm-pack --locked
+
+            - name: Build wasm-auth
+              env:
+                  VITE_API_AUTH_SECRET_MIDDLEWAY:
+                      ${{ secrets.VITE_API_AUTH_SECRET_MIDDLEWAY }}
+              run: npm run build:wasm-auth
+
             - name: Build
+              env:
+                  VITE_RSK_LOG_SCAN_ENDPOINT: ""
               run: npm run build
 
             - name: Setup Pages

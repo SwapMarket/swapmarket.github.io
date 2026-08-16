@@ -43,11 +43,27 @@ const bolt11Prefixes = {
 
 const bip353Prefix = "₿";
 
+// The "bolt11" package doesn't know about signet's "tbs" bech32 prefix,
+// so it has to be passed explicitly or decoding "lntbs..." invoices throws
+// "Unknown coin bech32 prefix"
+const signetBolt11Prefix = "lntbs";
+const signetNetwork = {
+    bech32: "tbs",
+    pubKeyHash: 0x6f,
+    scriptHash: 0xc4,
+    validWitnessVersions: [0, 1],
+};
+
 export const decodeInvoice = async (
     invoice: string,
 ): Promise<{ type: InvoiceType; satoshis: number; preimageHash: string }> => {
     try {
-        const decoded = bolt11.decode(invoice);
+        const decoded = bolt11.decode(
+            invoice,
+            invoice.toLowerCase().startsWith(signetBolt11Prefix)
+                ? signetNetwork
+                : undefined,
+        );
         const sats = BigNumber(decoded.millisatoshis || 0)
             .dividedBy(1000)
             .integerValue(BigNumber.ROUND_HALF_UP)
