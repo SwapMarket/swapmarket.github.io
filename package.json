@@ -10,7 +10,7 @@
         "test": "npm run regtest && vitest ./tests",
         "test:e2e": "npm run regtest && playwright test",
         "playwright:install": "playwright install --with-deps chromium",
-        "dev": "vite --host",
+        "dev": "npm run build:wasm-auth && vite --host",
         "preview": "vite preview",
         "build": "./build.py && vite build; cp dist/index.html dist/404.html",
         "build:wasm-auth": "./build-wasm-auth.sh",

@@ -26,7 +26,8 @@ const obfuscatorConfig = {
         deadCodeInjection: false,
         // Real cost: freezes the tab for anyone with devtools open,
         // including legitimate technical users - revert to false if that
-        // generates complaints
+        // generates complaints. Confirmed safe on its own (real production
+        // build + headless browser check), unlike selfDefending below
         debugProtection: true,
         debugProtectionInterval: 4000,
         disableConsoleOutput: true,
@@ -34,7 +35,13 @@ const obfuscatorConfig = {
         log: false,
         numbersToExpressions: false,
         renameGlobals: false,
-        selfDefending: true,
+        // Left off: confirmed via a real production build + headless
+        // browser check that enabling this hangs the app before it ever
+        // renders (page never reaches domcontentloaded, severely enough to
+        // block Playwright's own automation protocol) - a known failure
+        // mode where its self-verification misfires against Rollup's
+        // cross-chunk wrapping in a code-split, multi-chunk build
+        selfDefending: false,
         simplify: true,
         splitStrings: true,
         stringArray: true,
