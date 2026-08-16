@@ -89,6 +89,32 @@ try {
     process.exit(1);
 }
 
+// wasm/api-auth's real output is gitignored (it has secrets baked in), so a
+// fresh checkout has nothing at this path for Vite to statically resolve
+// the dynamic import in src/lazy/apiAuth.ts against - build/dev/test would
+// hard-fail otherwise, for every config, whether or not it even uses
+// "authSecretEnv". Stub it in when missing; "npm run build:wasm-auth"
+// overwrites this with the real thing when it runs
+const wasmAuthDir = path.resolve(__dirname, "src/wasm/api-auth");
+const wasmAuthEntry = path.join(wasmAuthDir, "api_auth.js");
+
+if (!fs.existsSync(wasmAuthEntry)) {
+    fs.mkdirSync(wasmAuthDir, { recursive: true });
+    fs.writeFileSync(
+        wasmAuthEntry,
+        `export function sign() {
+    throw new Error(
+        "wasm-auth stub in place - run npm run build:wasm-auth",
+    );
+}
+
+export default async function init() {
+    return undefined;
+}
+`,
+    );
+}
+
 export default defineConfig({
     plugins: [
         solidPlugin(),
