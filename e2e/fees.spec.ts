@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { addReferral, getReferrals, setReferral } from "./utils";
 
-const referral = "boltz_webapp_desktop";
+const referral = "swapmarket_webapp_desktop";
 
 test.describe("Fees", () => {
     test("should show routing fees", async ({ page }) => {
