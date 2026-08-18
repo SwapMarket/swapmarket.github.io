@@ -102,7 +102,7 @@ test.describe("Submarine swap", () => {
     });
 
     test("BTC/LN with expensive MRH doesn't use MRH", async ({ page }) => {
-        const referral = "boltz_webapp_desktop";
+        const referral = "swapmarket_webapp_desktop";
         const referrals = await getReferrals();
 
         if (!referrals.some((r) => r.id === referral)) {
