@@ -7,6 +7,7 @@ RUN npm ci --ignore-scripts
 COPY . .
 
 ARG NETWORK=mainnet
+ENV SKIP_OBFUSCATION=true
 
 RUN npm run $NETWORK
 RUN if [ "$NETWORK" = "pro" ]; then npm run build:pro; else npm run build:regular; fi
