@@ -23,6 +23,22 @@ jobs:
             - name: Check out code
               uses: actions/checkout@v6
 
+            # Without this, src/wasm/api-auth doesn't exist when the
+            # Dockerfile runs "vite build", so vite.config.mjs stubs in a
+            # signer that always throws - every request to a backend with
+            # "authSecretEnv" set (e.g. Middle Way) then silently fails
+            # before it's ever fetched. Mirrors "deploy main.yml"
+            - name: Set up Rust wasm toolchain
+              run: |
+                  rustup target add wasm32-unknown-unknown
+                  cargo install wasm-pack --locked
+
+            - name: Build wasm-auth
+              env:
+                  VITE_API_AUTH_SECRET_MIDDLEWAY:
+                      ${{ secrets.VITE_API_AUTH_SECRET_MIDDLEWAY }}
+              run: npm run build:wasm-auth
+
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3
 
