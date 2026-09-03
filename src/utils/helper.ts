@@ -34,7 +34,9 @@ export const getReferral = (): string => {
     if (config.isPro) {
         return "pro";
     }
-    return isMobile() ? "swapmarket_webapp_mobile" : "swapmarket_webapp_desktop";
+    return isMobile()
+        ? "swapmarket_webapp_mobile"
+        : "swapmarket_webapp_desktop";
 };
 
 export const parseBlindingKey = (swap: SomeSwap, isRefund: boolean) => {

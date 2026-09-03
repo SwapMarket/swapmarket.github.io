@@ -47,7 +47,7 @@ const config = {
                 tor: "http://w2mqd2fcbgiop7oyxoes2ozmdnvgon22oipj7vzh2rquepf7cxauauad.onion",
             },
             contact: "https://t.me/SatsRoutingSupport",
-        }
+        },
     ],
     assets: {
         BTC: {
