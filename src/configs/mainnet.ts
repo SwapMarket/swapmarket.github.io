@@ -48,6 +48,7 @@ const config = {
             },
             contact: "https://t.me/SatsRoutingSupport",
         },
+
     ],
     assets: {
         BTC: {
