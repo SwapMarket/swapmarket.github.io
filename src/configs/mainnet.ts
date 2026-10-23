@@ -21,7 +21,7 @@ const config = {
                 normal: "https://api.middle-way.space",
                 tor: "http://middlwayksj5gak7pgaag32kcslzkjrpois57qtquiydpaqpy5fhzhqd.onion",
             },
-            contact: "https://igit.me/middleway",
+            contact: "https://middle-way.space",
             authSecretEnv: "VITE_API_AUTH_SECRET_MIDDLEWAY",
         },
         {
