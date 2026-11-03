@@ -3,15 +3,14 @@
 This is a fork of the official Boltz Web App that used to be served at
 [boltz.exchange](https://boltz.exchange/), which enabled **non-custodial** swaps
 between different layers of Bitcoin. Our fork adds the ability to list
-independent backend APIs in addition to Boltz's, so that a swap client can find
-a better deal.
+independent backend APIs, so that a swap client can find a better deal.
 
 Any node can now run
-[boltz-backend](https://github.com/SwapMarket/boltz-backend) and compete with
-Boltz at [SwapMarket](https://swapmarket.github.io).
+[boltz-backend](https://github.com/SwapMarket/boltz-backend) and compete at
+[SwapMarket](https://swapmarket.github.io).
 
 In addition to potentially lower costs, executing Bitcoin swaps via SwapMarket
-reduces centralization in this domain and helps avert regulatory pressure on
+reduces centralization in this domain and helps avert regulatory pressure on the
 swap providers.
 
 ## Is this legal?
