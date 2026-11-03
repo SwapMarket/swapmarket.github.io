@@ -1,9 +1,9 @@
 # SwapMarket
 
 This is a fork of the official Boltz Web App that used to be served at
-[boltz.exchange](https://boltz.exchange/), which enabled **non-custodial** swaps
-between different layers of Bitcoin. Our fork adds the ability to list
-independent backend APIs, so that a swap client can find a better deal.
+boltz.exchange, which enabled **non-custodial** swaps between different layers
+of Bitcoin. Our fork adds the ability to list independent backend APIs, so that
+a swap client can find a better deal.
 
 Any node can now run
 [boltz-backend](https://github.com/SwapMarket/boltz-backend) and compete at
@@ -43,7 +43,7 @@ also host an
 [.onion](http://swapmartgsq3pcikacvxc4divxywtqnlin6mmuu2rt42sgyzxky3ssqd.onion)
 mirror, but you will sacrifice code transparency when using it. The most private
 and secure way is to
-[self-host our web app](https://github.com/SwapMarket/swapmarket.github.io/blob/main/docs/index.md).
+[self-host our web app](https://swapmarket.github.io/docs/).
 
 ## Onboarding
 
@@ -62,7 +62,7 @@ listening on 127.0.0.1.
 
 ## Resources
 
-- Read Boltz's Docs: [Docs Home](https://github.com/SwapMarket/docs)
+- Read our Docs: [Docs Home](https://swapmarket.github.io/docs/)
 - Follow SwapMarket:
   [Nostr](https://primal.net/p/nprofile1qqsrtm03p9knckg63gyjk74yxy3u9e28vgxgr8ju3jk9dfz0ph7qrjqftumaf)
   [Stacker News](https://stacker.news/SwapMarket/all)
