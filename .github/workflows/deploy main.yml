@@ -2,6 +2,12 @@
 name: Deploy main
 
 on:
+    # Redeploy when docs change on main
+    push:
+        branches: ["main"]
+        paths:
+            - "docs/**"
+
     # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
 
@@ -55,6 +61,9 @@ jobs:
               env:
                   VITE_RSK_LOG_SCAN_ENDPOINT: ""
               run: npm run build
+
+            - name: Build docs
+              run: npx vitepress build docs --outDir dist/docs
 
             - name: Setup Pages
               uses: actions/configure-pages@v4
