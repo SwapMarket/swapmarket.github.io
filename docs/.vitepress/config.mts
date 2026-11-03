@@ -6,7 +6,8 @@ const docsRoot = "https://docs.boltz.exchange";
 export default defineConfig({
     title: "Boltz Web App",
     description: "Boltz Web App Docs",
-    head: [["link", { rel: "icon", href: "/assets/logo.svg" }]],
+    base: "/docs/",
+    head: [["link", { rel: "icon", href: "/docs/assets/logo.svg" }]],
     themeConfig: {
         logo: "/assets/logo.svg",
         search: {

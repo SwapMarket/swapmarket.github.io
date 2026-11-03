@@ -85,6 +85,16 @@ export const clipboard = (text: string) => {
     void navigator.clipboard.writeText(text);
 };
 
+export const isBackendEnabled = (backend: number): boolean =>
+    config.backends[backend] !== undefined &&
+    !config.backends[backend].disabled;
+
+export const defaultBackend = (): number =>
+    Math.max(
+        config.backends.findIndex((b) => !b.disabled),
+        0,
+    );
+
 export const getApiUrl = (backend: number): string => {
     return chooseUrl(config.backends[backend].apiUrl);
 };

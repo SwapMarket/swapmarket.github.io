@@ -47,6 +47,9 @@ type Backend = {
     // requests to this backend are signed with an HMAC-SHA256 of the
     // payload, keyed by that secret, sent as the "x-api-signature" header
     authSecretEnv?: string;
+    // Hidden from the backend list and never picked as the default. Keeps its
+    // index, so persisted swaps and the other backends' numbering stay valid
+    disabled?: boolean;
 };
 
 export type Config = {
@@ -70,12 +73,12 @@ const defaults = {
 
     loglevel: "info" as log.LogLevelDesc,
     defaultLanguage: "en",
-    supportUrl: "https://support.boltz.exchange/hc/center",
+    supportUrl:
+        "https://github.com/SwapMarket/swapmarket.github.io/blob/main/README.md",
     discordUrl: "",
     githubUrl: "https://github.com/SwapMarket",
     repoUrl: "https://github.com/SwapMarket/swapmarket.github.io",
-    docsUrl:
-        "https://github.com/SwapMarket/swapmarket.github.io/blob/main/README.md",
+    docsUrl: "https://swapmarket.github.io/docs/",
     tetherUrl: "",
     partnerUrl: "https://partner.boltz.exchange",
     nostrUrl: "https://iris.to/swapmarket",
