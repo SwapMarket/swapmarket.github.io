@@ -2,12 +2,6 @@
 name: Deploy main
 
 on:
-    # Redeploy when docs change on main
-    push:
-        branches: ["main"]
-        paths:
-            - "docs/**"
-
     # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
 
@@ -61,6 +55,15 @@ jobs:
               env:
                   VITE_RSK_LOG_SCAN_ENDPOINT: ""
               run: npm run build
+
+            # Kept so "Deploy docs" can republish the app without rebuilding it
+            - name: Upload app build
+              uses: actions/upload-artifact@v4
+              with:
+                  name: app-dist
+                  path: "./dist"
+                  include-hidden-files: true
+                  retention-days: 90
 
             - name: Build docs
               run: npx vitepress build docs --outDir dist/docs

@@ -6,7 +6,7 @@ devices, as well as desktop computers.
 
 ## Android
 
-1. Open [boltz.exchange](https://boltz.exchange) in a mobile browser like
+1. Open [SwapMarket]({appUrl}) in a mobile browser like
    [Chrome](https://www.google.com/chrome/) or
    [Vanadium](https://github.com/GrapheneOS/Vanadium), open the browser menu and
    tap "Install app":
@@ -22,8 +22,8 @@ devices, as well as desktop computers.
 
 ## iOS
 
-1. Open [boltz.exchange](https://boltz.exchange) in your Safari mobile browser
-   and tap the share button:
+1. Open [SwapMarket]({appUrl}) in your Safari mobile browser and tap the share
+   button:
 
 <figure><img src="./assets/ios-0.jpeg" alt=""><figcaption></figcaption></figure>
 
@@ -43,8 +43,8 @@ devices, as well as desktop computers.
 Here an example how to install Boltz as App on a Ubuntu Desktop Computer using
 [Chromium](https://www.chromium.org/Home/):
 
-1. Open [boltz.exchange](https://boltz.exchange) and click the install icon that
-   automatically appears:
+1. Open [SwapMarket]({appUrl}) and click the install icon that automatically
+   appears:
 
 <figure><img src="./assets/desktop-0.png" alt=""><figcaption></figcaption></figure>
 

@@ -1,0 +1,84 @@
+# Redeploy only the docs, reusing the app built by the last "Deploy main" run
+name: Deploy docs
+
+on:
+    push:
+        branches: ["main"]
+        paths:
+            - "docs/**"
+
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    actions: read
+    pages: write
+    id-token: write
+    attestations: write
+
+# Shares the group with "Deploy main" so deployments never overlap
+concurrency:
+    group: "pages"
+    cancel-in-progress: false
+
+jobs:
+    deploy:
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  cache: "npm"
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Find last app build
+              id: app
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: |
+                  run_id=$(gh run list --workflow "deploy main.yml" \
+                    --branch main --status success --limit 1 \
+                    --json databaseId --jq '.[0].databaseId')
+                  if [ -z "$run_id" ]; then
+                    echo "::error::No successful Deploy main run found, run it first"
+                    exit 1
+                  fi
+                  echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+            - name: Download app build
+              uses: actions/download-artifact@v4
+              with:
+                  name: app-dist
+                  path: "./dist"
+                  run-id: ${{ steps.app.outputs.run_id }}
+                  github-token: ${{ github.token }}
+
+            - name: Build docs
+              run: npx vitepress build docs --outDir dist/docs
+
+            - name: Setup Pages
+              uses: actions/configure-pages@v4
+
+            - name: Attest build provenance
+              uses: actions/attest-build-provenance@v1
+              with:
+                  subject-path: "${{ github.workspace }}/dist"
+
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: "./dist"
+
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4

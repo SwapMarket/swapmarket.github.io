@@ -1,6 +1,7 @@
 import { defineConfig } from "vitepress";
 
-const docsRoot = "https://swapmarket.github.io/docs/";
+const appUrl = "https://swapmarket.github.io";
+const docsRoot = `${appUrl}/docs/`;
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -8,6 +9,14 @@ export default defineConfig({
     description: "Boltz Web App Docs",
     base: "/docs/",
     head: [["link", { rel: "icon", href: "/docs/assets/logo.svg" }]],
+    markdown: {
+        // Replaces {appUrl} in the docs with the web app's URL
+        config: (md) => {
+            md.core.ruler.before("normalize", "app-url", (state) => {
+                state.src = state.src.replaceAll("{appUrl}", appUrl);
+            });
+        },
+    },
     themeConfig: {
         logo: "/assets/logo.svg",
         search: {
