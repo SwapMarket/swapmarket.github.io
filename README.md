@@ -1,18 +1,18 @@
 # SwapMarket
 
-This is a fork of the official Boltz Web App served at
-[boltz.exchange](https://boltz.exchange/), which enables **non-custodial** swaps
-between different layers of Bitcoin. It adds the ability to list independent
-backend APIs in addition to Boltz's, so that a swap client can find a better
-deal.
+This is a fork of the official Boltz Web App that used to be served at
+[boltz.exchange](https://boltz.exchange/), which enabled **non-custodial** swaps
+between different layers of Bitcoin. Our fork adds the ability to list
+independent backend APIs in addition to Boltz's, so that a swap client can find
+a better deal.
 
 Any node can now run
-[boltz-backend](https://github.com/BoltzExchange/boltz-backend) and compete with
+[boltz-backend](https://github.com/SwapMarket/boltz-backend) and compete with
 Boltz at [SwapMarket](https://swapmarket.github.io).
 
 In addition to potentially lower costs, executing Bitcoin swaps via SwapMarket
 reduces centralization in this domain and helps avert regulatory pressure on
-Boltz.
+swap providers.
 
 ## Is this legal?
 
@@ -35,7 +35,7 @@ Running our frontend as a Github Page makes it verifiably not evil. The code is
 hosted, built and deployed publicly. Github
 [attests](https://github.com/SwapMarket/swapmarket.github.io/attestations) build
 provenance upon deployment. This makes our swaps completely trustless, unlike
-[Boltz](https://boltz.exchange) itself (unless you self-host their web app).
+the original Boltz itself (unless you self-hosted their web app).
 
 The web app is static. All your settings, logs and transaction history are
 stored only in your browser's cookies and cache. If you wish to shield your IP
@@ -54,15 +54,16 @@ details to the
 [config file](https://github.com/SwapMarket/swapmarket.github.io/blob/main/src/configs/mainnet.ts)
 with a PR. It is obligatory to be contactable and have ample liquidity.
 
-Consult Boltz's
-[deployment instructions](https://github.com/BoltzExchange/boltz-backend/blob/master/docs/backend-development.md).
-It is easier to start with the
+Consult
+[deployment instructions](https://github.com/SwapMarket/boltz-backend/blob/master/docs/backend-development.md)
+and the [Regtest stack](https://github.com/SwapMarket/regtest) used in CI. It
+may be easier to start with our
 [Testnet mirror](https://swapmarket.github.io/testnet) and your local backend
 listening on 127.0.0.1.
 
 ## Resources
 
-- Read Boltz's Docs: [Docs Home](https://docs.boltz.exchange/)
-- Read Boltz's Blog: [Substack](https://blog.boltz.exchange/)
+- Read Boltz's Docs: [Docs Home](https://github.com/SwapMarket/docs)
 - Follow SwapMarket:
   [Nostr](https://primal.net/p/nprofile1qqsrtm03p9knckg63gyjk74yxy3u9e28vgxgr8ju3jk9dfz0ph7qrjqftumaf)
+  [Stacker News](https://stacker.news/SwapMarket/all)
