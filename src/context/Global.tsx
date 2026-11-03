@@ -24,7 +24,12 @@ import { getPairs } from "../utils/boltzClient";
 import type { ECKeys } from "../utils/ecpair";
 import { ECPair } from "../utils/ecpair";
 import { formatError } from "../utils/errors";
-import { getReferral, isMobile } from "../utils/helper";
+import {
+    defaultBackend,
+    getReferral,
+    isBackendEnabled,
+    isMobile,
+} from "../utils/helper";
 import { deleteOldLogs, injectLogWriter } from "../utils/logs";
 import { migrateStorage } from "../utils/migration";
 import type { RescueFile } from "../utils/rescueFile";
@@ -156,7 +161,7 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
 
     const [backend, setBackend] = makePersisted(
         // eslint-disable-next-line solid/reactivity
-        createSignal<number>(0),
+        createSignal<number>(defaultBackend()),
         {
             name: config.network + "backend",
         },
@@ -467,7 +472,11 @@ const GlobalProvider = (props: { children: JSX.Element }) => {
 
     // Get the backend from the URL parameters
     const backendParam = getUrlParam(UrlParam.Backend);
-    if (backendParam && backendParam !== "") {
+    if (
+        backendParam &&
+        backendParam !== "" &&
+        isBackendEnabled(Number(backendParam))
+    ) {
         setBackend(Number(backendParam));
         resetUrlParam(UrlParam.Backend);
     }

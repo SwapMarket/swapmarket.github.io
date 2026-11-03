@@ -9,6 +9,7 @@ const config = {
     backends: [
         {
             alias: "Boltz Exchange",
+            disabled: true,
             apiUrl: {
                 normal: "https://api.boltz.exchange",
                 tor: "http://boltzzzbnus4m7mta3cxmflnps4fp7dueu2tgurstbvrbt6xswzcocyd.onion/api",

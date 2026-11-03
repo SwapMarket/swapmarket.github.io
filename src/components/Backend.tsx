@@ -1,6 +1,7 @@
 import { config } from "../config";
 import { useCreateContext } from "../context/Create";
 import { useGlobalContext } from "../context/Global";
+import { defaultBackend, isBackendEnabled } from "../utils/helper";
 
 const Backend = () => {
     const { backendSelect, setBackendSelect } = useCreateContext();
@@ -11,8 +12,8 @@ const Backend = () => {
     };
 
     // protection from bad persisted value
-    if (backend() >= config.backends.length || backend() < 0) {
-        setBackend(0);
+    if (!isBackendEnabled(backend())) {
+        setBackend(defaultBackend());
     }
 
     return (

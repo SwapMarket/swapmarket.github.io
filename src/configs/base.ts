@@ -47,6 +47,9 @@ type Backend = {
     // requests to this backend are signed with an HMAC-SHA256 of the
     // payload, keyed by that secret, sent as the "x-api-signature" header
     authSecretEnv?: string;
+    // Hidden from the backend list and never picked as the default. Keeps its
+    // index, so persisted swaps and the other backends' numbering stay valid
+    disabled?: boolean;
 };
 
 export type Config = {
