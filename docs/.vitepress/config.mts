@@ -1,6 +1,6 @@
 import { defineConfig } from "vitepress";
 
-const docsRoot = "https://docs.boltz.exchange";
+const docsRoot = "https://swapmarket.github.io/docs/";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
