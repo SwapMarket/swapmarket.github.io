@@ -78,6 +78,8 @@ jobs:
               uses: actions/upload-pages-artifact@v3
               with:
                   path: "./dist"
+                  # Kept so "Deploy gittr" can mirror it without rebuilding
+                  retention-days: 90
 
             - name: Deploy to GitHub Pages
               id: deployment

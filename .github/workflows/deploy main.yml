@@ -81,45 +81,9 @@ jobs:
               with:
                   # Upload dist folder
                   path: "./dist"
+                  # Kept so "Deploy gittr" can mirror it without rebuilding
+                  retention-days: 90
 
             - name: Deploy to GitHub Pages
               id: deployment
               uses: actions/deploy-pages@v4
-
-    # Mirror the deployed site (app and docs) to the "site" repo on gittr.
-    # Publishing it as gittr Pages is manual: click "Push Manifest" on gittr
-    gittr:
-        needs: deploy
-        runs-on: ubuntu-latest
-        env:
-            GITTR_REMOTE: git@git.gittr.space:npub1xhklzztd83v34zsf9da2gvfrctj5wcsvsx09er9v26jy7r0uq8yq4vme7d/site.git
-        steps:
-            - name: Download deployed site
-              uses: actions/download-artifact@v4
-              with:
-                  name: github-pages
-                  path: ./artifact
-
-            - name: Extract site
-              run: mkdir site && tar -xf artifact/artifact.tar -C site
-
-            - name: Push to gittr
-              env:
-                  GITTR_SSH_KEY: ${{ secrets.GITTR_SSH_KEY }}
-              run: |
-                  if [ -z "$GITTR_SSH_KEY" ]; then
-                    echo "::warning::GITTR_SSH_KEY is not set, skipping gittr deploy"
-                    exit 0
-                  fi
-                  mkdir -p ~/.ssh
-                  echo "$GITTR_SSH_KEY" > ~/.ssh/gittr
-                  chmod 600 ~/.ssh/gittr
-                  echo "git.gittr.space ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGmBZGtqjQ1GeLCNk8tGv1IOpr1p5WXEwpOrffY+jacm" >> ~/.ssh/known_hosts
-                  cd site
-                  git init -q -b main
-                  git add -A
-                  git -c user.name="SwapMarket" -c user.email="swapmarket@users.noreply.github.com" \
-                    commit -q -m "Deploy ${GITHUB_SHA}"
-                  # A single fresh commit each time, so old builds don't pile up
-                  GIT_SSH_COMMAND="ssh -i ~/.ssh/gittr -o IdentitiesOnly=yes" \
-                    git push --force "$GITTR_REMOTE" main
