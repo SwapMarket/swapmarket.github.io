@@ -1,0 +1,88 @@
+# Mirror the site last published to GitHub Pages (app and docs) to the "site"
+# repo on gittr, without rebuilding it. Publishing it as gittr Pages is manual:
+# click "Push Manifest" on gittr
+name: Deploy gittr
+
+on:
+    workflow_run:
+        workflows: ["Deploy main", "Deploy docs"]
+        types:
+            - completed
+
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
+        inputs:
+            run_id:
+                description:
+                    "Deploy run to mirror (default: latest successful one)"
+                required: false
+
+permissions:
+    contents: read
+    actions: read
+
+concurrency:
+    group: "gittr"
+    cancel-in-progress: true
+
+jobs:
+    deploy:
+        if:
+            github.event_name == 'workflow_dispatch' ||
+            github.event.workflow_run.conclusion == 'success'
+        runs-on: ubuntu-latest
+        env:
+            GITTR_REMOTE: git@git.gittr.space:npub1xhklzztd83v34zsf9da2gvfrctj5wcsvsx09er9v26jy7r0uq8yq4vme7d/site.git
+        steps:
+            - name: Find published site
+              id: site
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  TRIGGER_RUN_ID:
+                      ${{ github.event.workflow_run.id || inputs.run_id }}
+              run: |
+                  run_id="$TRIGGER_RUN_ID"
+                  if [ -z "$run_id" ]; then
+                    # Started by hand: use the latest successful deploy
+                    run_id=$(gh run list --repo "$GITHUB_REPOSITORY" \
+                      --branch main --status success --limit 20 \
+                      --json databaseId,workflowName --jq \
+                      '[.[] | select(.workflowName == "Deploy main" or .workflowName == "Deploy docs")][0].databaseId')
+                  fi
+                  if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
+                    echo "::error::No successful Deploy main or Deploy docs run found"
+                    exit 1
+                  fi
+                  echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+            - name: Download published site
+              uses: actions/download-artifact@v4
+              with:
+                  name: github-pages
+                  path: ./artifact
+                  run-id: ${{ steps.site.outputs.run_id }}
+                  github-token: ${{ github.token }}
+
+            - name: Extract site
+              run: mkdir site && tar -xf artifact/artifact.tar -C site
+
+            - name: Push to gittr
+              env:
+                  GITTR_SSH_KEY: ${{ secrets.GITTR_SSH_KEY }}
+              run: |
+                  if [ -z "$GITTR_SSH_KEY" ]; then
+                    echo "::warning::GITTR_SSH_KEY is not set, skipping gittr deploy"
+                    exit 0
+                  fi
+                  mkdir -p ~/.ssh
+                  echo "$GITTR_SSH_KEY" > ~/.ssh/gittr
+                  chmod 600 ~/.ssh/gittr
+                  echo "git.gittr.space ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGmBZGtqjQ1GeLCNk8tGv1IOpr1p5WXEwpOrffY+jacm" >> ~/.ssh/known_hosts
+                  cd site
+                  git init -q -b main
+                  git add -A
+                  git -c user.name="SwapMarket" -c user.email="swapmarket@users.noreply.github.com" \
+                    commit -q -m "Deploy ${GITHUB_SHA}"
+                  # A single fresh commit each time, so old builds don't pile up
+                  GIT_SSH_COMMAND="ssh -i ~/.ssh/gittr -o IdentitiesOnly=yes" \
+                    git push --force "$GITTR_REMOTE" main
