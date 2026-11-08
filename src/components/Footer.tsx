@@ -62,6 +62,9 @@ const Footer = () => {
                         {t("onion")}
                     </ExternalLink>
                 </Show>
+                <Show when={config.gittrUrl}>
+                    | <ExternalLink href={config.gittrUrl}>Gittr</ExternalLink>
+                </Show>
             </p>
             <p class="legal-nav">
                 <a href="/terms">{t("terms")}</a>

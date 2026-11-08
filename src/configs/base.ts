@@ -61,6 +61,8 @@ export type Config = {
     isPro?: boolean;
     assets?: Record<string, Asset>;
     torUrl?: string;
+    // Mirror of the site on gittr Pages (Nostr)
+    gittrUrl?: string;
 } & typeof defaults;
 
 const defaults = {

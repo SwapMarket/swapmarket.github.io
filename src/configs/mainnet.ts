@@ -4,6 +4,8 @@ import { Explorer, baseConfig, chooseUrl } from "src/configs/base";
 const config = {
     ...baseConfig,
     torUrl: "http://swapmartgsq3pcikacvxc4divxywtqnlin6mmuu2rt42sgyzxky3ssqd.onion/",
+    gittrUrl:
+        "https://1cdzwdkc0uepk5ll8mhpcbyw3xh8gakldbfdq8fphhqnv503bcsite.pages.gittr.space/",
     network: "mainnet",
     loglevel: "debug",
     backends: [

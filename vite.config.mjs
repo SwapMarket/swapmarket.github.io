@@ -13,7 +13,11 @@ import wasm from "vite-plugin-wasm";
 // takes several minutes and isn't needed for the throwaway build e2e tests
 // run against in CI
 const obfuscatorConfig = {
-    excludes: [],
+    // Big third-party libraries that get a chunk of their own (see
+    // vendorChunk below): obfuscating them hides nothing of ours, but blows
+    // them up several times over, secp256k1-zkp's embedded wasm from 2 MB
+    // to 12 MB
+    excludes: ["vendor-zkp", /assets\/lib-/],
     enable: process.env.SKIP_OBFUSCATION !== "true",
     log: true,
     autoExcludeNodeModules: false,
@@ -122,6 +126,154 @@ export default async function init() {
     );
 }
 
+// gittr Pages, where the site is mirrored on Nostr, rejects files over 4 MB,
+// and obfuscation more than doubles code size. So libraries the app loads at
+// startup are packed into chunks of at most ~1 MB of source, instead of all
+// landing in the entry bundle. Libraries only loaded on demand (wallets,
+// hardware signers) keep Rollup's default chunking, so they still only load
+// when needed, but the big ones get a chunk of their own
+const maxVendorChunkSize = 1_000_000;
+const ownChunkSize = 300_000;
+
+const packageOf = (id) => id.match(/node_modules\/((?:@[^/]+\/)?[^/]+)/)?.[1];
+
+// Whether a module is reachable from an entry point via static imports
+const isLoadedAtStartup = (id, getModuleInfo) => {
+    const seen = new Set([id]);
+    const queue = [id];
+    while (queue.length > 0) {
+        const info = getModuleInfo(queue.shift());
+        if (info?.isEntry) {
+            return true;
+        }
+        for (const importer of info?.importers ?? []) {
+            if (!seen.has(importer)) {
+                seen.add(importer);
+                queue.push(importer);
+            }
+        }
+    }
+    return false;
+};
+
+// Rollup's helper modules (e.g. "\0commonjsHelpers.js") are packed together
+// with the libraries, since those import them
+const chunkGroupOf = (id) =>
+    packageOf(id) ?? (id.startsWith("\0") ? "\0helpers" : undefined);
+
+// Strongly connected components of a dependency graph (Tarjan), listed
+// dependencies first
+const dependencyOrder = (graph) => {
+    const order = [];
+    const stack = [];
+    const index = new Map();
+    const low = new Map();
+    const visit = (node) => {
+        index.set(node, index.size);
+        low.set(node, index.get(node));
+        stack.push(node);
+        for (const dep of [...graph.get(node)].sort()) {
+            if (!index.has(dep)) {
+                visit(dep);
+                low.set(node, Math.min(low.get(node), low.get(dep)));
+            } else if (stack.includes(dep)) {
+                low.set(node, Math.min(low.get(node), index.get(dep)));
+            }
+        }
+        if (low.get(node) === index.get(node)) {
+            const component = [];
+            let member;
+            do {
+                member = stack.pop();
+                component.push(member);
+            } while (member !== node);
+            order.push(component);
+        }
+    };
+    for (const node of [...graph.keys()].sort()) {
+        if (!index.has(node)) {
+            visit(node);
+        }
+    }
+    return order;
+};
+
+// Chunk group -> chunk name, computed once per build
+let vendorChunkOfGroup;
+
+const planVendorChunks = ({ getModuleIds, getModuleInfo }) => {
+    const sizes = new Map();
+    const onDemandSizes = new Map();
+    const startupModules = [];
+    for (const id of getModuleIds()) {
+        const group = chunkGroupOf(id);
+        if (group === undefined) {
+            continue;
+        }
+        const size = getModuleInfo(id)?.code?.length ?? 0;
+        if (isLoadedAtStartup(id, getModuleInfo)) {
+            startupModules.push(id);
+            sizes.set(group, (sizes.get(group) ?? 0) + size);
+        } else {
+            onDemandSizes.set(group, (onDemandSizes.get(group) ?? 0) + size);
+        }
+    }
+
+    const plan = new Map();
+    for (const [group, size] of onDemandSizes) {
+        if (!sizes.has(group) && size > ownChunkSize) {
+            // One chunk per npm scope, since packages of one scope tend to
+            // import each other
+            plan.set(group, `lib-${group.replace("@", "").split("/")[0]}`);
+        }
+    }
+
+    // Fill the startup chunks in dependency order, so a chunk only imports
+    // from earlier ones. Import cycles between chunks would let a library
+    // run before what it depends on, like code using Buffer before its
+    // polyfill is set up
+    const graph = new Map([...sizes.keys()].map((group) => [group, new Set()]));
+    for (const id of startupModules) {
+        const group = chunkGroupOf(id);
+        for (const imported of getModuleInfo(id)?.importedIds ?? []) {
+            const dep = chunkGroupOf(imported);
+            if (dep !== group && graph.has(dep)) {
+                graph.get(group).add(dep);
+            }
+        }
+    }
+
+    let chunk = 0;
+    let used = 0;
+    for (const component of dependencyOrder(graph)) {
+        const size = component.reduce(
+            (sum, group) => sum + sizes.get(group),
+            0,
+        );
+        if (used > 0 && used + size > maxVendorChunkSize) {
+            chunk++;
+            used = 0;
+        }
+        used += size;
+        for (const group of component) {
+            plan.set(group, `vendor-${chunk}`);
+        }
+    }
+    return plan;
+};
+
+const vendorChunk = (id, meta) => {
+    const group = chunkGroupOf(id);
+    if (group === undefined) {
+        return undefined;
+    }
+    if (group === "@vulpemventures/secp256k1-zkp") {
+        return "vendor-zkp";
+    }
+    vendorChunkOfGroup ??= planVendorChunks(meta);
+    return vendorChunkOfGroup.get(group);
+};
+
 export default defineConfig({
     plugins: [
         solidPlugin(),
@@ -141,6 +293,11 @@ export default defineConfig({
     base: "/",
     build: {
         cssCodeSplit: true,
+        rollupOptions: {
+            output: {
+                manualChunks: vendorChunk,
+            },
+        },
         commonjsOptions: {
             transformMixedEsModules: true,
         },
