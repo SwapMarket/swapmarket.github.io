@@ -81,8 +81,6 @@ jobs:
               with:
                   # Upload dist folder
                   path: "./dist"
-                  # Kept so "Deploy gittr" can mirror it without rebuilding
-                  retention-days: 90
 
             - name: Deploy to GitHub Pages
               id: deployment
