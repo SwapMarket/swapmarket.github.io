@@ -79,7 +79,7 @@ const defaults = {
     githubUrl: "https://github.com/SwapMarket",
     repoUrl: "https://github.com/SwapMarket/swapmarket.github.io",
     docsUrl: "https://swapmarket.github.io/docs/",
-    tetherUrl: "",
+    tetherUrl: "https://swapmarket.github.io/liq2sol",
     partnerUrl: "https://partner.boltz.exchange",
     nostrUrl: "https://iris.to/swapmarket",
     statusUrl: "https://status.boltz.exchange",
