@@ -88,22 +88,14 @@ const Nav = (props: { network: string; isPro?: boolean }) => {
                         <a
                             class="external"
                             target="_blank"
-                            href={config.tetherUrl}
-                            style={{
-                                display: "inline-flex",
-                                "align-items": "center",
-                                "text-decoration": "none",
-                            }}>
+                            href={config.tetherUrl}>
                             {t("tether")}
                             <img
+                                class="link-mark"
                                 src="tether-usdt-logo.svg"
-                                alt="Tether"
+                                alt=""
                                 width="24"
                                 height="24"
-                                style={{
-                                    "margin-left": "8px",
-                                    "vertical-align": "middle",
-                                }}
                             />
                         </a>
                     </Show>
