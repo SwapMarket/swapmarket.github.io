@@ -176,6 +176,11 @@ body:has(#hamburger.active) {
 #collapse a {
     display: block;
 }
+/* A link's own mark, floated like the other links' icons so its label sits on their line, and centred on it. */
+#collapse a .link-mark {
+    float: right;
+    margin: -1px 0 0 8px;
+}
 
 @media (max-width: 769px) {
     #collapse.active {
@@ -200,6 +205,12 @@ body:has(#hamburger.active) {
     #collapse.active a.external svg {
         width: 30px;
         height: 36px;
+    }
+
+    #collapse.active a .link-mark {
+        width: 30px;
+        height: 30px;
+        margin: 4px 0 0 10px;
     }
 }
 
