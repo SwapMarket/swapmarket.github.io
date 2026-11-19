@@ -19,3 +19,7 @@ export const siteUrl = (
     }
     return `https://swapmarket.github.io/${name ? `${name}/` : ""}`;
 };
+
+// A site's address on an nsite gateway, wherever the app is opened.
+export const nsiteUrl = (name: string, gateway: string): string =>
+    `https://${name ? key36 + name : npub}.${gateway}/`;

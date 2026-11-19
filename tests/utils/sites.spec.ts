@@ -1,4 +1,4 @@
-import { key36, npub, siteUrl } from "../../src/utils/sites";
+import { key36, npub, nsiteUrl, siteUrl } from "../../src/utils/sites";
 
 describe("siteUrl", () => {
     test("links go to GitHub Pages from anywhere but an nsite", () => {
@@ -43,5 +43,12 @@ describe("siteUrl", () => {
                 "https://swapmarket.github.io/liq2sol/",
             );
         }
+    });
+
+    test("nsiteUrl gives a site's address on a gateway", () => {
+        expect(nsiteUrl("", "nwb.tf")).toEqual(`https://${npub}.nwb.tf/`);
+        expect(nsiteUrl("liq2sol", "nwb.tf")).toEqual(
+            `https://${key36}liq2sol.nwb.tf/`,
+        );
     });
 });
