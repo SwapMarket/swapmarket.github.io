@@ -79,6 +79,14 @@ const Nav = (props: { network: string; isPro?: boolean }) => {
                             href={siteUrl("liq2sol")}
                             onClick={() => setHamburger(false)}>
                             {t("tether")}
+                            {/* Floated right, so the first is the rightmost: Tether, then USDC. */}
+                            <img
+                                class="link-mark"
+                                src="usdc-logo.svg"
+                                alt=""
+                                width="24"
+                                height="24"
+                            />
                             <img
                                 class="link-mark"
                                 src="tether-usdt-logo.svg"
