@@ -57,6 +57,7 @@ const Footer = () => {
                     {t("testnet")}
                 </a>
                 <Show when={config.torUrl}>
+                    {" "}
                     |{" "}
                     <ExternalLink href={config.torUrl}>
                         {t("onion")}
