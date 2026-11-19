@@ -8,6 +8,7 @@ import { config } from "../config";
 import { useGlobalContext } from "../context/Global";
 import locales from "../i18n/i18n";
 import "../style/nav.scss";
+import { siteUrl } from "../utils/sites";
 
 const Nav = (props: { network: string; isPro?: boolean }) => {
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -71,7 +72,7 @@ const Nav = (props: { network: string; isPro?: boolean }) => {
                         {t("history")}
                     </A>
                     <Show when={config.tetherUrl}>
-                        <a class="external" href={config.tetherUrl}>
+                        <a class="external" href={siteUrl("liq2sol")}>
                             {t("tether")}
                             <img
                                 class="link-mark"
