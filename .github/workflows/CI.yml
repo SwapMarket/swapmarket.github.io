@@ -1,9 +1,9 @@
 name: CI
 
 on:
-    # Runs on pushes and PRs targeting the main and test branches
+    # Runs on pushes to main and test, and on PRs targeting main. A green run on main deploys it (deploy main.yml).
     push:
-        branches: ["test"]
+        branches: ["main", "test"]
         paths-ignore:
             - README.md
     pull_request:

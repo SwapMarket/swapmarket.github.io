@@ -2,6 +2,14 @@
 name: Deploy main
 
 on:
+    # Deploys main when CI passes on a push to it, such as a merged PR
+    workflow_run:
+        workflows: ["CI"]
+        types:
+            - completed
+        branches:
+            - main
+
     # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
 
@@ -20,6 +28,11 @@ concurrency:
 jobs:
     # Deploy mainnet
     deploy:
+        # By hand, or after a green CI run on a push to main. A PR's CI run, which can come from a fork, never deploys.
+        if: >-
+            github.event_name == 'workflow_dispatch' ||
+            (github.event.workflow_run.conclusion == 'success' &&
+            github.event.workflow_run.event == 'push')
         environment:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }}
@@ -27,6 +40,9 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+              with:
+                  # The commit CI tested, not whatever main has become since
+                  ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
             - name: Set up Node
               uses: actions/setup-node@v4
