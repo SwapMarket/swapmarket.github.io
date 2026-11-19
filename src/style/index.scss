@@ -679,9 +679,17 @@ textarea.invalid {
     }
 }
 
+/* 14px below the menu, with a 16px gutter and rounded corners on phones, as on SwapMarket's other sites. */
+@media (max-width: 488px) {
+    .frame {
+        margin: 14px 16px 0;
+        border: 1px solid var(--color-white-10);
+        border-radius: 12px;
+    }
+}
 @media (min-width: 488px) {
     .frame {
-        margin-top: 74px;
+        margin-top: 14px;
         margin-bottom: 56px;
         border: 1px solid var(--color-white-10);
         border-radius: 16px;
