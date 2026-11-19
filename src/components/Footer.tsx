@@ -49,10 +49,6 @@ const Footer = () => {
                 </a>
             </div>
             <p class="footer-nav">
-                <ExternalLink href={config.regtestUrl}>
-                    {t("regtest")}
-                </ExternalLink>{" "}
-                |{" "}
                 <a target="_blank" href={config.testnetUrl}>
                     {t("testnet")}
                 </a>
