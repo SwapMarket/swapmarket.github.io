@@ -28,20 +28,37 @@ read -r run sha < <(gh run list -R "$gh_repo" -w "Deploy main" -s success -L 1 -
 echo "the latest build: run $run, commit ${sha::12}"
 gh run download "$run" -R "$gh_repo" -n app-dist -D "$work/build"
 
+# First every file is fetched and compared with the build; then each one's attestation is checked, several at a time, since
+# gh attestation verify takes seconds per file.
 bad=0 n=0
+mkdir "$work/live"
 while IFS= read -r -d '' f; do
   rel=${f#"$work/build/"}
   n=$((n + 1))
-  if ! curl -fsSL -o "$work/live" "$site$rel"; then echo "MISSING      $rel"; bad=1; continue; fi
-  if ! cmp -s "$work/live" "$f"; then echo "DIFFERS      $rel"; bad=1; continue; fi
-  if [ "$verify" = signature ]; then
-    gh attestation verify "$work/live" --repo "$gh_repo" >/dev/null 2>&1 && ok=1 || ok=0
-  else
-    digest=$(sha256sum "$work/live" | cut -d' ' -f1)
-    [ "$(gh api "/repos/$gh_repo/attestations/sha256:$digest" -q '.attestations | length' 2>/dev/null || echo 0)" -gt 0 ] && ok=1 || ok=0
-  fi
-  if [ "$ok" = 1 ]; then echo "same, attested $rel"; else echo "NOT ATTESTED $rel"; bad=1; fi
+  mkdir -p "$(dirname "$work/live/$rel")"
+  if ! curl -fsSL -o "$work/live/$rel" "$site$rel"; then echo "MISSING      $rel"; bad=1; rm -f "$work/live/$rel"
+  elif ! cmp -s "$work/live/$rel" "$f"; then echo "DIFFERS      $rel"; bad=1; rm -f "$work/live/$rel"; fi
 done < <(find "$work/build" -type f -not -path "$work/build/docs/*" -print0 | sort -z)
+
+check_one() {
+  local file=$1 rel=${1#"$work/live/"} ok=0
+  if [ "$verify" = signature ]; then
+    # Parallel runs can trip over gh's shared Sigstore setup ("public good verifier is not available"), so a failure is retried.
+    for _ in 1 2 3; do gh attestation verify "$file" --repo "$gh_repo" >/dev/null 2>&1 && { ok=1; break; }; done
+  else
+    local digest
+    digest=$(sha256sum "$file" | cut -d' ' -f1)
+    [ "$(gh api "/repos/$gh_repo/attestations/sha256:$digest" -q '.attestations | length' 2>/dev/null || echo 0)" -gt 0 ] && ok=1
+  fi
+  if [ "$ok" = 1 ]; then echo "same, attested $rel"; else echo "NOT ATTESTED $rel"; fi
+}
+export -f check_one
+export work verify gh_repo
+# One verification on its own first, so gh sets up its Sigstore data before the parallel ones start.
+[ "$verify" != signature ] || [ ! -f "$work/live/index.html" ] || gh attestation verify "$work/live/index.html" --repo "$gh_repo" >/dev/null 2>&1 || true
+results=$(find "$work/live" -type f -print0 | xargs -0 -n 1 -P 8 bash -c 'check_one "$1"' _ | sort -k3)
+echo "$results"
+! grep -q '^NOT ATTESTED' <<<"$results" || bad=1
 
 if [ "$bad" = 0 ]; then echo "all $n files at $site are commit ${sha::12}'s build, attested by $gh_repo ($verify check)"; else
   echo "$site is NOT exactly commit ${sha::12}'s attested build (if a deploy is running, try again when it is done)" >&2; exit 1; fi
