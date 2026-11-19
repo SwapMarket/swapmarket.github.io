@@ -1,6 +1,5 @@
 import { A } from "@solidjs/router";
 import { BsGlobe } from "solid-icons/bs";
-import { OcLinkexternal2 } from "solid-icons/oc";
 import { For, Show, createSignal } from "solid-js";
 
 import logo from "../assets/logo.svg";
@@ -9,7 +8,6 @@ import { config } from "../config";
 import { useGlobalContext } from "../context/Global";
 import locales from "../i18n/i18n";
 import "../style/nav.scss";
-import ExternalLink from "./ExternalLink";
 
 const Nav = (props: { network: string; isPro?: boolean }) => {
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -72,23 +70,8 @@ const Nav = (props: { network: string; isPro?: boolean }) => {
                     <A href="/history" onClick={() => setHamburger(false)}>
                         {t("history")}
                     </A>
-                    <Show when={config.supportUrl}>
-                        <ExternalLink class="external" href={config.supportUrl}>
-                            {t("help")}
-                            <OcLinkexternal2 size={23} />
-                        </ExternalLink>
-                    </Show>
-                    <Show when={config.docsUrl}>
-                        <ExternalLink class="external" href={config.docsUrl}>
-                            {t("docs")}
-                            <OcLinkexternal2 size={23} />
-                        </ExternalLink>
-                    </Show>
                     <Show when={config.tetherUrl}>
-                        <a
-                            class="external"
-                            target="_blank"
-                            href={config.tetherUrl}>
+                        <a class="external" href={config.tetherUrl}>
                             {t("tether")}
                             <img
                                 class="link-mark"

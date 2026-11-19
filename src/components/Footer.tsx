@@ -62,10 +62,20 @@ const Footer = () => {
                         {t("onion")}
                     </ExternalLink>
                 </Show>
-            </p>
-            <p class="legal-nav">
-                <a href="/terms">{t("terms")}</a>
-                <a href="/privacy">{t("privacy")}</a>
+                <Show when={config.supportUrl}>
+                    {" "}
+                    |{" "}
+                    <ExternalLink href={config.supportUrl}>
+                        {t("help")}
+                    </ExternalLink>
+                </Show>
+                <Show when={config.docsUrl}>
+                    {" "}
+                    |{" "}
+                    <ExternalLink href={config.docsUrl}>
+                        {t("docs")}
+                    </ExternalLink>
+                </Show>
             </p>
             <p class="version">
                 {t("version")}:{" "}
