@@ -72,7 +72,12 @@ const Nav = (props: { network: string; isPro?: boolean }) => {
                         {t("history")}
                     </A>
                     <Show when={config.tetherUrl}>
-                        <a class="external" href={siteUrl("liq2sol")}>
+                        {/* Another site on the same origin: rel="external" keeps the router from handling it as one of this app's pages. */}
+                        <a
+                            class="external"
+                            rel="external"
+                            href={siteUrl("liq2sol")}
+                            onClick={() => setHamburger(false)}>
                             {t("tether")}
                             <img
                                 class="link-mark"
