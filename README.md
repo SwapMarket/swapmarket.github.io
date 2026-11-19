@@ -36,6 +36,15 @@ hosted, built and deployed publicly. Github
 provenance upon deployment. This makes our swaps completely trustless, unlike
 the original Boltz itself (unless you self-hosted their web app).
 
+To check the live app yourself, run `./check-page.sh` (or
+`./check-page.sh <address>` for a copy, such as the nsite at
+`https://npub1xhklzztd83v34zsf9da2gvfrctj5wcsvsx09er9v26jy7r0uq8yq4vme7d.nsite.lol/`).
+It takes the file list from the latest "Deploy main" build, fetches every file
+from the site, and checks that each one is that build's and is attested by this
+repository. It needs curl and the GitHub CLI (`gh`), logged in; with gh 2.49 or
+newer it also verifies each attestation's signature, and with an older one it
+only asks GitHub's API.
+
 The web app is static. All your settings, logs and transaction history are
 stored only in your browser's cookies and cache. If you wish to shield your IP
 address from Github and API backends, you can use any VPN or Tor Browser. We
