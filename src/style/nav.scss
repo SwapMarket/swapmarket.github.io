@@ -5,7 +5,7 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    padding: 14px 8px;
+    padding: 8px 16px;
 }
 @media (min-width: 769px) {
     .nav-inner {
@@ -90,11 +90,20 @@ nav a.active {
     display: block;
 }
 
+#logo {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 28px;
+}
 #logo img {
-    width: 100%;
-    max-width: 165px;
-    padding-right: 21px;
-    padding-left: 8px;
+    display: block;
+    height: 28px;
+    width: auto;
+}
+@media (max-width: 500px) {
+    #logo {
+        margin-right: 12px;
+    }
 }
 #logo-mask {
     display: inline-block;
@@ -135,6 +144,8 @@ nav a.active {
     user-select: none;
     z-index: 1000;
     margin-left: auto;
+    width: 34px;
+    height: 34px;
 }
 
 #hamburger.active {
@@ -228,8 +239,7 @@ body:has(#hamburger.active) {
     }
 
     #collapse a {
-        margin-left: 13px;
-        padding-left: 13px;
+        padding: 2px 14px;
         border-left: 1px solid var(--color-white-30);
         display: inline;
     }
