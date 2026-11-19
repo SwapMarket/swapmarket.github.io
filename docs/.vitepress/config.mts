@@ -5,6 +5,9 @@ const docsRoot = `${appUrl}/docs/`;
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+    // One page at a time, so the search index lists the pages in the same order on every build, and the docs build reproducibly
+    // (reproducible/README.md). With the default of 64 they land in the order they finish.
+    buildConcurrency: 1,
     title: "Boltz Web App",
     description: "Boltz Web App Docs",
     base: "/docs/",
