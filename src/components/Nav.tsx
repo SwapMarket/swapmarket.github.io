@@ -72,8 +72,21 @@ const Nav = (props: { network: string; isPro?: boolean }) => {
                         {t("history")}
                     </A>
                     <Show when={config.tetherUrl}>
-                        <a class="external" href={siteUrl("liq2sol")}>
+                        {/* Another site on the same origin: rel="external" keeps the router from handling it as one of this app's pages. */}
+                        <a
+                            class="external"
+                            rel="external"
+                            href={siteUrl("liq2sol")}
+                            onClick={() => setHamburger(false)}>
                             {t("tether")}
+                            {/* Floated right, so the first is the rightmost: Tether, then USDC. */}
+                            <img
+                                class="link-mark"
+                                src="usdc-logo.svg"
+                                alt=""
+                                width="24"
+                                height="24"
+                            />
                             <img
                                 class="link-mark"
                                 src="tether-usdt-logo.svg"
