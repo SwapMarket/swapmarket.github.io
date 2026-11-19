@@ -1,4 +1,6 @@
-# Simple workflow for deploying static content to GitHub Pages
+# Builds the site in the pinned image (reproducible/), twice on two machines, and deploys it to GitHub Pages only if the two builds
+# agree byte for byte. Anyone can rebuild a deployed commit and get the same bytes: ./check-page.sh compares the live site with a
+# rebuild. No secret is needed: the api-auth module is committed, built by "Build api-auth".
 name: Deploy main
 
 on:
@@ -26,17 +28,13 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
-    # Deploy mainnet
-    deploy:
+    build:
         # By hand, or after a green CI run on a push to main. A PR's CI run, which can come from a fork, never deploys.
         if: >-
             github.event_name == 'workflow_dispatch' ||
             (github.event.workflow_run.conclusion == 'success' &&
             github.event.workflow_run.event == 'push')
-        environment:
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -44,60 +42,78 @@ jobs:
                   # The commit CI tested, not whatever main has become since
                   ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
-            - name: Set up Node
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 24
-                  cache: "npm"
+            - name: Build the site, as anyone can
+              run: reproducible/build-page.sh HEAD dist
 
-            - name: Install dependencies
-              run: npm install
-
-            - name: Copy config
-              run: npm run mainnet
-
-            - name: Set up Rust wasm toolchain
-              run: |
-                  rustup target add wasm32-unknown-unknown
-                  cargo install wasm-pack --locked
-
-            - name: Build wasm-auth
-              env:
-                  VITE_API_AUTH_SECRET_MIDDLEWAY:
-                      ${{ secrets.VITE_API_AUTH_SECRET_MIDDLEWAY }}
-              run: npm run build:wasm-auth
-
-            - name: Build
-              env:
-                  VITE_RSK_LOG_SCAN_ENDPOINT: ""
-              run: npm run build
-
-            # Kept so "Deploy docs" can republish the app without rebuilding it
-            - name: Upload app build
+            # Kept for scripts that need the app without the docs, such as publishing it as an nsite
+            - name: Upload the app build
               uses: actions/upload-artifact@v4
               with:
                   name: app-dist
-                  path: "./dist"
-                  include-hidden-files: true
+                  path: |
+                      dist
+                      !dist/docs
+                      !dist/SHA256SUMS
                   retention-days: 90
 
-            - name: Build docs
-              run: npx vitepress build docs --outDir dist/docs
-
-            - name: Setup Pages
-              uses: actions/configure-pages@v4
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: sums
+                  path: dist/SHA256SUMS
 
             - name: Attest build provenance
               uses: actions/attest-build-provenance@v1
               with:
                   subject-path: "${{ github.workspace }}/dist"
 
-            - name: Upload artifact
-              uses: actions/upload-pages-artifact@v3
+            - uses: actions/upload-pages-artifact@v3
               with:
-                  # Upload dist folder
                   path: "./dist"
 
+    # The same build on another machine, at the same time. Nothing is deployed unless the two agree byte for byte.
+    rebuild:
+        if: >-
+            github.event_name == 'workflow_dispatch' ||
+            (github.event.workflow_run.conclusion == 'success' &&
+            github.event.workflow_run.event == 'push')
+        runs-on: ubuntu-24.04
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+            - name: Build again
+              run: reproducible/build-page.sh HEAD dist
+
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: sums-rebuild
+                  path: dist/SHA256SUMS
+
+    compare:
+        needs: [build, rebuild]
+        runs-on: ubuntu-24.04
+        steps:
+            - uses: actions/download-artifact@v4
+              with:
+                  name: sums
+                  path: first
+            - uses: actions/download-artifact@v4
+              with:
+                  name: sums-rebuild
+                  path: second
+            - name: Compare
+              run:
+                  diff first/SHA256SUMS second/SHA256SUMS && echo "the two
+                  builds are identical"
+
+    deploy:
+        needs: [build, compare]
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        runs-on: ubuntu-24.04
+        steps:
             - name: Deploy to GitHub Pages
               id: deployment
               uses: actions/deploy-pages@v4

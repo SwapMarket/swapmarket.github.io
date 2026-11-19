@@ -1,13 +1,9 @@
 # Redeploy only the docs, reusing the app built by the last "Deploy main" run
 name: Deploy docs
 
+# No longer runs on pushes: "Deploy main" builds the docs too, reproducibly, after CI passes on any push to main. Running this by
+# hand publishes docs built outside the pinned image, which check-page.sh would then report as different.
 on:
-    push:
-        branches: ["main"]
-        paths:
-            - "docs/**"
-
-    # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
 
 permissions:

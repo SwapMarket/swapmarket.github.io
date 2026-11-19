@@ -1,64 +1,50 @@
 #!/usr/bin/env bash
-# Check the published app against its GitHub build. The build compiles in a secret, so no one else can rebuild it byte for byte;
-# instead, each file is tied to this repository by the build's attestation ("Attest build provenance" in .github/workflows/deploy
-# main.yml), signed through GitHub's Sigstore.
-#
-# The file list is the latest successful "Deploy main" build (its app-dist artifact), since the app's code is obfuscated and names
-# the files it loads only at run time. Every one of them is fetched from the site and must be attested, and the same as that build.
-# A changed file fails, and a file the build doesn't have can only be loaded by changing one it does.
-#
-# Usage: ./check-page.sh [SITE_URL]   (default https://swapmarket.github.io/; the nsite's address works too, and has no docs)
-# Needs curl and gh, logged in. With gh 2.49 or newer each attestation's signature is verified (gh attestation verify). With an
-# older gh it only asks GitHub's API whether it holds an attestation for each file's hash, which trusts GitHub's answer, and says so.
+# Check the published app against its source: read the commit the site says it is (index.html's build-commit), rebuild that
+# commit in the pinned image (reproducible/build-page.sh), and compare every file the site serves with the rebuild, byte for byte.
+# Usage: ./check-page.sh [SITE_URL]   (default https://swapmarket.github.io/; the nsite's address works too)
+# Needs Docker, curl, and this repository with that commit fetched (it fetches if needed). With gh 2.49 or newer, logged in, it
+# also checks the attestation of the one file no one else can rebuild, the api-auth module (src/wasm/api-auth/README.md).
 set -euo pipefail
 
 site=${1:-https://swapmarket.github.io/}
 site=${site%/}/
-gh_repo=SwapMarket/swapmarket.github.io
+repo=$(cd "$(dirname "$0")" && pwd)
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-if gh attestation --help >/dev/null 2>&1; then verify=signature; else
-  verify=api
-  echo "this gh has no 'attestation' command (it needs 2.49 or newer), so only GitHub's API is asked, and no signature is checked"
+curl -fsSL -o "$work/index.html" "${site}index.html"
+commit=$(grep -o '<meta name="build-commit" content="[0-9a-f]\{40\}"' "$work/index.html" | grep -o '[0-9a-f]\{40\}' || true)
+[ -n "$commit" ] || { echo "the site names no build commit (it predates reproducible builds)" >&2; exit 1; }
+echo "the site says it is commit $commit"
+git -C "$repo" rev-parse --verify -q "$commit^{commit}" >/dev/null || git -C "$repo" fetch -q origin
+"$repo/reproducible/build-page.sh" "$commit" "$work/built" >/dev/null
+
+# A copy on Nostr has neither the docs, which stay on GitHub Pages, nor SHA256SUMS, since NIP-5A paths need an extension.
+copy=0
+[ "$site" = "https://swapmarket.github.io/" ] || copy=1
+bad=0
+while read -r want file; do
+  file=${file#./}
+  if ! curl -fsSL -o "$work/live" "$site$file"; then
+    if [ "$copy" = 1 ] && [[ $file == docs/* ]]; then continue; fi
+    echo "MISSING $file"; bad=1; continue
+  fi
+  if [ "$(sha256sum "$work/live" | cut -d' ' -f1)" = "$want" ]; then echo "same    $file"; else echo "DIFFERS $file"; bad=1; fi
+done < "$work/built/SHA256SUMS"
+if [ "$copy" = 0 ]; then
+  if curl -fsSL -o "$work/live" "${site}SHA256SUMS" && cmp -s "$work/live" "$work/built/SHA256SUMS"; then echo "same    SHA256SUMS"
+  else echo "DIFFERS SHA256SUMS"; bad=1; fi
 fi
 
-read -r run sha < <(gh run list -R "$gh_repo" -w "Deploy main" -s success -L 1 --json databaseId,headSha -q '.[0] | "\(.databaseId) \(.headSha)"') || true
-[ -n "${run:-}" ] || { echo "no successful run of Deploy main" >&2; exit 1; }
-echo "the latest build: run $run, commit ${sha::12}"
-gh run download "$run" -R "$gh_repo" -n app-dist -D "$work/build"
+# The api-auth module is committed as built by a workflow that has the secret; its attestation ties it to this repository.
+if gh attestation --help >/dev/null 2>&1; then
+  for wasm in "$work"/built/assets/api_auth_bg-*.wasm; do
+    if gh attestation verify "$wasm" --repo SwapMarket/swapmarket.github.io >/dev/null 2>&1; then echo "attested ${wasm#"$work/built/"}"
+    else echo "NOT ATTESTED ${wasm#"$work/built/"}"; bad=1; fi
+  done
+else
+  echo "skipped: the api-auth module's attestation (needs gh 2.49 or newer)"
+fi
 
-# First every file is fetched and compared with the build; then each one's attestation is checked, several at a time, since
-# gh attestation verify takes seconds per file.
-bad=0 n=0
-mkdir "$work/live"
-while IFS= read -r -d '' f; do
-  rel=${f#"$work/build/"}
-  n=$((n + 1))
-  mkdir -p "$(dirname "$work/live/$rel")"
-  if ! curl -fsSL -o "$work/live/$rel" "$site$rel"; then echo "MISSING      $rel"; bad=1; rm -f "$work/live/$rel"
-  elif ! cmp -s "$work/live/$rel" "$f"; then echo "DIFFERS      $rel"; bad=1; rm -f "$work/live/$rel"; fi
-done < <(find "$work/build" -type f -not -path "$work/build/docs/*" -print0 | sort -z)
-
-check_one() {
-  local file=$1 rel=${1#"$work/live/"} ok=0
-  if [ "$verify" = signature ]; then
-    # Parallel runs can trip over gh's shared Sigstore setup ("public good verifier is not available"), so a failure is retried.
-    for _ in 1 2 3; do gh attestation verify "$file" --repo "$gh_repo" >/dev/null 2>&1 && { ok=1; break; }; done
-  else
-    local digest
-    digest=$(sha256sum "$file" | cut -d' ' -f1)
-    [ "$(gh api "/repos/$gh_repo/attestations/sha256:$digest" -q '.attestations | length' 2>/dev/null || echo 0)" -gt 0 ] && ok=1
-  fi
-  if [ "$ok" = 1 ]; then echo "same, attested $rel"; else echo "NOT ATTESTED $rel"; fi
-}
-export -f check_one
-export work verify gh_repo
-# One verification on its own first, so gh sets up its Sigstore data before the parallel ones start.
-[ "$verify" != signature ] || [ ! -f "$work/live/index.html" ] || gh attestation verify "$work/live/index.html" --repo "$gh_repo" >/dev/null 2>&1 || true
-results=$(find "$work/live" -type f -print0 | xargs -0 -n 1 -P 8 bash -c 'check_one "$1"' _ | sort -k3)
-echo "$results"
-! grep -q '^NOT ATTESTED' <<<"$results" || bad=1
-
-if [ "$bad" = 0 ]; then echo "all $n files at $site are commit ${sha::12}'s build, attested by $gh_repo ($verify check)"; else
-  echo "$site is NOT exactly commit ${sha::12}'s attested build (if a deploy is running, try again when it is done)" >&2; exit 1; fi
+if [ "$bad" = 0 ]; then echo "the site is exactly commit $commit, rebuilt here"; else
+  echo "the site is NOT what commit $commit builds" >&2; exit 1; fi

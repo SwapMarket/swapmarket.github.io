@@ -36,14 +36,9 @@ hosted, built and deployed publicly. Github
 provenance upon deployment. This makes our swaps completely trustless, unlike
 the original Boltz itself (unless you self-hosted their web app).
 
-To check the live app yourself, run `./check-page.sh` (or
-`./check-page.sh <address>` for a copy, such as the nsite at
-`https://npub1xhklzztd83v34zsf9da2gvfrctj5wcsvsx09er9v26jy7r0uq8yq4vme7d.nwb.tf/`).
-It takes the file list from the latest "Deploy main" build, fetches every file
-from the site, and checks that each one is that build's and is attested by this
-repository. It needs curl and the GitHub CLI (`gh`), logged in; with gh 2.49 or
-newer it also verifies each attestation's signature, and with an older one it
-only asks GitHub's API.
+The build is also reproducible: anyone can rebuild a deployed commit and get the
+same bytes as the live site. See
+[How to verify the site](#how-to-verify-the-site).
 
 The web app is static. All your settings, logs and transaction history are
 stored only in your browser's cookies and cache. If you wish to shield your IP
@@ -53,6 +48,28 @@ also host an
 mirror, but you will sacrifice code transparency when using it. The most private
 and secure way is to
 [self-host our web app](https://swapmarket.github.io/docs/).
+
+## How to verify the site
+
+You need Docker, git and curl, plus the GitHub CLI (`gh`) 2.49 or newer, logged
+in, for the last step.
+
+1. Clone this repository:
+   `git clone https://github.com/SwapMarket/swapmarket.github.io && cd swapmarket.github.io`
+2. Run `./check-page.sh`. It reads the commit the live site names in its
+   `index.html`, rebuilds that commit in a pinned container
+   (`reproducible/build-page.sh`), and compares every file the site serves with
+   the rebuild, byte for byte. The first run takes several minutes.
+3. To check a copy on Nostr instead, give its address:
+   `./check-page.sh https://npub1xhklzztd83v34zsf9da2gvfrctj5wcsvsx09er9v26jy7r0uq8yq4vme7d.nwb.tf/`
+4. One file can't be rebuilt without a secret: the api-auth module, which signs
+   requests to the Middle Way backend. It is committed in `src/wasm/api-auth`,
+   built by the "Build api-auth" workflow, which has the secret. With `gh`, the
+   script checks that module's attestation, which ties it to this repository.
+
+It ends with "the site is exactly commit …, rebuilt here", or lists each file
+that is missing or different. Details are in
+[reproducible/README.md](reproducible/README.md).
 
 ## Onboarding
 
