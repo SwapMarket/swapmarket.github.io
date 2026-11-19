@@ -80,6 +80,9 @@ const defaults = {
     repoUrl: "https://github.com/SwapMarket/swapmarket.github.io",
     docsUrl: "https://swapmarket.github.io/docs/",
     tetherUrl: "https://swapmarket.github.io/liq2sol",
+    // The gateway the footer's Nsite link uses for this app's copy on Nostr (src/utils/sites.ts). nsite.lol never picked up a later
+    // manifest of a site it had served, while nwb.tf showed each within minutes (2026-11-19).
+    nsiteGateway: "nwb.tf",
     partnerUrl: "https://partner.boltz.exchange",
     nostrUrl: "https://iris.to/swapmarket",
     statusUrl: "https://status.boltz.exchange",
