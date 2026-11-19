@@ -1,0 +1,15 @@
+{
+  "name": "api-auth",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "api_auth_bg.wasm",
+    "api_auth.js",
+    "api_auth.d.ts"
+  ],
+  "main": "api_auth.js",
+  "types": "api_auth.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

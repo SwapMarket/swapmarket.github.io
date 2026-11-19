@@ -19,6 +19,9 @@ const obfuscatorConfig = {
     autoExcludeNodeModules: false,
     threadPool: false,
     options: {
+        // A fixed seed makes the obfuscation the same on every build of the same source, so anyone can rebuild the site byte for
+        // byte (reproducible/README). 0 would mean a random seed.
+        seed: 1,
         compact: true,
         // Left off: quadruples bundle size, poor cost/benefit vs. the rest
         controlFlowFlattening: false,
@@ -60,10 +63,11 @@ const obfuscatorConfig = {
     },
 };
 
-const commitHash = child
-    .execSync("git rev-parse --short HEAD")
-    .toString()
-    .trim();
+// The reproducible build (reproducible/build-inside.sh) has no .git and passes the commit in GIT_COMMIT.
+const fullCommit = (
+    process.env.GIT_COMMIT ?? child.execSync("git rev-parse HEAD").toString()
+).trim();
+const commitHash = fullCommit.slice(0, 7);
 
 const packageJson = JSON.parse(
     fs.readFileSync(path.join(__dirname, "package.json"), "utf8"),
@@ -96,12 +100,8 @@ try {
     process.exit(1);
 }
 
-// wasm/api-auth's real output is gitignored (it has secrets baked in), so a
-// fresh checkout has nothing at this path for Vite to statically resolve
-// the dynamic import in src/lazy/apiAuth.ts against - build/dev/test would
-// hard-fail otherwise, for every config, whether or not it even uses
-// "authSecretEnv". Stub it in when missing; "npm run build:wasm-auth"
-// overwrites this with the real thing when it runs
+// The built wasm/api-auth is committed in src/wasm/api-auth (built by the "Build api-auth" workflow, which has the secret; see
+// src/wasm/api-auth/README.md). Should it be missing, a stub keeps Vite able to resolve the dynamic import in src/lazy/apiAuth.ts
 const wasmAuthDir = path.resolve(__dirname, "src/wasm/api-auth");
 const wasmAuthEntry = path.join(wasmAuthDir, "api_auth.js");
 
@@ -129,6 +129,15 @@ export default defineConfig({
         topLevelAwait(),
         nodePolyfills(),
         vitePluginBundleObfuscator(obfuscatorConfig),
+        // The full commit in index.html, where check-page.sh reads which commit a live copy says it is
+        {
+            name: "build-commit",
+            transformIndexHtml: (html) =>
+                html.replace(
+                    "</head>",
+                    `    <meta name="build-commit" content="${fullCommit}" />\n    </head>`,
+                ),
+        },
     ],
     resolve: {
         alias: {
