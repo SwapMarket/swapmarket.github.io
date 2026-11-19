@@ -5,17 +5,28 @@ export const key36 = "1cdzwdkc0uepk5ll8mhpcbyw3xh8gakldbfdq8fphhqnv503bc";
 export const npub =
     "npub1xhklzztd83v34zsf9da2gvfrctj5wcsvsx09er9v26jy7r0uq8yq4vme7d";
 
-// name: "liq2sol", "sol2base", "eth2base", or "" for this app.
-export const siteUrl = (
-    name: string,
+// The gateway the app is served from, when it is one of SwapMarket's nsites; null anywhere else. An app already on Nostr needs no
+// link to its copy on Nostr.
+export const nsiteGateway = (
     hostname: string = window.location.hostname,
-): string => {
+): string | null => {
     const [label, ...gateway] = hostname.split(".");
     const named =
         label.startsWith(key36) &&
         /^[a-z0-9-]{1,13}$/.test(label.slice(key36.length));
-    if (gateway.length > 0 && (label === npub || named)) {
-        return `https://${name ? key36 + name : npub}.${gateway.join(".")}/`;
+    return gateway.length > 0 && (label === npub || named)
+        ? gateway.join(".")
+        : null;
+};
+
+// name: "liq2sol", "sol2base", "eth2base", "sol2tron", or "" for this app.
+export const siteUrl = (
+    name: string,
+    hostname: string = window.location.hostname,
+): string => {
+    const gateway = nsiteGateway(hostname);
+    if (gateway !== null) {
+        return `https://${name ? key36 + name : npub}.${gateway}/`;
     }
     return `https://swapmarket.github.io/${name ? `${name}/` : ""}`;
 };

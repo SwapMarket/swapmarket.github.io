@@ -6,7 +6,7 @@ import simplex from "../assets/simplex.svg";
 import { config } from "../config";
 import { useGlobalContext } from "../context/Global";
 import "../style/footer.scss";
-import { nsiteUrl } from "../utils/sites";
+import { nsiteGateway, nsiteUrl } from "../utils/sites";
 import ExternalLink from "./ExternalLink";
 
 const Footer = () => {
@@ -60,7 +60,7 @@ const Footer = () => {
                         {t("onion")}
                     </ExternalLink>
                 </Show>
-                <Show when={config.nsiteGateway}>
+                <Show when={config.nsiteGateway && nsiteGateway() === null}>
                     {" "}
                     |{" "}
                     <ExternalLink href={nsiteUrl("", config.nsiteGateway)}>
