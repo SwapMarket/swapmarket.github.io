@@ -17,7 +17,9 @@ commit=$(grep -o '<meta name="build-commit" content="[0-9a-f]\{40\}"' "$work/ind
 [ -n "$commit" ] || { echo "the site names no build commit (it predates reproducible builds)" >&2; exit 1; }
 echo "the site says it is commit $commit"
 git -C "$repo" rev-parse --verify -q "$commit^{commit}" >/dev/null || git -C "$repo" fetch -q origin
-"$repo/reproducible/build-page.sh" "$commit" "$work/built" >/dev/null
+echo "rebuilding it in the pinned image, which takes several minutes the first time"
+"$repo/reproducible/build-page.sh" "$commit" "$work/built" >/dev/null 2>"$work/build.log" || {
+  tail -n 30 "$work/build.log" >&2; echo "the rebuild failed" >&2; exit 1; }
 
 # A copy on Nostr has neither the docs, which stay on GitHub Pages, nor SHA256SUMS, since NIP-5A paths need an extension.
 copy=0
