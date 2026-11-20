@@ -29,10 +29,14 @@ body {
     color: var(--color-secondary-700);
 }
 
+/* The gap above the footer comes from the block before it: the card's 14px margin. */
 footer {
     text-align: center;
     padding: 12px 0;
-    margin-top: 42px;
+    margin-top: 0;
+}
+footer h4 {
+    margin-top: 0;
 }
 
 .flex {
@@ -682,7 +686,7 @@ textarea.invalid {
 /* 14px below the menu, with a 16px gutter and rounded corners on phones, as on SwapMarket's other sites. */
 @media (max-width: 488px) {
     .frame {
-        margin: 14px 16px 0;
+        margin: 14px 16px;
         border: 1px solid var(--color-white-10);
         border-radius: 12px;
     }
@@ -690,7 +694,7 @@ textarea.invalid {
 @media (min-width: 488px) {
     .frame {
         margin-top: 14px;
-        margin-bottom: 56px;
+        margin-bottom: 14px;
         border: 1px solid var(--color-white-10);
         border-radius: 16px;
     }

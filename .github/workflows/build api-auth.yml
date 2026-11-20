@@ -1,0 +1,43 @@
+# Builds wasm/api-auth with the API secret baked in, attests every file, and uploads them. Run it by hand when the secret or
+# wasm/api-auth changes, then bring the files into the repository with reproducible/update-api-auth.sh <run id> and commit them.
+# This is the only build that needs the secret: the site itself builds reproducibly from the committed files (reproducible/README.md).
+name: Build api-auth
+
+on:
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    id-token: write
+    attestations: write
+
+jobs:
+    build:
+        runs-on: ubuntu-24.04
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Set up the Rust wasm toolchain
+              run: |
+                  rustup target add wasm32-unknown-unknown
+                  cargo install wasm-pack --version 0.13.1 --locked
+
+            - name: Build, with the secret
+              env:
+                  VITE_API_AUTH_SECRET_MIDDLEWAY:
+                      ${{ secrets.VITE_API_AUTH_SECRET_MIDDLEWAY }}
+              working-directory: wasm/api-auth
+              run: |
+                  test -n "$VITE_API_AUTH_SECRET_MIDDLEWAY" || { echo "the secret is not set" >&2; exit 1; }
+                  env RUSTFLAGS='' wasm-pack build --target web --out-dir "$RUNNER_TEMP/api-auth" --release
+                  rm -f "$RUNNER_TEMP/api-auth/.gitignore"
+
+            - name: Attest every file
+              uses: actions/attest-build-provenance@v1
+              with:
+                  subject-path: "${{ runner.temp }}/api-auth/*"
+
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: api-auth
+                  path: ${{ runner.temp }}/api-auth

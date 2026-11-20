@@ -1,1 +1,3 @@
 src/utils/dnssec/dnssec*
+src/wasm/api-auth/api_auth*
+src/wasm/api-auth/package.json

@@ -1,4 +1,10 @@
-import { key36, npub, nsiteUrl, siteUrl } from "../../src/utils/sites";
+import {
+    key36,
+    npub,
+    nsiteGateway,
+    nsiteUrl,
+    siteUrl,
+} from "../../src/utils/sites";
 
 describe("siteUrl", () => {
     test("links go to GitHub Pages from anywhere but an nsite", () => {
@@ -50,5 +56,18 @@ describe("siteUrl", () => {
         expect(nsiteUrl("liq2sol", "nwb.tf")).toEqual(
             `https://${key36}liq2sol.nwb.tf/`,
         );
+    });
+
+    test("nsiteGateway knows when the app is already one of SwapMarket's nsites", () => {
+        expect(nsiteGateway(`${npub}.nwb.tf`)).toEqual("nwb.tf");
+        expect(nsiteGateway(`${key36}liq2sol.nsite.lol`)).toEqual("nsite.lol");
+        for (const host of [
+            "swapmarket.github.io",
+            "localhost",
+            `${"0".repeat(50)}liq2sol.nwb.tf`,
+            npub,
+        ]) {
+            expect(nsiteGateway(host)).toBeNull();
+        }
     });
 });
