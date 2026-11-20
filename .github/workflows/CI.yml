@@ -13,6 +13,10 @@ on:
 
 jobs:
     ci:
+        # A PR from this repository's own branch is already tested by the push to that branch; only PRs from forks run here.
+        if:
+            github.event_name != 'pull_request' ||
+            github.event.pull_request.head.repo.full_name != github.repository
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
@@ -38,6 +42,10 @@ jobs:
             - run: npm run tsc
 
     e2e:
+        # A PR from this repository's own branch is already tested by the push to that branch; only PRs from forks run here.
+        if:
+            github.event_name != 'pull_request' ||
+            github.event.pull_request.head.repo.full_name != github.repository
         timeout-minutes: 60
         # Playwright can't install Chromium on ubuntu-latest (26.04) yet
         runs-on: ubuntu-24.04
@@ -90,7 +98,10 @@ jobs:
                   retention-days: 1
 
     playwright-reports:
-        if: ${{ !cancelled() }}
+        if:
+            ${{ !cancelled() && (github.event_name != 'pull_request' ||
+            github.event.pull_request.head.repo.full_name != github.repository)
+            }}
         needs: [e2e]
         runs-on: ubuntu-latest
         steps:
